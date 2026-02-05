@@ -285,3 +285,119 @@ sections:
                 required: false
                 value_type: text
 
+      - id: model_structure_and_representation
+        title: "Model Structure and Mathematical Representation"
+        description: >
+          Description of the structural organization and mathematical
+          representation of the PBPK model, including compartments,
+          interconnections, and implementation references.
+        required: true
+
+        items:
+          - id: model_structure_description
+            label: "Model structure description"
+            description: >
+              Narrative description of the overall PBPK model structure,
+              including how compartments are organized and connected.
+            required: true
+            value_type: text
+            cardinality: one
+
+          - id: structural_compartments
+            label: "Structural compartments"
+            description: >
+              List of compartments included in the PBPK model and their
+              role within the model structure.
+            required: true
+            value_type: entity
+            cardinality: many
+
+            entity_fields:
+              - id: compartment_name
+                label: "Compartment name"
+                description: >
+                  Name of the compartment as used in the model.
+                required: true
+                value_type: string
+
+              - id: biological_reference
+                label: "Biological reference"
+                description: >
+                  Corresponding physiological compartment or tissue.
+                required: true
+                value_type: controlled_term
+
+              - id: compartment_description
+                label: "Compartment description"
+                description: >
+                  Description of the compartment’s role and assumptions.
+                required: false
+                value_type: text
+
+          - id: inter_compartmental_connections
+            label: "Inter-compartmental connections"
+            description: >
+              Description of flows or connections between compartments
+              included in the PBPK model.
+            required: true
+            value_type: entity
+            cardinality: many
+
+            entity_fields:
+              - id: source_compartment
+                label: "Source compartment"
+                required: true
+                value_type: string
+
+              - id: target_compartment
+                label: "Target compartment"
+                required: true
+                value_type: string
+
+              - id: connection_type
+                label: "Connection type"
+                description: >
+                  Nature of the connection between compartments.
+                required: true
+                value_type: controlled_term
+                examples:
+                  - "Blood flow"
+                  - "Diffusion"
+                  - "Permeation"
+
+          - id: mathematical_representation
+            label: "Mathematical representation"
+            description: >
+              Description of the mathematical form of the PBPK model
+              (e.g. system of ordinary differential equations).
+            required: true
+            value_type: controlled_text
+            examples:
+              - "Ordinary differential equations"
+              - "Algebraic equations"
+              - "Hybrid ODE-algebraic system"
+
+          - id: model_implementation_reference
+            label: "Model implementation reference"
+            description: >
+              Reference to the computational implementation of the model,
+              including file names or code locations.
+            required: true
+            value_type: entity
+            cardinality: many
+
+            entity_fields:
+              - id: implementation_type
+                label: "Implementation type"
+                required: true
+                value_type: controlled_term
+                examples:
+                  - "SBML"
+                  - "Python script"
+                  - "R script"
+
+              - id: implementation_location
+                label: "Implementation location"
+                required: true
+                value_type: string
+

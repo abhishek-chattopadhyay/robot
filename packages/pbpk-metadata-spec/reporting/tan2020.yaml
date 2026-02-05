@@ -1,0 +1,208 @@
+metadata_standard:
+  name: "PBPK Model Reporting Template"
+  source:
+    title: "PBPK model reporting template for chemical risk assessment applications"
+    authors: ["Tan", "et al."]
+    year: 2020
+    journal: "Regulatory Toxicology and Pharmacology"
+    doi: "10.1016/j.yrtph.2020.104673"
+  version: "1.0"
+
+sections:
+  - id: general_model_information
+    title: "General Model Information"
+    description: >
+      Information required to uniquely identify the PBPK model,
+      its provenance, authorship, licensing, and computational implementation.
+    required: true
+
+    items:
+      - id: model_name
+        label: "Model name"
+        description: >
+          A unique name identifying the PBPK model.
+        required: true
+        value_type: string
+        cardinality: one
+
+      - id: model_version
+        label: "Model version"
+        description: >
+          Version identifier of the model used for the reported simulations.
+        required: true
+        value_type: string
+        cardinality: one
+
+      - id: model_description
+        label: "Model description"
+        description: >
+          Brief narrative description of the model scope and purpose.
+        required: true
+        value_type: text
+        cardinality: one
+
+      - id: model_authors
+        label: "Model author(s)"
+        description: >
+          Person(s) who developed the PBPK model.
+        required: true
+        value_type: agent
+        cardinality: many
+        agent_fields:
+          - full_name
+          - orcid
+          - affiliation
+
+      - id: affiliations
+        label: "Author affiliation(s)"
+        description: >
+          Institutional affiliation(s) of the model authors.
+        required: false
+        value_type: organization
+        cardinality: many
+        organization_fields:
+          - name
+          - address
+          - country
+
+      - id: software_platform
+        label: "Software platform"
+        description: >
+          Software or programming environment used to implement the model.
+        required: true
+        value_type: controlled_term
+        allowed_values:
+          - SBML
+          - Python
+          - R
+          - MATLAB
+          - Other
+
+      - id: software_version
+        label: "Software version"
+        description: >
+          Version of the software or programming environment.
+        required: false
+        value_type: string
+        cardinality: one
+
+      - id: model_availability
+        label: "Model availability"
+        description: >
+          Persistent location(s) where the model code or files are available.
+        required: true
+        value_type: uri
+        cardinality: many
+
+      - id: license
+        label: "Model license"
+        description: >
+          License under which the PBPK model and associated metadata are released.
+        required: true
+        value_type: controlled_term
+        examples:
+          - "CC-BY-4.0"
+          - "CC-BY-NC-4.0"
+          - "MIT"
+          - "GPL-3.0"
+          - "Custom"
+
+      - id: intended_application
+        label: "Intended application"
+        description: >
+          Intended regulatory or scientific application of the PBPK model.
+        required: true
+        value_type: controlled_text
+        examples:
+          - "Human health risk assessment"
+          - "Dose extrapolation"
+          - "Chemical prioritization"
+
+      - id: limitations_summary
+        label: "Model limitations (summary)"
+        description: >
+          High-level description of known limitations of the model.
+        required: false
+        value_type: text
+        cardinality: one
+
+      - id: biological_system_description
+        title: "Biological System Description"
+        description: >
+          Description of the biological system(s) represented in the PBPK model,
+          including species, life stage, population characteristics, and
+          physiological compartments.
+        required: true
+
+        items:
+          - id: biological_systems
+            label: "Biological system(s)"
+            description: >
+              One or more biological systems represented by the PBPK model.
+              Each biological system corresponds to a specific species and
+              physiological context.
+            required: true
+            value_type: entity
+            cardinality: many
+
+            entity_fields:
+              - id: species
+                label: "Species"
+                description: >
+                  Biological species represented by the model.
+                required: true
+                value_type: controlled_term
+                examples:
+                  - "Homo sapiens"
+                  - "Rattus norvegicus"
+                  - "Mus musculus"
+
+              - id: life_stage
+                label: "Life stage"
+                description: >
+                  Life stage(s) of the organism represented (e.g. adult, juvenile).
+                required: true
+                value_type: controlled_term
+                examples:
+                  - "Adult"
+                  - "Neonate"
+                  - "Pregnant"
+
+              - id: population_description
+                label: "Population description"
+                description: >
+                  Description of the population represented by the model, including
+                  sex, health status, and any special characteristics.
+                required: false
+                value_type: text
+
+              - id: physiological_scope
+                label: "Physiological scope"
+                description: >
+                  Description of the physiological systems and processes represented
+                  (e.g. whole-body, specific organs).
+                required: true
+                value_type: controlled_text
+
+              - id: compartments
+                label: "Physiological compartments"
+                description: >
+                  Physiological compartments included in the PBPK model for this
+                  biological system.
+                required: true
+                value_type: controlled_term
+                cardinality: many
+                examples:
+                  - "Liver"
+                  - "Kidney"
+                  - "Blood"
+                  - "Lung"
+                  - "Fat"
+
+              - id: anatomical_assumptions
+                label: "Anatomical assumptions"
+                description: >
+                  Key anatomical assumptions made in representing the biological
+                  system.
+                required: false
+                value_type: text

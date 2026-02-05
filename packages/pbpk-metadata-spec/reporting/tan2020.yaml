@@ -157,12 +157,13 @@ sections:
                   - "Rattus norvegicus"
                   - "Mus musculus"
 
-              - id: life_stage
-                label: "Life stage"
+              - id: life_stages
+                label: "Life stage(s)"
                 description: >
                   Life stage(s) of the organism represented (e.g. adult, juvenile).
                 required: true
                 value_type: controlled_term
+                cardinality: many
                 examples:
                   - "Adult"
                   - "Neonate"
@@ -206,3 +207,81 @@ sections:
                   system.
                 required: false
                 value_type: text
+
+      - id: chemical_description
+        title: "Chemical(s) Description"
+        description: >
+          Description of the chemical substance(s) represented in the PBPK model,
+          including identity, role in the model, and key physicochemical properties
+          relevant to pharmacokinetics.
+        required: true
+
+        items:
+          - id: chemicals
+            label: "Chemical substance(s)"
+            description: >
+              One or more chemical substances represented in the PBPK model.
+            required: true
+            value_type: entity
+            cardinality: many
+
+            entity_fields:
+              - id: chemical_name
+                label: "Chemical name"
+                description: >
+                  Common or systematic name of the chemical substance.
+                required: true
+                value_type: string
+
+              - id: chemical_role
+                label: "Role in the model"
+                description: >
+                  Role of the chemical substance within the PBPK model.
+                required: true
+                value_type: controlled_term
+                examples:
+                  - "Parent compound"
+                  - "Metabolite"
+                  - "Co-exposure component"
+
+              - id: chemical_identifiers
+                label: "Chemical identifier(s)"
+                description: >
+                  Persistent identifiers for the chemical substance.
+                required: true
+                value_type: entity
+                cardinality: many
+
+                entity_fields:
+                  - id: identifier_type
+                    label: "Identifier type"
+                    required: true
+                    value_type: controlled_term
+                    examples:
+                      - "CAS RN"
+                      - "InChI"
+                      - "InChIKey"
+                      - "SMILES"
+                      - "PubChem CID"
+
+                  - id: identifier_value
+                    label: "Identifier value"
+                    required: true
+                    value_type: string
+
+              - id: molecular_weight
+                label: "Molecular weight"
+                description: >
+                  Molecular weight of the chemical substance.
+                required: false
+                value_type: number
+                unit: "g/mol"
+
+              - id: physicochemical_notes
+                label: "Physicochemical notes"
+                description: >
+                  Additional qualitative information relevant to the chemical
+                  properties affecting pharmacokinetics.
+                required: false
+                value_type: text
+

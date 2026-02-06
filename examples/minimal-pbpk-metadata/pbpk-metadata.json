@@ -1,0 +1,120 @@
+{
+  "general_model_information": {
+    "model_name": "Minimal PBPK Example Model",
+    "model_version": "0.1.0",
+    "model_description": "A minimal PBPK model used to demonstrate FAIR metadata validation.",
+    "model_authors": [
+      {
+        "full_name": "Example Author",
+        "orcid": "0000-0000-0000-0000",
+        "affiliation": "Example Institute"
+      }
+    ],
+    "software_platform": ["SBML"],
+    "model_availability": [
+      "https://example.org/repository-or-doi"
+    ],
+    "license": "CC-BY-4.0",
+    "intended_application_category": "Human health risk assessment"
+  },
+
+  "biological_system_description": {
+    "biological_systems": [
+      {
+        "species": "Homo sapiens",
+        "life_stages": ["Adult"],
+        "physiological_scope": "Whole-body PBPK scaffold",
+        "compartments": ["Blood", "Liver"]
+      }
+    ]
+  },
+
+  "chemical_description": {
+    "chemicals": [
+      {
+        "chemical_name": "ExampleChemical",
+        "chemical_role": "Parent compound",
+        "chemical_identifiers": [
+          {
+            "identifier_type": "CAS RN",
+            "identifier_value": "00-00-0"
+          }
+        ]
+      }
+    ]
+  },
+
+  "model_structure_and_representation": {
+    "model_structure_description": "Two-compartment PBPK scaffold with blood and liver.",
+    "structural_compartments": [
+      {
+        "compartment_name": "Blood",
+        "biological_reference": "Blood"
+      },
+      {
+        "compartment_name": "Liver",
+        "biological_reference": "Liver"
+      }
+    ],
+    "inter_compartmental_connections": [
+      {
+        "source_compartment": "Blood",
+        "target_compartment": "Liver",
+        "connection_type": "Blood flow"
+      }
+    ],
+    "mathematical_representation": "Ordinary differential equations",
+    "model_implementation_reference": [
+      {
+        "implementation_type": "SBML",
+        "implementation_location": "model/model.xml"
+      }
+    ]
+  },
+
+  "parameterisation": {
+    "parameters": [
+      {
+        "parameter_name": "Q_liver",
+        "parameter_category": "Physiological",
+        "parameter_value": 1.5,
+        "parameter_unit": "L/h",
+        "parameter_scope": "Species-specific",
+        "applicable_species": ["Homo sapiens"],
+        "applicable_compartments": ["Liver"],
+        "applicable_chemicals": ["ExampleChemical"],
+        "parameter_source": "Literature",
+        "source_reference": "DOI:10.0000/example"
+      }
+    ]
+  },
+
+  "model_evaluation_and_validation": {
+    "evaluation_activities": [
+      {
+        "evaluation_description": "Qualitative comparison of model structure against expected physiology.",
+        "evaluation_method": "Visual comparison",
+        "evaluation_outcome": "Model structure is consistent with expected compartmental layout."
+      }
+    ]
+  },
+
+  "model_applicability_and_limitations": {
+    "intended_use": "Demonstration of FAIR PBPK metadata validation.",
+    "applicability_domain": "Illustrative example only; not for regulatory use.",
+    "confidence_statement": "Low confidence; this is a minimal illustrative model.",
+    "known_limitations": "No kinetic equations or quantitative validation included."
+  },
+
+  "electronic_files_and_reproducibility": {
+    "digital_artifacts": [
+      {
+        "artifact_name": "PBPK model implementation",
+        "artifact_type": "Model code",
+        "artifact_format": "SBML",
+        "artifact_location": "model/model.xml"
+      }
+    ],
+    "reproducibility_instructions": "Open the SBML file in an SBML-compatible tool and inspect compartments."
+  }
+}

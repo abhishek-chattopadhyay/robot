@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/pbpk-metadata.schema.json",
+  "title": "PBPK Metadata (Tan et al. 2020) - v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "general_model_information",
+    "biological_system_description",
+    "chemical_description",
+    "model_structure_and_representation",
+    "parameterisation",
+    "model_evaluation_and_validation",
+    "model_applicability_and_limitations",
+    "electronic_files_and_reproducibility"
+  ],
+  "properties": {
+    "general_model_information": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_name",
+        "model_version",
+        "model_description",
+        "model_authors",
+        "software_platform",
+        "model_availability",
+        "license",
+        "intended_application_category"
+      ],
+      "properties": {
+        "model_name": { "type": "string", "minLength": 1 },
+        "model_version": { "type": "string", "minLength": 1 },
+        "model_description": { "type": "string", "minLength": 1 },
+
+        "model_authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["full_name"],
+            "properties": {
+              "full_name": { "type": "string", "minLength": 1 },
+              "orcid": { "type": "string", "minLength": 1 },
+              "affiliation": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+
+        "affiliations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "address": { "type": "string" },
+              "country": { "type": "string" }
+            }
+          }
+        },
+
+        "software_platform": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "software_version": { "type": "string" },
+
+        "model_availability": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+
+        "license": { "type": "string", "minLength": 1 },
+        "intended_application_category": { "type": "string", "minLength": 1 },
+        "limitations_summary": { "type": "string" }
+      }
+    },
+
+    "biological_system_description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["biological_systems"],
+      "properties": {
+        "biological_systems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["species", "life_stages", "physiological_scope", "compartments"],
+            "properties": {
+              "species": { "type": "string", "minLength": 1 },
+              "life_stages": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "population_description": { "type": "string" },
+              "physiological_scope": { "type": "string", "minLength": 1 },
+              "compartments": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "anatomical_assumptions": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "chemical_description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chemicals"],
+      "properties": {
+        "chemicals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["chemical_name", "chemical_role", "chemical_identifiers"],
+            "properties": {
+              "chemical_name": { "type": "string", "minLength": 1 },
+              "chemical_role": { "type": "string", "minLength": 1 },
+              "chemical_identifiers": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["identifier_type", "identifier_value"],
+                  "properties": {
+                    "identifier_type": { "type": "string", "minLength": 1 },
+                    "identifier_value": { "type": "string", "minLength": 1 }
+                  }
+                }
+              },
+              "molecular_weight": { "type": "number" },
+              "physicochemical_notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "model_structure_and_representation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_structure_description",
+        "structural_compartments",
+        "inter_compartmental_connections",
+        "mathematical_representation",
+        "model_implementation_reference"
+      ],
+      "properties": {
+        "model_structure_description": { "type": "string", "minLength": 1 },
+
+        "structural_compartments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["compartment_name", "biological_reference"],
+            "properties": {
+              "compartment_name": { "type": "string", "minLength": 1 },
+              "biological_reference": { "type": "string", "minLength": 1 },
+              "compartment_description": { "type": "string" }
+            }
+          }
+        },
+
+        "inter_compartmental_connections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_compartment", "target_compartment", "connection_type"],
+            "properties": {
+              "source_compartment": { "type": "string", "minLength": 1 },
+              "target_compartment": { "type": "string", "minLength": 1 },
+              "connection_type": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+
+        "mathematical_representation": { "type": "string", "minLength": 1 },
+
+        "model_implementation_reference": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["implementation_type", "implementation_location"],
+            "properties": {
+              "implementation_type": { "type": "string", "minLength": 1 },
+              "implementation_location": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+
+    "parameterisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "parameter_name",
+              "parameter_category",
+              "parameter_value",
+              "parameter_unit",
+              "parameter_scope",
+              "parameter_source"
+            ],
+            "properties": {
+              "parameter_name": { "type": "string", "minLength": 1 },
+              "parameter_category": { "type": "string", "minLength": 1 },
+              "parameter_value": { "type": "number" },
+              "parameter_unit": { "type": "string", "minLength": 1 },
+              "parameter_scope": { "type": "string", "minLength": 1 },
+
+              "applicable_species": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "applicable_compartments": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "applicable_chemicals": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+
+              "parameter_source": { "type": "string", "minLength": 1 },
+              "source_reference": { "type": "string" },
+              "parameter_notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "calibration_and_parameter_estimation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "calibration_activities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["calibration_description", "calibration_method"],
+            "properties": {
+              "calibration_description": { "type": "string", "minLength": 1 },
+              "calibration_method": { "type": "string", "minLength": 1 },
+              "calibration_data": { "type": "string" },
+              "calibrated_parameters": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "optimization_criteria": { "type": "string" },
+              "calibration_notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "model_evaluation_and_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluation_activities"],
+      "properties": {
+        "evaluation_activities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evaluation_description", "evaluation_method", "evaluation_outcome"],
+            "properties": {
+              "evaluation_description": { "type": "string", "minLength": 1 },
+              "evaluation_data": { "type": "string" },
+              "evaluation_method": { "type": "string", "minLength": 1 },
+
+              "performance_metrics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["metric_name"],
+                  "properties": {
+                    "metric_name": { "type": "string", "minLength": 1 },
+                    "metric_value": { "type": ["string", "number"] },
+                    "metric_interpretation": { "type": "string" }
+                  }
+                }
+              },
+
+              "evaluation_outcome": { "type": "string", "minLength": 1 },
+              "evaluation_limitations": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "sensitivity_uncertainty_variability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "suv_analyses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["analysis_type", "analysis_results"],
+            "properties": {
+              "analysis_type": { "type": "string", "minLength": 1 },
+              "analysis_method": { "type": "string" },
+              "analyzed_parameters": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "analysis_results": { "type": "string", "minLength": 1 },
+              "robustness_interpretation": { "type": "string" },
+              "suv_notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "model_applicability_and_limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intended_use",
+        "applicability_domain",
+        "confidence_statement",
+        "known_limitations"
+      ],
+      "properties": {
+        "intended_use": { "type": "string", "minLength": 1 },
+        "applicability_domain": { "type": "string", "minLength": 1 },
+        "confidence_statement": { "type": "string", "minLength": 1 },
+        "known_limitations": { "type": "string", "minLength": 1 },
+        "misuse_risks": { "type": "string" }
+      }
+    },
+
+    "electronic_files_and_reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digital_artifacts", "reproducibility_instructions"],
+      "properties": {
+        "digital_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["artifact_name", "artifact_type", "artifact_format", "artifact_location"],
+            "properties": {
+              "artifact_name": { "type": "string", "minLength": 1 },
+              "artifact_type": { "type": "string", "minLength": 1 },
+              "artifact_format": { "type": "string", "minLength": 1 },
+              "artifact_location": { "type": "string", "minLength": 1 },
+              "artifact_description": { "type": "string" }
+            }
+          }
+        },
+        "reproducibility_instructions": { "type": "string", "minLength": 1 },
+        "documentation_practices": { "type": "string" }
+      }
+    }
+  }
+}

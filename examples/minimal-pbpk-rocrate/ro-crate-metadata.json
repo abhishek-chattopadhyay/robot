@@ -1,0 +1,146 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    "../../packages/pbpk-metadata-spec/jsonld/pbpk-context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": { "@id": "https://w3id.org/ro/crate/1.1" },
+      "about": { "@id": "./" }
+    },
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "Minimal PBPK Model RO-Crate Example",
+      "description": "A minimal RO-Crate example demonstrating PBPK metadata structure based on Tan et al. (2020).",
+      "license": "CC-BY-4.0",
+      "creator": [{ "@id": "#person-1" }],
+      "hasPart": [
+        { "@id": "#pbpk-model" },
+        { "@id": "model/model.xml" },
+        { "@id": "docs/reproducibility.md" },
+        { "@id": "data/parameters.csv" }
+      ]
+    },
+    {
+      "@id": "#person-1",
+      "@type": "Person",
+      "name": "Example Author",
+      "identifier": "https://orcid.org/0000-0000-0000-0000",
+      "affiliation": { "@id": "#org-1" }
+    },
+    {
+      "@id": "#org-1",
+      "@type": "Organization",
+      "name": "Example Institute",
+      "address": "Example Street 1, 1234 AB",
+      "location": "Netherlands"
+    },
+    {
+      "@id": "#pbpk-model",
+      "@type": "ComputationalModel",
+      "name": "PBPK Example Model",
+      "version": "0.1.0",
+      "description": "Minimal PBPK model example with two compartments.",
+      "applicationCategory": "Human health risk assessment",
+      "programmingLanguage": ["SBML"],
+      "codeRepository": "https://example.org/repo-or-doi",
+      "pbpk:limitationsSummary": "Minimal scaffold; not intended for decision-making.",
+      "pbpk:hasBiologicalSystem": [{ "@id": "#biosys-1" }],
+      "pbpk:hasChemical": [{ "@id": "#chem-1" }],
+      "pbpk:hasParameter": [{ "@id": "#param-1" }, { "@id": "#param-2" }],
+      "pbpk:modelStructureDescription": "Two-compartment scaffold (Blood and Liver).",
+      "pbpk:mathematicalRepresentation": "Ordinary differential equations",
+      "purpose": "Demonstrate RO-Crate-native PBPK metadata structure for v1.",
+      "pbpk:applicabilityDomain": "Illustrative example only; not intended for regulatory use.",
+      "pbpk:confidenceStatement": "Low; this is a minimal scaffold.",
+      "pbpk:limitations": "Not a complete PBPK model; no kinetics or validation.",
+      "hasPart": [
+        { "@id": "model/model.xml" },
+        { "@id": "docs/reproducibility.md" },
+        { "@id": "data/parameters.csv" }
+      ]
+    },
+    {
+      "@id": "#biosys-1",
+      "@type": "BiologicalSystem",
+      "name": "Human adult system",
+      "pbpk:species": "Homo sapiens",
+      "pbpk:lifeStage": ["Adult"],
+      "description": "Population: adult humans (illustrative).",
+      "pbpk:physiologicalScope": "Whole-body PBPK scaffold (illustrative).",
+      "pbpk:compartments": ["Blood", "Liver"],
+      "pbpk:anatomicalAssumptions": "Simplified compartments only."
+    },
+    {
+      "@id": "#chem-1",
+      "@type": "ChemicalSubstance",
+      "name": "ExampleChemical",
+      "pbpk:chemicalRole": "Parent compound",
+      "identifier": [{ "@id": "#chem-1-id-1" }],
+      "description": "Placeholder chemical for metadata demonstration."
+    },
+    {
+      "@id": "#chem-1-id-1",
+      "@type": "PropertyValue",
+      "name": "CAS RN",
+      "value": "00-00-0"
+    },
+    {
+      "@id": "#param-1",
+      "@type": "Parameter",
+      "name": "Q_liver",
+      "category": "Physiological",
+      "value": 1.5,
+      "unitText": "L/h",
+      "pbpk:scope": "Species-specific",
+      "pbpk:appliesToSpecies": ["Homo sapiens"],
+      "pbpk:appliesToCompartments": ["Liver"],
+      "pbpk:appliesToChemicals": ["ExampleChemical"],
+      "pbpk:parameterSource": "Literature",
+      "citation": "DOI:10.0000/example",
+      "description": "Example liver blood flow placeholder."
+    },
+    {
+      "@id": "#param-2",
+      "@type": "Parameter",
+      "name": "V_liver",
+      "category": "Physiological",
+      "value": 1.0,
+      "unitText": "L",
+      "pbpk:scope": "Species-specific",
+      "pbpk:appliesToSpecies": ["Homo sapiens"],
+      "pbpk:appliesToCompartments": ["Liver"],
+      "pbpk:appliesToChemicals": ["ExampleChemical"],
+      "pbpk:parameterSource": "Assumed",
+      "description": "Example liver volume placeholder."
+    },
+    {
+      "@id": "model/model.xml",
+      "@type": "File",
+      "name": "PBPK model implementation (SBML)",
+      "encodingFormat": "application/xml",
+      "pbpk:artifactType": "Model code",
+      "pbpk:artifactFormat": "SBML"
+    },
+    {
+      "@id": "data/parameters.csv",
+      "@type": "File",
+      "name": "Parameter table",
+      "encodingFormat": "text/csv",
+      "pbpk:artifactType": "Parameter table",
+      "pbpk:artifactFormat": "CSV"
+    },
+    {
+      "@id": "docs/reproducibility.md",
+      "@type": "File",
+      "name": "Reproducibility instructions",
+      "encodingFormat": "text/markdown",
+      "pbpk:artifactType": "Documentation",
+      "pbpk:artifactFormat": "TXT",
+      "pbpk:reproducibilityInstructions": "See this file for step-by-step instructions."
+    }
+  ]
+}

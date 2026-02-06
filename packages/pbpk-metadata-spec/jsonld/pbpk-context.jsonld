@@ -1,0 +1,73 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    {
+      "@vocab": "https://schema.org/",
+
+      "pbpk": "https://example.org/pbpk#",
+
+      "ComputationalModel": "SoftwareSourceCode",
+      "BiologicalSystem": "Thing",
+      "ChemicalSubstance": "Thing",
+      "Parameter": "PropertyValue",
+
+      "hasBiologicalSystem": "pbpk:hasBiologicalSystem",
+      "hasChemical": "pbpk:hasChemical",
+      "hasParameter": "pbpk:hasParameter",
+
+      "hasCalibration": "pbpk:hasCalibration",
+      "hasEvaluation": "pbpk:hasEvaluation",
+      "hasSUVAnalysis": "pbpk:hasSUVAnalysis",
+
+      "species": "pbpk:species",
+      "lifeStage": "pbpk:lifeStage",
+      "physiologicalScope": "pbpk:physiologicalScope",
+      "compartments": "pbpk:compartments",
+      "anatomicalAssumptions": "pbpk:anatomicalAssumptions",
+
+      "chemicalRole": "pbpk:chemicalRole",
+
+      "limitationsSummary": "pbpk:limitationsSummary",
+      "modelStructureDescription": "pbpk:modelStructureDescription",
+      "mathematicalRepresentation": "pbpk:mathematicalRepresentation",
+
+      "structuralCompartments": "pbpk:structuralCompartments",
+      "biologicalReference": "pbpk:biologicalReference",
+
+      "connections": "pbpk:connections",
+      "sourceCompartment": "pbpk:sourceCompartment",
+      "targetCompartment": "pbpk:targetCompartment",
+      "connectionType": "pbpk:connectionType",
+
+      "scope": "pbpk:scope",
+      "appliesToSpecies": "pbpk:appliesToSpecies",
+      "appliesToCompartments": "pbpk:appliesToCompartments",
+      "appliesToChemicals": "pbpk:appliesToChemicals",
+
+      "parameterSource": "pbpk:parameterSource",
+
+      "analysisType": "pbpk:analysisType",
+      "method": "pbpk:method",
+      "outcome": "pbpk:outcome",
+      "limitations": "pbpk:limitations",
+
+      "calibrationData": "pbpk:calibrationData",
+      "calibratedParameters": "pbpk:calibratedParameters",
+      "optimizationCriteria": "pbpk:optimizationCriteria",
+      "evaluationData": "pbpk:evaluationData",
+      "performanceMetrics": "pbpk:performanceMetrics",
+      "analyzedParameters": "pbpk:analyzedParameters",
+      "robustnessInterpretation": "pbpk:robustnessInterpretation",
+      "notes": "pbpk:notes",
+
+      "applicabilityDomain": "pbpk:applicabilityDomain",
+      "confidenceStatement": "pbpk:confidenceStatement",
+      "misuseRisks": "pbpk:misuseRisks",
+      "documentationPractices": "pbpk:documentationPractices",
+
+      "artifactType": "pbpk:artifactType",
+      "artifactFormat": "pbpk:artifactFormat",
+      "reproducibilityInstructions": "pbpk:reproducibilityInstructions"
+    }
+  ]
+}

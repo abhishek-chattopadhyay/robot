@@ -1,0 +1,221 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    "pbpk-context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": { "@id": "https://w3id.org/ro/crate/1.1" },
+      "about": { "@id": "./" }
+    },
+
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "PBPK Model RO-Crate",
+      "description": "RO-Crate containing one PBPK model and associated metadata, data, and documentation.",
+      "license": "CC-BY-4.0",
+      "creator": [
+        { "@id": "#person-1" }
+      ],
+      "hasPart": [
+        { "@id": "#pbpk-model" },
+        { "@id": "docs/reproducibility.md" },
+        { "@id": "model/model.xml" }
+      ]
+    },
+
+    {
+      "@id": "#person-1",
+      "@type": "Person",
+      "name": "AUTHOR NAME",
+      "identifier": "https://orcid.org/0000-0000-0000-0000",
+      "affiliation": { "@id": "#org-1" }
+    },
+
+    {
+      "@id": "#org-1",
+      "@type": "Organization",
+      "name": "INSTITUTION NAME",
+      "address": "INSTITUTION ADDRESS",
+      "location": "COUNTRY"
+    },
+
+    {
+      "@id": "#pbpk-model",
+      "@type": "ComputationalModel",
+      "name": "MODEL NAME",
+      "version": "MODEL VERSION",
+      "description": "MODEL DESCRIPTION",
+      "applicationCategory": "INTENDED APPLICATION CATEGORY",
+      "programmingLanguage": ["SBML"],
+      "codeRepository": "REPOSITORY OR DOI/URL",
+
+      "pbpk:limitationsSummary": "OPTIONAL SHORT LIMITATIONS SUMMARY",
+
+      "pbpk:hasBiologicalSystem": [
+        { "@id": "#biosys-1" }
+      ],
+      "pbpk:hasChemical": [
+        { "@id": "#chem-1" }
+      ],
+      "pbpk:hasParameter": [
+        { "@id": "#param-1" }
+      ],
+
+      "pbpk:modelStructureDescription": "NARRATIVE MODEL STRUCTURE DESCRIPTION",
+      "pbpk:mathematicalRepresentation": "Ordinary differential equations",
+
+      "pbpk:structuralCompartments": [
+        {
+          "@type": "Thing",
+          "name": "LiverCompartment",
+          "pbpk:biologicalReference": "Liver",
+          "description": "Optional compartment description."
+        }
+      ],
+
+      "pbpk:connections": [
+        {
+          "@type": "Thing",
+          "pbpk:sourceCompartment": "Blood",
+          "pbpk:targetCompartment": "LiverCompartment",
+          "pbpk:connectionType": "Blood flow"
+        }
+      ],
+
+      "pbpk:hasCalibration": [
+        { "@id": "#calibration-1" }
+      ],
+      "pbpk:hasEvaluation": [
+        { "@id": "#evaluation-1" }
+      ],
+      "pbpk:hasSUVAnalysis": [
+        { "@id": "#suv-1" }
+      ],
+
+      "purpose": "INTENDED USE (NARRATIVE)",
+      "pbpk:applicabilityDomain": "DOMAIN OF APPLICABILITY (NARRATIVE)",
+      "pbpk:confidenceStatement": "CONFIDENCE STATEMENT (NARRATIVE)",
+      "pbpk:limitations": "KNOWN LIMITATIONS (NARRATIVE)",
+      "pbpk:misuseRisks": "OPTIONAL MISUSE RISKS (NARRATIVE)",
+
+      "pbpk:documentationPractices": "OPTIONAL DOCUMENTATION / QUALITY PRACTICES",
+
+      "hasPart": [
+        { "@id": "docs/reproducibility.md" },
+        { "@id": "model/model.xml" }
+      ]
+    },
+
+    {
+      "@id": "#biosys-1",
+      "@type": "BiologicalSystem",
+      "name": "BIOLOGICAL SYSTEM 1",
+      "pbpk:species": "Homo sapiens",
+      "pbpk:lifeStage": ["Adult"],
+      "description": "Population description (optional).",
+      "pbpk:physiologicalScope": "Physiological scope narrative.",
+      "pbpk:compartments": ["Blood", "Liver"],
+      "pbpk:anatomicalAssumptions": "Optional anatomical assumptions."
+    },
+
+    {
+      "@id": "#chem-1",
+      "@type": "ChemicalSubstance",
+      "name": "CHEMICAL NAME",
+      "pbpk:chemicalRole": "Parent compound",
+      "identifier": [
+        { "@id": "#chem-1-id-1" }
+      ],
+      "molecularWeight": {
+        "@type": "QuantitativeValue",
+        "value": 0.0,
+        "unitText": "g/mol"
+      },
+      "description": "Optional physicochemical notes relevant to pharmacokinetics."
+    },
+
+    {
+      "@id": "#chem-1-id-1",
+      "@type": "PropertyValue",
+      "name": "CAS RN",
+      "value": "00-00-0"
+    },
+
+    {
+      "@id": "#param-1",
+      "@type": "Parameter",
+      "name": "PARAMETER NAME",
+      "category": "Physiological",
+      "value": 0.0,
+      "unitText": "UNIT",
+      "description": "Optional parameter notes.",
+      "pbpk:scope": "Species-specific",
+      "pbpk:appliesToSpecies": ["Homo sapiens"],
+      "pbpk:appliesToCompartments": ["Liver"],
+      "pbpk:appliesToChemicals": ["CHEMICAL NAME"],
+      "pbpk:parameterSource": "Literature",
+      "citation": "Optional citation / DOI / PMID."
+    },
+
+    {
+      "@id": "#calibration-1",
+      "@type": "CreativeWork",
+      "name": "Calibration activity 1",
+      "description": "Narrative description of calibration procedure.",
+      "pbpk:method": "Least squares optimization",
+      "pbpk:calibrationData": "Optional calibration data description or file reference.",
+      "pbpk:calibratedParameters": ["PARAMETER NAME"],
+      "pbpk:optimizationCriteria": "Optional goodness-of-fit criteria.",
+      "pbpk:notes": "Optional calibration notes."
+    },
+
+    {
+      "@id": "#evaluation-1",
+      "@type": "CreativeWork",
+      "name": "Evaluation activity 1",
+      "description": "Narrative description of evaluation and datasets used (not used for calibration).",
+      "pbpk:evaluationData": "Optional evaluation dataset description or file reference.",
+      "pbpk:method": "Visual comparison",
+      "pbpk:performanceMetrics": [
+        { "@type": "PropertyValue", "name": "RMSE", "value": "OPTIONAL" }
+      ],
+      "pbpk:outcome": "Summary of evaluation results and implications for reliability.",
+      "pbpk:limitations": "Optional evaluation limitations."
+    },
+
+    {
+      "@id": "#suv-1",
+      "@type": "CreativeWork",
+      "name": "SUV analysis 1",
+      "pbpk:analysisType": "Sensitivity analysis",
+      "pbpk:method": "Local sensitivity analysis",
+      "pbpk:analyzedParameters": ["PARAMETER NAME"],
+      "description": "Summary of SUV results.",
+      "pbpk:robustnessInterpretation": "Optional robustness interpretation.",
+      "pbpk:notes": "Optional SUV notes."
+    },
+
+    {
+      "@id": "model/model.xml",
+      "@type": "File",
+      "name": "PBPK model implementation",
+      "encodingFormat": "application/xml",
+      "pbpk:artifactType": "Model code",
+      "pbpk:artifactFormat": "SBML"
+    },
+
+    {
+      "@id": "docs/reproducibility.md",
+      "@type": "File",
+      "name": "Reproducibility instructions",
+      "encodingFormat": "text/markdown",
+      "pbpk:artifactType": "Documentation",
+      "pbpk:artifactFormat": "TXT",
+      "pbpk:reproducibilityInstructions": "Step-by-step instructions are provided in this document."
+    }
+  ]
+}

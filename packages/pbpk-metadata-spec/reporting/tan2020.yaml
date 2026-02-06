@@ -71,7 +71,7 @@ sections:
           Software or programming environment used to implement the model.
         required: true
         value_type: controlled_term
-        allowed_values:
+        examples:
           - SBML
           - Python
           - R
@@ -107,8 +107,8 @@ sections:
           - "GPL-3.0"
           - "Custom"
 
-      - id: intended_application
-        label: "Intended application"
+      - id: intended_application_category
+        label: "Intended application category"
         description: >
           Intended regulatory or scientific application of the PBPK model.
         required: true
@@ -126,742 +126,749 @@ sections:
         value_type: text
         cardinality: one
 
-      - id: biological_system_description
-        title: "Biological System Description"
-        description: >
-          Description of the biological system(s) represented in the PBPK model,
-          including species, life stage, population characteristics, and
-          physiological compartments.
-        required: true
+  - id: biological_system_description
+    title: "Biological System Description"
+    description: >
+      Description of the biological system(s) represented in the PBPK model,
+      including species, life stage, population characteristics, and
+      physiological compartments.
+    required: true
 
-        items:
-          - id: biological_systems
-            label: "Biological system(s)"
+    items:
+      - id: biological_systems
+        label: "Biological system(s)"
+        description: >
+          One or more biological systems represented by the PBPK model.
+          Each biological system corresponds to a specific species and
+          physiological context.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: species
+            label: "Species"
             description: >
-              One or more biological systems represented by the PBPK model.
-              Each biological system corresponds to a specific species and
-              physiological context.
+              Biological species represented by the model.
             required: true
-            value_type: entity
+            value_type: controlled_term
+            examples:
+              - "Homo sapiens"
+              - "Rattus norvegicus"
+              - "Mus musculus"
+
+          - id: life_stages
+            label: "Life stage(s)"
+            description: >
+              Life stage(s) of the organism represented (e.g. adult, juvenile).
+            required: true
+            value_type: controlled_term
             cardinality: many
+            examples:
+              - "Adult"
+              - "Neonate"
+              - "Pregnant"
 
-            entity_fields:
-              - id: species
-                label: "Species"
-                description: >
-                  Biological species represented by the model.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Homo sapiens"
-                  - "Rattus norvegicus"
-                  - "Mus musculus"
-
-              - id: life_stages
-                label: "Life stage(s)"
-                description: >
-                  Life stage(s) of the organism represented (e.g. adult, juvenile).
-                required: true
-                value_type: controlled_term
-                cardinality: many
-                examples:
-                  - "Adult"
-                  - "Neonate"
-                  - "Pregnant"
-
-              - id: population_description
-                label: "Population description"
-                description: >
-                  Description of the population represented by the model, including
-                  sex, health status, and any special characteristics.
-                required: false
-                value_type: text
-
-              - id: physiological_scope
-                label: "Physiological scope"
-                description: >
-                  Description of the physiological systems and processes represented
-                  (e.g. whole-body, specific organs).
-                required: true
-                value_type: controlled_text
-
-              - id: compartments
-                label: "Physiological compartments"
-                description: >
-                  Physiological compartments included in the PBPK model for this
-                  biological system.
-                required: true
-                value_type: controlled_term
-                cardinality: many
-                examples:
-                  - "Liver"
-                  - "Kidney"
-                  - "Blood"
-                  - "Lung"
-                  - "Fat"
-
-              - id: anatomical_assumptions
-                label: "Anatomical assumptions"
-                description: >
-                  Key anatomical assumptions made in representing the biological
-                  system.
-                required: false
-                value_type: text
-
-      - id: chemical_description
-        title: "Chemical(s) Description"
-        description: >
-          Description of the chemical substance(s) represented in the PBPK model,
-          including identity, role in the model, and key physicochemical properties
-          relevant to pharmacokinetics.
-        required: true
-
-        items:
-          - id: chemicals
-            label: "Chemical substance(s)"
+          - id: population_description
+            label: "Population description"
             description: >
-              One or more chemical substances represented in the PBPK model.
-            required: true
-            value_type: entity
-            cardinality: many
-
-            entity_fields:
-              - id: chemical_name
-                label: "Chemical name"
-                description: >
-                  Common or systematic name of the chemical substance.
-                required: true
-                value_type: string
-
-              - id: chemical_role
-                label: "Role in the model"
-                description: >
-                  Role of the chemical substance within the PBPK model.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Parent compound"
-                  - "Metabolite"
-                  - "Co-exposure component"
-
-              - id: chemical_identifiers
-                label: "Chemical identifier(s)"
-                description: >
-                  Persistent identifiers for the chemical substance.
-                required: true
-                value_type: entity
-                cardinality: many
-
-                entity_fields:
-                  - id: identifier_type
-                    label: "Identifier type"
-                    required: true
-                    value_type: controlled_term
-                    examples:
-                      - "CAS RN"
-                      - "InChI"
-                      - "InChIKey"
-                      - "SMILES"
-                      - "PubChem CID"
-
-                  - id: identifier_value
-                    label: "Identifier value"
-                    required: true
-                    value_type: string
-
-              - id: molecular_weight
-                label: "Molecular weight"
-                description: >
-                  Molecular weight of the chemical substance.
-                required: false
-                value_type: number
-                unit: "g/mol"
-
-              - id: physicochemical_notes
-                label: "Physicochemical notes"
-                description: >
-                  Additional qualitative information relevant to the chemical
-                  properties affecting pharmacokinetics.
-                required: false
-                value_type: text
-
-      - id: model_structure_and_representation
-        title: "Model Structure and Mathematical Representation"
-        description: >
-          Description of the structural organization and mathematical
-          representation of the PBPK model, including compartments,
-          interconnections, and implementation references.
-        required: true
-
-        items:
-          - id: model_structure_description
-            label: "Model structure description"
-            description: >
-              Narrative description of the overall PBPK model structure,
-              including how compartments are organized and connected.
-            required: true
+              Description of the population represented by the model, including
+              sex, health status, and any special characteristics.
+            required: false
             value_type: text
-            cardinality: one
 
-          - id: structural_compartments
-            label: "Structural compartments"
+          - id: physiological_scope
+            label: "Physiological scope"
             description: >
-              List of compartments included in the PBPK model and their
-              role within the model structure.
+              Description of the physiological systems and processes represented
+              (e.g. whole-body, specific organs).
+            required: true
+            value_type: controlled_text
+
+          - id: compartments
+            label: "Physiological compartments"
+            description: >
+              Physiological compartments included in the PBPK model for this
+              biological system.
+            required: true
+            value_type: controlled_term
+            cardinality: many
+            examples:
+              - "Liver"
+              - "Kidney"
+              - "Blood"
+              - "Lung"
+              - "Fat"
+
+          - id: anatomical_assumptions
+            label: "Anatomical assumptions"
+            description: >
+              Key anatomical assumptions made in representing the biological
+              system.
+            required: false
+            value_type: text
+
+  - id: chemical_description
+    title: "Chemical(s) Description"
+    description: >
+      Description of the chemical substance(s) represented in the PBPK model,
+      including identity, role in the model, and key physicochemical properties
+      relevant to pharmacokinetics.
+    required: true
+
+    items:
+      - id: chemicals
+        label: "Chemical substance(s)"
+        description: >
+          One or more chemical substances represented in the PBPK model.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: chemical_name
+            label: "Chemical name"
+            description: >
+              Common or systematic name of the chemical substance.
+            required: true
+            value_type: string
+
+          - id: chemical_role
+            label: "Role in the model"
+            description: >
+              Role of the chemical substance within the PBPK model.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Parent compound"
+              - "Metabolite"
+              - "Co-exposure component"
+
+          - id: chemical_identifiers
+            label: "Chemical identifier(s)"
+            description: >
+              Persistent identifiers for the chemical substance.
             required: true
             value_type: entity
             cardinality: many
 
             entity_fields:
-              - id: compartment_name
-                label: "Compartment name"
-                description: >
-                  Name of the compartment as used in the model.
-                required: true
-                value_type: string
-
-              - id: biological_reference
-                label: "Biological reference"
-                description: >
-                  Corresponding physiological compartment or tissue.
-                required: true
-                value_type: controlled_term
-
-              - id: compartment_description
-                label: "Compartment description"
-                description: >
-                  Description of the compartment’s role and assumptions.
-                required: false
-                value_type: text
-
-          - id: inter_compartmental_connections
-            label: "Inter-compartmental connections"
-            description: >
-              Description of flows or connections between compartments
-              included in the PBPK model.
-            required: true
-            value_type: entity
-            cardinality: many
-
-            entity_fields:
-              - id: source_compartment
-                label: "Source compartment"
-                required: true
-                value_type: string
-
-              - id: target_compartment
-                label: "Target compartment"
-                required: true
-                value_type: string
-
-              - id: connection_type
-                label: "Connection type"
-                description: >
-                  Nature of the connection between compartments.
+              - id: identifier_type
+                label: "Identifier type"
                 required: true
                 value_type: controlled_term
                 examples:
-                  - "Blood flow"
-                  - "Diffusion"
-                  - "Permeation"
+                  - "CAS RN"
+                  - "InChI"
+                  - "InChIKey"
+                  - "SMILES"
+                  - "PubChem CID"
 
-          - id: mathematical_representation
-            label: "Mathematical representation"
+              - id: identifier_value
+                label: "Identifier value"
+                required: true
+                value_type: string
+
+          - id: molecular_weight
+            label: "Molecular weight"
             description: >
-              Description of the mathematical form of the PBPK model
-              (e.g. system of ordinary differential equations).
+              Molecular weight of the chemical substance.
+            required: false
+            value_type: number
+            unit: "g/mol"
+
+          - id: physicochemical_notes
+            label: "Physicochemical notes"
+            description: >
+              Additional qualitative information relevant to the chemical
+              properties affecting pharmacokinetics.
+            required: false
+            value_type: text
+
+  - id: model_structure_and_representation
+    title: "Model Structure and Mathematical Representation"
+    description: >
+      Description of the structural organization and mathematical
+      representation of the PBPK model, including compartments,
+      interconnections, and implementation references.
+    required: true
+
+    items:
+      - id: model_structure_description
+        label: "Model structure description"
+        description: >
+          Narrative description of the overall PBPK model structure,
+          including how compartments are organized and connected.
+        required: true
+        value_type: text
+        cardinality: one
+
+      - id: structural_compartments
+        label: "Structural compartments"
+        description: >
+          List of compartments included in the PBPK model and their
+          role within the model structure.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: compartment_name
+            label: "Compartment name"
+            description: >
+              Name of the compartment as used in the model.
+            required: true
+            value_type: string
+
+          - id: biological_reference
+            label: "Biological reference"
+            description: >
+              Corresponding physiological compartment or tissue.
+            required: true
+            value_type: controlled_term
+
+          - id: compartment_description
+            label: "Compartment description"
+            description: >
+              Description of the compartment’s role and assumptions.
+            required: false
+            value_type: text
+
+      - id: inter_compartmental_connections
+        label: "Inter-compartmental connections"
+        description: >
+          Description of flows or connections between compartments
+          included in the PBPK model.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: source_compartment
+            label: "Source compartment"
+            required: true
+            value_type: string
+
+          - id: target_compartment
+            label: "Target compartment"
+            required: true
+            value_type: string
+
+          - id: connection_type
+            label: "Connection type"
+            description: >
+              Nature of the connection between compartments.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Blood flow"
+              - "Diffusion"
+              - "Permeation"
+
+      - id: mathematical_representation
+        label: "Mathematical representation"
+        description: >
+          Description of the mathematical form of the PBPK model
+          (e.g. system of ordinary differential equations).
+        required: true
+        value_type: controlled_text
+        examples:
+          - "Ordinary differential equations"
+          - "Algebraic equations"
+          - "Hybrid ODE-algebraic system"
+
+      - id: model_implementation_reference
+        label: "Model implementation reference"
+        description: >
+          Reference to the computational implementation of the model,
+          including file names or code locations.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: implementation_type
+            label: "Implementation type"
+            required: true
+            value_type: controlled_term
+            examples:
+              - "SBML"
+              - "Python script"
+              - "R script"
+
+          - id: implementation_location
+            label: "Implementation location"
+            required: true
+            value_type: string
+
+  - id: parameterisation
+    title: "Parameterisation"
+    description: >
+      Description of the numerical parameters used in the PBPK model,
+      including their values, units, applicability, and sources.
+    required: true
+
+    items:
+      - id: parameters
+        label: "Model parameters"
+        description: >
+          List of parameters defining the PBPK model.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: parameter_name
+            label: "Parameter name"
+            description: >
+              Name of the parameter as used in the model.
+            required: true
+            value_type: string
+
+          - id: parameter_category
+            label: "Parameter category"
+            description: >
+              Category of the parameter based on its biological or
+              physicochemical meaning.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Physiological"
+              - "Biochemical"
+              - "Physicochemical"
+              - "Empirical"
+
+          - id: parameter_value
+            label: "Parameter value"
+            description: >
+              Numerical value of the parameter.
+            required: true
+            value_type: number
+
+          - id: parameter_unit
+            label: "Parameter unit"
+            description: >
+              Unit associated with the parameter value.
+            required: true
+            value_type: string
+
+          - id: parameter_scope
+            label: "Parameter applicability scope"
+            description: >
+              Scope to which the parameter applies within the PBPK model.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Global"
+              - "Species-specific"
+              - "Compartment-specific"
+              - "Chemical-specific"
+
+          - id: applicable_species
+            label: "Applicable species"
+            description: >
+              Species to which the parameter applies, if species-specific.
+            required: false
+            value_type: controlled_term
+            cardinality: many
+
+          - id: applicable_compartments
+            label: "Applicable compartments"
+            description: >
+              Compartments to which the parameter applies, if compartment-specific.
+            required: false
+            value_type: controlled_term
+            cardinality: many
+
+          - id: applicable_chemicals
+            label: "Applicable chemicals"
+            description: >
+              Chemical substances to which the parameter applies, if chemical-specific.
+            required: false
+            value_type: controlled_text
+            cardinality: many
+
+          - id: parameter_source
+            label: "Parameter source"
+            description: >
+              Source of the parameter value.
             required: true
             value_type: controlled_text
             examples:
-              - "Ordinary differential equations"
-              - "Algebraic equations"
-              - "Hybrid ODE-algebraic system"
+              - "Literature"
+              - "Experimental data"
+              - "In silico estimation"
+              - "Assumed"
 
-          - id: model_implementation_reference
-            label: "Model implementation reference"
+          - id: source_reference
+            label: "Source reference"
             description: >
-              Reference to the computational implementation of the model,
-              including file names or code locations.
-            required: true
-            value_type: entity
-            cardinality: many
+              Citation or reference for the parameter source.
+            required: false
+            value_type: text
 
-            entity_fields:
-              - id: implementation_type
-                label: "Implementation type"
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "SBML"
-                  - "Python script"
-                  - "R script"
-
-              - id: implementation_location
-                label: "Implementation location"
-                required: true
-                value_type: string
-
-      - id: parameterisation
-        title: "Parameterisation"
-        description: >
-          Description of the numerical parameters used in the PBPK model,
-          including their values, units, applicability, and sources.
-        required: true
-
-        items:
-          - id: parameters
-            label: "Model parameters"
+          - id: parameter_notes
+            label: "Parameter notes"
             description: >
-              List of parameters defining the PBPK model.
-            required: true
-            value_type: entity
-            cardinality: many
+              Additional notes or assumptions related to the parameter.
+            required: false
+            value_type: text
 
-            entity_fields:
-              - id: parameter_name
-                label: "Parameter name"
-                description: >
-                  Name of the parameter as used in the model.
-                required: true
-                value_type: string
+  - id: calibration_and_parameter_estimation
+    title: "Calibration and Parameter Estimation"
+    description: >
+      Description of the calibration and parameter estimation procedures
+      used to derive or optimize PBPK model parameters.
+    required: false
 
-              - id: parameter_category
-                label: "Parameter category"
-                description: >
-                  Category of the parameter based on its biological or
-                  physicochemical meaning.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Physiological"
-                  - "Biochemical"
-                  - "Physicochemical"
-                  - "Empirical"
-
-              - id: parameter_value
-                label: "Parameter value"
-                description: >
-                  Numerical value of the parameter.
-                required: true
-                value_type: number
-
-              - id: parameter_unit
-                label: "Parameter unit"
-                description: >
-                  Unit associated with the parameter value.
-                required: true
-                value_type: string
-
-              - id: parameter_scope
-                label: "Parameter applicability scope"
-                description: >
-                  Scope to which the parameter applies within the PBPK model.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Global"
-                  - "Species-specific"
-                  - "Compartment-specific"
-                  - "Chemical-specific"
-
-              - id: applicable_species
-                label: "Applicable species"
-                description: >
-                  Species to which the parameter applies, if species-specific.
-                required: false
-                value_type: controlled_term
-                cardinality: many
-
-              - id: applicable_compartments
-                label: "Applicable compartments"
-                description: >
-                  Compartments to which the parameter applies, if compartment-specific.
-                required: false
-                value_type: controlled_term
-                cardinality: many
-
-              - id: applicable_chemicals
-                label: "Applicable chemicals"
-                description: >
-                  Chemical substances to which the parameter applies, if chemical-specific.
-                required: false
-                value_type: string
-                cardinality: many
-
-              - id: parameter_source
-                label: "Parameter source"
-                description: >
-                  Source of the parameter value.
-                required: true
-                value_type: controlled_text
-                examples:
-                  - "Literature"
-                  - "Experimental data"
-                  - "In silico estimation"
-                  - "Assumed"
-
-              - id: source_reference
-                label: "Source reference"
-                description: >
-                  Citation or reference for the parameter source.
-                required: false
-                value_type: text
-
-              - id: parameter_notes
-                label: "Parameter notes"
-                description: >
-                  Additional notes or assumptions related to the parameter.
-                required: false
-                value_type: text
-
-      - id: calibration_and_parameter_estimation
-        title: "Calibration and Parameter Estimation"
+    items:
+      - id: calibration_activities
+        label: "Calibration activity(ies)"
         description: >
-          Description of the calibration and parameter estimation procedures
-          used to derive or optimize PBPK model parameters.
+          One or more calibration or parameter estimation activities
+          performed during model development.
         required: false
+        value_type: entity
+        cardinality: many
 
-        items:
-          - id: calibration_activities
-            label: "Calibration activity(ies)"
+        entity_fields:
+          - id: calibration_description
+            label: "Calibration description"
             description: >
-              One or more calibration or parameter estimation activities
-              performed during model development.
+              Narrative description of the calibration or parameter
+              estimation procedure.
+            required: true
+            value_type: text
+
+          - id: calibration_method
+            label: "Calibration method"
+            description: >
+              Method used for parameter estimation or optimization.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Manual fitting"
+              - "Least squares optimization"
+              - "Bayesian inference"
+              - "Visual inspection"
+
+          - id: calibration_data
+            label: "Calibration data"
+            description: >
+              Data used to calibrate or optimize model parameters.
+            required: false
+            value_type: text
+
+          - id: calibrated_parameters
+            label: "Calibrated parameter(s)"
+            description: >
+              Parameter(s) whose values were estimated or adjusted
+              during calibration.
+            required: false
+            value_type: string
+            cardinality: many
+
+          - id: optimization_criteria
+            label: "Optimization criteria"
+            description: >
+              Criteria used to assess goodness-of-fit during calibration.
+            required: false
+            value_type: text
+
+          - id: calibration_notes
+            label: "Calibration notes"
+            description: >
+              Additional notes, assumptions, or justifications related
+              to the calibration procedure.
+            required: false
+            value_type: text
+
+  - id: model_evaluation_and_validation
+    title: "Model Evaluation and Validation"
+    description: >
+      Description of the evaluation and validation activities performed
+      to assess the predictive performance and robustness of the PBPK model.
+    required: true
+
+    items:
+      - id: evaluation_activities
+        label: "Model evaluation activity(ies)"
+        description: >
+          One or more activities performed to evaluate or validate
+          the PBPK model against independent data.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: evaluation_description
+            label: "Evaluation description"
+            description: >
+              Narrative description of the model evaluation or validation
+              activity.
+            required: true
+            value_type: text
+
+          - id: evaluation_data
+            label: "Evaluation data"
+            description: >
+              Data used to evaluate model predictions that were not
+              used for calibration.
+            required: false
+            value_type: text
+
+          - id: evaluation_method
+            label: "Evaluation method"
+            description: >
+              Method used to compare model predictions to observed data.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Visual comparison"
+              - "Statistical goodness-of-fit"
+              - "Observed vs predicted regression"
+
+          - id: performance_metrics
+            label: "Performance metric(s)"
+            description: >
+              Quantitative or qualitative metrics used to assess model
+              performance.
             required: false
             value_type: entity
             cardinality: many
 
             entity_fields:
-              - id: calibration_description
-                label: "Calibration description"
-                description: >
-                  Narrative description of the calibration or parameter
-                  estimation procedure.
+              - id: metric_name
+                label: "Metric name"
                 required: true
-                value_type: text
+                value_type: string
 
-              - id: calibration_method
-                label: "Calibration method"
-                description: >
-                  Method used for parameter estimation or optimization.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Manual fitting"
-                  - "Least squares optimization"
-                  - "Bayesian inference"
-                  - "Visual inspection"
-
-              - id: calibration_data
-                label: "Calibration data"
-                description: >
-                  Data used to calibrate or optimize model parameters.
-                required: false
-                value_type: text
-
-              - id: calibrated_parameters
-                label: "Calibrated parameter(s)"
-                description: >
-                  Parameter(s) whose values were estimated or adjusted
-                  during calibration.
+              - id: metric_value
+                label: "Metric value"
                 required: false
                 value_type: string
-                cardinality: many
 
-              - id: optimization_criteria
-                label: "Optimization criteria"
-                description: >
-                  Criteria used to assess goodness-of-fit during calibration.
+              - id: metric_interpretation
+                label: "Metric interpretation"
                 required: false
                 value_type: text
 
-              - id: calibration_notes
-                label: "Calibration notes"
-                description: >
-                  Additional notes, assumptions, or justifications related
-                  to the calibration procedure.
-                required: false
-                value_type: text
-
-      - id: model_evaluation_and_validation
-        title: "Model Evaluation and Validation"
-        description: >
-          Description of the evaluation and validation activities performed
-          to assess the predictive performance and robustness of the PBPK model.
-        required: true
-
-        items:
-          - id: evaluation_activities
-            label: "Model evaluation activity(ies)"
+          - id: evaluation_outcome
+            label: "Evaluation outcome"
             description: >
-              One or more activities performed to evaluate or validate
-              the PBPK model against independent data.
+              Summary of the evaluation results and their implications
+              for model reliability.
             required: true
-            value_type: entity
-            cardinality: many
+            value_type: text
 
-            entity_fields:
-              - id: evaluation_description
-                label: "Evaluation description"
-                description: >
-                  Narrative description of the model evaluation or validation
-                  activity.
-                required: true
-                value_type: text
+          - id: evaluation_limitations
+            label: "Evaluation limitations"
+            description: >
+              Limitations or uncertainties associated with the evaluation
+              process.
+            required: false
+            value_type: text
 
-              - id: evaluation_data
-                label: "Evaluation data"
-                description: >
-                  Data used to evaluate model predictions that were not
-                  used for calibration.
-                required: false
-                value_type: text
+  - id: sensitivity_uncertainty_variability
+    title: "Sensitivity, Uncertainty, and Variability Analyses"
+    description: >
+      Description of sensitivity, uncertainty, and variability analyses
+      conducted to assess model robustness, reliability, and limitations.
+    required: false
 
-              - id: evaluation_method
-                label: "Evaluation method"
-                description: >
-                  Method used to compare model predictions to observed data.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Visual comparison"
-                  - "Statistical goodness-of-fit"
-                  - "Observed vs predicted regression"
-
-              - id: performance_metrics
-                label: "Performance metric(s)"
-                description: >
-                  Quantitative or qualitative metrics used to assess model
-                  performance.
-                required: false
-                value_type: entity
-                cardinality: many
-
-                entity_fields:
-                  - id: metric_name
-                    label: "Metric name"
-                    required: true
-                    value_type: string
-
-                  - id: metric_value
-                    label: "Metric value"
-                    required: false
-                    value_type: string
-
-                  - id: metric_interpretation
-                    label: "Metric interpretation"
-                    required: false
-                    value_type: text
-
-              - id: evaluation_outcome
-                label: "Evaluation outcome"
-                description: >
-                  Summary of the evaluation results and their implications
-                  for model reliability.
-                required: true
-                value_type: text
-
-              - id: evaluation_limitations
-                label: "Evaluation limitations"
-                description: >
-                  Limitations or uncertainties associated with the evaluation
-                  process.
-                required: false
-                value_type: text
-
-      - id: sensitivity_uncertainty_variability
-        title: "Sensitivity, Uncertainty, and Variability Analyses"
+    items:
+      - id: suv_analyses
+        label: "Sensitivity / uncertainty / variability analysis"
         description: >
-          Description of sensitivity, uncertainty, and variability analyses
-          conducted to assess model robustness, reliability, and limitations.
+          One or more analyses conducted to assess sensitivity, uncertainty,
+          and/or variability of the PBPK model.
         required: false
+        value_type: entity
+        cardinality: many
 
-        items:
-          - id: suv_analyses
-            label: "Sensitivity / uncertainty / variability analysis"
+        entity_fields:
+          - id: analysis_type
+            label: "Analysis type"
             description: >
-              One or more analyses conducted to assess sensitivity, uncertainty,
-              and/or variability of the PBPK model.
+              Type of analysis performed.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Sensitivity analysis"
+              - "Uncertainty analysis"
+              - "Variability analysis"
+              - "Combined analysis"
+
+          - id: analysis_method
+            label: "Analysis method"
+            description: >
+              Method used to perform the analysis.
             required: false
-            value_type: entity
+            value_type: controlled_text
+            examples:
+              - "Local sensitivity analysis"
+              - "Global sensitivity analysis"
+              - "Monte Carlo simulation"
+              - "Bayesian analysis"
+
+          - id: analyzed_parameters
+            label: "Analyzed parameter(s)"
+            description: >
+              Parameters included in the analysis.
+            required: false
+            value_type: string
             cardinality: many
 
-            entity_fields:
-              - id: analysis_type
-                label: "Analysis type"
-                description: >
-                  Type of analysis performed.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Sensitivity analysis"
-                  - "Uncertainty analysis"
-                  - "Variability analysis"
-                  - "Combined analysis"
-
-              - id: analysis_method
-                label: "Analysis method"
-                description: >
-                  Method used to perform the analysis.
-                required: false
-                value_type: controlled_text
-                examples:
-                  - "Local sensitivity analysis"
-                  - "Global sensitivity analysis"
-                  - "Monte Carlo simulation"
-                  - "Bayesian analysis"
-
-              - id: analyzed_parameters
-                label: "Analyzed parameter(s)"
-                description: >
-                  Parameters included in the analysis.
-                required: false
-                value_type: string
-                cardinality: many
-
-              - id: analysis_results
-                label: "Analysis results"
-                description: >
-                  Summary of the results of the analysis.
-                required: true
-                value_type: text
-
-              - id: robustness_interpretation
-                label: "Robustness interpretation"
-                description: >
-                  Interpretation of how the analysis results affect model
-                  robustness and reliability.
-                required: false
-                value_type: text
-
-              - id: suv_notes
-                label: "Additional notes"
-                description: >
-                  Additional notes, assumptions, or limitations related to the
-                  analysis.
-                required: false
-                value_type: text
-
-      - id: model_applicability_and_limitations
-        title: "Model Applicability, Intended Use, and Limitations"
-        description: >
-          Description of the intended use, domain of applicability, confidence,
-          and limitations of the PBPK model.
-        required: true
-
-        items:
-          - id: intended_use
-            label: "Intended use"
+          - id: analysis_results
+            label: "Analysis results"
             description: >
-              Regulatory or scientific question(s) the PBPK model is intended
-              to address.
+              Summary of the results of the analysis.
             required: true
             value_type: text
 
-          - id: applicability_domain
-            label: "Domain of applicability"
+          - id: robustness_interpretation
+            label: "Robustness interpretation"
             description: >
-              Description of the conditions, populations, species, exposure
-              scenarios, and dose ranges for which the model is applicable.
-            required: true
-            value_type: text
-
-          - id: confidence_statement
-            label: "Confidence statement"
-            description: >
-              Statement describing the level of confidence in model predictions
-              for the intended use.
-            required: true
-            value_type: text
-
-          - id: known_limitations
-            label: "Known limitations"
-            description: >
-              Known limitations of the PBPK model, including biological,
-              data-related, or methodological constraints.
-            required: true
-            value_type: text
-
-          - id: misuse_risks
-            label: "Potential misuse risks"
-            description: >
-              Potential risks or consequences of using the model outside its
-              domain of applicability.
+              Interpretation of how the analysis results affect model
+              robustness and reliability.
             required: false
             value_type: text
 
-
-      - id: electronic_files_and_reproducibility
-        title: "Electronic Files, Supporting Documents, and Reproducibility"
-        description: >
-          Description of electronic files, supporting documents, and
-          instructions necessary to reproduce the PBPK model and its results.
-        required: true
-
-        items:
-          - id: digital_artifacts
-            label: "Digital artifact(s)"
+          - id: suv_notes
+            label: "Additional notes"
             description: >
-              Electronic files and documents associated with the PBPK model.
-            required: true
-            value_type: entity
-            cardinality: many
-
-            entity_fields:
-              - id: artifact_name
-                label: "Artifact name"
-                description: >
-                  Name of the electronic file or document.
-                required: true
-                value_type: string
-
-              - id: artifact_type
-                label: "Artifact type"
-                description: >
-                  Type of the electronic artifact.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "Model code"
-                  - "Parameter table"
-                  - "Simulation input"
-                  - "Simulation output"
-                  - "Documentation"
-                  - "Supporting study report"
-
-              - id: artifact_format
-                label: "Artifact format"
-                description: >
-                  File format of the artifact.
-                required: true
-                value_type: controlled_term
-                examples:
-                  - "SBML"
-                  - "CSV"
-                  - "PDF"
-                  - "TXT"
-                  - "R"
-                  - "Python"
-
-              - id: artifact_description
-                label: "Artifact description"
-                description: >
-                  Description of the content and purpose of the artifact.
-                required: false
-                value_type: text
-
-          - id: reproducibility_instructions
-            label: "Reproducibility instructions"
-            description: >
-              Step-by-step instructions describing how to run the PBPK model
-              and reproduce the reported simulations and results.
-            required: true
-            value_type: text
-
-          - id: documentation_practices
-            label: "Documentation and quality practices"
-            description: >
-              Documentation standards, quality practices, or third-party
-              reviews applied during model development.
+              Additional notes, assumptions, or limitations related to the
+              analysis.
             required: false
             value_type: text
+
+  - id: model_applicability_and_limitations
+    title: "Model Applicability, Intended Use, and Limitations"
+    description: >
+      Description of the intended use, domain of applicability, confidence,
+      and limitations of the PBPK model.
+    required: true
+
+    items:
+      - id: intended_use
+        label: "Intended use"
+        description: >
+          Regulatory or scientific question(s) the PBPK model is intended
+          to address.
+        required: true
+        value_type: text
+
+      - id: applicability_domain
+        label: "Domain of applicability"
+        description: >
+          Description of the conditions, populations, species, exposure
+          scenarios, and dose ranges for which the model is applicable.
+        required: true
+        value_type: text
+
+      - id: confidence_statement
+        label: "Confidence statement"
+        description: >
+          Statement describing the level of confidence in model predictions
+          for the intended use.
+        required: true
+        value_type: text
+
+      - id: known_limitations
+        label: "Known limitations"
+        description: >
+          Known limitations of the PBPK model, including biological,
+          data-related, or methodological constraints.
+        required: true
+        value_type: text
+
+      - id: misuse_risks
+        label: "Potential misuse risks"
+        description: >
+          Potential risks or consequences of using the model outside its
+          domain of applicability.
+        required: false
+        value_type: text
+
+
+  - id: electronic_files_and_reproducibility
+    title: "Electronic Files, Supporting Documents, and Reproducibility"
+    description: >
+      Description of electronic files, supporting documents, and
+      instructions necessary to reproduce the PBPK model and its results.
+    required: true
+
+    items:
+      - id: digital_artifacts
+        label: "Digital artifact(s)"
+        description: >
+          Electronic files and documents associated with the PBPK model.
+        required: true
+        value_type: entity
+        cardinality: many
+
+        entity_fields:
+          - id: artifact_name
+            label: "Artifact name"
+            description: >
+              Name of the electronic file or document.
+            required: true
+            value_type: string
+
+          - id: artifact_location
+            label: "Artifact location"
+            description: >
+              Relative or absolute path or URI to the artifact.
+            required: true
+            value_type: string
+
+          - id: artifact_type
+            label: "Artifact type"
+            description: >
+              Type of the electronic artifact.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "Model code"
+              - "Parameter table"
+              - "Simulation input"
+              - "Simulation output"
+              - "Documentation"
+              - "Supporting study report"
+
+          - id: artifact_format
+            label: "Artifact format"
+            description: >
+              File format of the artifact.
+            required: true
+            value_type: controlled_term
+            examples:
+              - "SBML"
+              - "CSV"
+              - "PDF"
+              - "TXT"
+              - "R"
+              - "Python"
+
+          - id: artifact_description
+            label: "Artifact description"
+            description: >
+              Description of the content and purpose of the artifact.
+            required: false
+            value_type: text
+
+      - id: reproducibility_instructions
+        label: "Reproducibility instructions"
+        description: >
+          Step-by-step instructions describing how to run the PBPK model
+          and reproduce the reported simulations and results.
+        required: true
+        value_type: text
+
+      - id: documentation_practices
+        label: "Documentation and quality practices"
+        description: >
+          Documentation standards, quality practices, or third-party
+          reviews applied during model development.
+        required: false
+        value_type: text

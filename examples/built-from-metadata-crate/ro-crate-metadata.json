@@ -1,0 +1,182 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    "pbpk-context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": {
+        "@id": "https://w3id.org/ro/crate/1.1"
+      },
+      "about": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "Minimal PBPK Example Model",
+      "description": "A minimal PBPK model used to demonstrate FAIR metadata validation.",
+      "license": "CC-BY-4.0",
+      "creator": [
+        {
+          "@id": "#person-1"
+        }
+      ],
+      "hasPart": [
+        {
+          "@id": "#pbpk-model"
+        },
+        {
+          "@id": "model/model.xml"
+        }
+      ]
+    },
+    {
+      "@id": "#pbpk-model",
+      "@type": "ComputationalModel",
+      "name": "Minimal PBPK Example Model",
+      "version": "0.1.0",
+      "description": "A minimal PBPK model used to demonstrate FAIR metadata validation.",
+      "applicationCategory": "Human health risk assessment",
+      "programmingLanguage": [
+        "SBML"
+      ],
+      "codeRepository": "https://example.org/repository-or-doi",
+      "pbpk:hasBiologicalSystem": [
+        {
+          "@id": "#biosys-1"
+        }
+      ],
+      "pbpk:hasChemical": [
+        {
+          "@id": "#chem-1"
+        }
+      ],
+      "pbpk:hasParameter": [
+        {
+          "@id": "#param-1"
+        }
+      ],
+      "pbpk:modelStructureDescription": "Two-compartment PBPK scaffold with blood and liver.",
+      "pbpk:mathematicalRepresentation": "Ordinary differential equations",
+      "pbpk:structuralCompartments": [
+        {
+          "@type": "Thing",
+          "name": "Blood",
+          "pbpk:biologicalReference": "Blood"
+        },
+        {
+          "@type": "Thing",
+          "name": "Liver",
+          "pbpk:biologicalReference": "Liver"
+        }
+      ],
+      "pbpk:connections": [
+        {
+          "@type": "Thing",
+          "pbpk:sourceCompartment": "Blood",
+          "pbpk:targetCompartment": "Liver",
+          "pbpk:connectionType": "Blood flow"
+        }
+      ],
+      "pbpk:hasEvaluation": [
+        {
+          "@id": "#evaluation-1"
+        }
+      ],
+      "purpose": "Demonstration of FAIR PBPK metadata validation.",
+      "pbpk:applicabilityDomain": "Illustrative example only; not for regulatory use.",
+      "pbpk:confidenceStatement": "Low confidence; this is a minimal illustrative model.",
+      "pbpk:limitations": "No kinetic equations or quantitative validation included.",
+      "hasPart": [
+        {
+          "@id": "model/model.xml"
+        }
+      ],
+      "pbpk:reproducibilityInstructions": "Open the SBML file in an SBML-compatible tool and inspect compartments."
+    },
+    {
+      "@id": "#org-1",
+      "@type": "Organization",
+      "name": "Example Institute"
+    },
+    {
+      "@id": "#person-1",
+      "@type": "Person",
+      "name": "Example Author",
+      "identifier": "https://orcid.org/0000-0000-0000-0000",
+      "affiliation": {
+        "@id": "#org-1"
+      }
+    },
+    {
+      "@id": "#biosys-1",
+      "@type": "BiologicalSystem",
+      "name": "Homo sapiens system",
+      "pbpk:species": "Homo sapiens",
+      "pbpk:lifeStage": [
+        "Adult"
+      ],
+      "pbpk:physiologicalScope": "Whole-body PBPK scaffold",
+      "pbpk:compartments": [
+        "Blood",
+        "Liver"
+      ]
+    },
+    {
+      "@id": "#chem-1-id-1",
+      "@type": "PropertyValue",
+      "name": "CAS RN",
+      "value": "00-00-0"
+    },
+    {
+      "@id": "#chem-1",
+      "@type": "ChemicalSubstance",
+      "name": "ExampleChemical",
+      "pbpk:chemicalRole": "Parent compound",
+      "identifier": [
+        {
+          "@id": "#chem-1-id-1"
+        }
+      ]
+    },
+    {
+      "@id": "#param-1",
+      "@type": "Parameter",
+      "name": "Q_liver",
+      "category": "Physiological",
+      "value": 1.5,
+      "unitText": "L/h",
+      "pbpk:scope": "Species-specific",
+      "pbpk:parameterSource": "Literature",
+      "citation": "DOI:10.0000/example",
+      "pbpk:appliesToSpecies": [
+        "Homo sapiens"
+      ],
+      "pbpk:appliesToCompartments": [
+        "Liver"
+      ],
+      "pbpk:appliesToChemicals": [
+        "ExampleChemical"
+      ]
+    },
+    {
+      "@id": "#evaluation-1",
+      "@type": "CreativeWork",
+      "name": "Evaluation activity 1",
+      "description": "Qualitative comparison of model structure against expected physiology.",
+      "pbpk:method": "Visual comparison",
+      "pbpk:outcome": "Model structure is consistent with expected compartmental layout."
+    },
+    {
+      "@id": "model/model.xml",
+      "@type": "File",
+      "name": "PBPK model implementation",
+      "pbpk:artifactType": "Model code",
+      "pbpk:artifactFormat": "SBML"
+    }
+  ]
+}

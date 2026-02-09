@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version1/core" level="3" version="1">
+  <model id="pbpk_example" name="PBPK Example Model">
+    <listOfCompartments>
+      <compartment id="Blood" name="Blood" constant="true"/>
+      <compartment id="Liver" name="Liver" constant="true"/>
+    </listOfCompartments>
+  </model>
+</sbml>

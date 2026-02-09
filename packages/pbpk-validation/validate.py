@@ -10,8 +10,11 @@ from typing import Any, List, Optional
 
 from jsonschema import Draft202012Validator
 
-# Local (same folder) lint rules for soft warnings
-from lint_rules import lint
+# Local (same folder) lint rules for soft warnings (domain payload)
+from lint_rules import lint as lint_domain
+
+# RO-Crate validator (graph-aware)
+from rocrate_lint import validate_rocrate
 
 
 ROOT = Path(__file__).resolve().parents[1]  # packages/
@@ -27,13 +30,9 @@ class Issue:
 
 
 def _json_pointer_path(error_path: List[Any]) -> str:
-    # Convert jsonschema error.path (deque-like) to a JSON pointer-ish string
     if not error_path:
         return "/"
-    parts = []
-    for p in error_path:
-        parts.append(str(p))
-    return "/" + "/".join(parts)
+    return "/" + "/".join(str(p) for p in error_path)
 
 
 def die(msg: str, code: int = 2) -> int:
@@ -68,27 +67,7 @@ def validate_instance(instance: Any, validator: Draft202012Validator) -> List[Is
     return issues
 
 
-def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(
-        prog="pbpk-validate",
-        description="Validate PBPK metadata payloads (Tan et al. 2020) against JSON Schema (v1), then run soft-warning lint rules.",
-    )
-    parser.add_argument(
-        "input",
-        type=str,
-        help="Path to PBPK metadata JSON (domain payload), e.g. examples/minimal-pbpk-metadata/pbpk-metadata.json",
-    )
-    parser.add_argument(
-        "--schema",
-        type=str,
-        default=str(DEFAULT_SCHEMA),
-        help=f"Path to JSON Schema (default: {DEFAULT_SCHEMA})",
-    )
-    args = parser.parse_args(argv)
-
-    input_path = Path(args.input).resolve()
-    schema_path = Path(args.schema).resolve()
-
+def run_domain_validation(input_path: Path, schema_path: Path) -> int:
     try:
         instance = load_json(input_path)
     except Exception as e:
@@ -107,8 +86,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"{i}. [{issue.level}] {issue.path}: {issue.message}")
         return 1
 
-    # Soft validation: Lint warnings
-    warnings = lint(instance)
+    # Soft validation: lint warnings
+    warnings = lint_domain(instance)
     if warnings:
         print("PBPK metadata validation PASSED (with warnings)\n")
         print("Soft warnings")
@@ -118,6 +97,83 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     print("PBPK metadata validation PASSED")
     return 0
+
+
+def run_rocrate_validation(input_path: Path, crate_dir: Optional[Path]) -> int:
+    try:
+        rocrate = load_json(input_path)
+    except Exception as e:
+        return die(str(e), 2)
+
+    issues = validate_rocrate(rocrate, crate_dir=crate_dir)
+
+    errors = [x for x in issues if x.level == "ERROR"]
+    warns = [x for x in issues if x.level == "WARNING"]
+
+    if errors:
+        print("PBPK RO-Crate validation FAILED\n")
+        for i, e in enumerate(errors, start=1):
+            print(f"{i}. [{e.code}] {e.node_id}: {e.message}")
+        if warns:
+            print("\nSoft warnings")
+            for i, w in enumerate(warns, start=1):
+                print(f"{i}. [{w.code}] {w.node_id}: {w.message}")
+        return 1
+
+    if warns:
+        print("PBPK RO-Crate validation PASSED (with warnings)\n")
+        print("Soft warnings")
+        for i, w in enumerate(warns, start=1):
+            print(f"{i}. [{w.code}] {w.node_id}: {w.message}")
+        return 0
+
+    print("PBPK RO-Crate validation PASSED")
+    return 0
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="pbpk-validate",
+        description="Validate PBPK metadata payloads (JSON Schema + soft lint) or PBPK RO-Crates (graph-aware checks).",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["metadata", "rocrate"],
+        default="metadata",
+        help="Validation mode: 'metadata' for domain payload JSON (default), 'rocrate' for RO-Crate JSON-LD metadata.",
+    )
+    parser.add_argument(
+        "input",
+        type=str,
+        help="Input JSON file path. For mode=metadata: pbpk-metadata.json. For mode=rocrate: ro-crate-metadata.json",
+    )
+    parser.add_argument(
+        "--schema",
+        type=str,
+        default=str(DEFAULT_SCHEMA),
+        help=f"(metadata mode) Path to JSON Schema (default: {DEFAULT_SCHEMA})",
+    )
+    parser.add_argument(
+        "--crate-dir",
+        type=str,
+        default=None,
+        help="(rocrate mode) Path to crate directory to check that hasPart file references exist on disk.",
+    )
+
+    args = parser.parse_args(argv)
+
+    input_path = Path(args.input).resolve()
+
+    if args.mode == "metadata":
+        schema_path = Path(args.schema).resolve()
+        return run_domain_validation(input_path=input_path, schema_path=schema_path)
+
+    # mode == rocrate
+    crate_dir = Path(args.crate_dir).resolve() if args.crate_dir else None
+    if crate_dir is not None and not crate_dir.exists():
+        return die(f"--crate-dir does not exist: {crate_dir}", 2)
+
+    return run_rocrate_validation(input_path=input_path, crate_dir=crate_dir)
 
 
 if __name__ == "__main__":

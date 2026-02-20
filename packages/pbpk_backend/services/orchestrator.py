@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pbpk_backend.services.audit import AuditContext, audit_upload_event, audit_crate_event, audit_deposit_event_jsonl
 
 import json
 import uuid

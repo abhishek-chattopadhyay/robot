@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from pbpk_backend.services.orchestrator import OrchestratorConfig, build_crate, validate_metadata
-
+from pbpk_backend.services.jsonpatch import apply_patch, PatchError
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -196,7 +196,6 @@ def validate_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
         audit=audit,
     )
 
-
 def build_from_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Returns (envelope, build_result)
@@ -240,3 +239,37 @@ def build_from_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Tuple[Dict[st
         audit=audit,
     )
     return envelope, build_result
+
+def patch_draft(cfg: OrchestratorConfig, *, draft_id: str, patch_ops: list[dict[str, Any]]) -> Dict[str, Any]:
+    p = _paths(cfg, draft_id)
+    if not p.draft_json.exists():
+        raise FileNotFoundError(draft_id)
+
+    draft_obj = _read_json(p.draft_json)
+    metadata = draft_obj.get("metadata", {})
+    if not isinstance(metadata, dict):
+        raise ValueError("draft metadata is not an object")
+
+    try:
+        new_metadata = apply_patch(metadata, patch_ops)
+    except PatchError as e:
+        raise ValueError(str(e))
+
+    draft_obj["metadata"] = new_metadata
+    draft_obj["status"] = "draft"
+    draft_obj["validation"] = None  # invalidate old validation after changes
+
+    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
+    audit = _append_audit(audit, "patch_draft", {"ops": patch_ops})
+
+    _write_json(p.draft_json, draft_obj)
+    _write_json(p.audit_json, audit)
+
+    return _envelope(
+        draft_id=draft_id,
+        metadata=new_metadata,
+        upload_id=draft_obj.get("upload_id"),
+        status="draft",
+        validation=None,
+        audit=audit,
+    )

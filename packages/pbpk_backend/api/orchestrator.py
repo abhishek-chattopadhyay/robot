@@ -27,7 +27,7 @@ from pbpk_backend.services.orchestrator import (
 )
 
 from pbpk_backend.services.drafts import create_draft, get_draft, replace_draft, validate_draft, build_from_draft
-
+from pbpk_backend.services.drafts import patch_draft
 
 router = APIRouter(prefix="/v1", tags=["pbpk-orchestrator"])
 
@@ -261,6 +261,26 @@ def api_build_from_draft(draft_id: str) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
 
     return {"ok": True, "draft": envelope, "build": build_result}
+
+@router.patch("/drafts/{draft_id}")
+def api_patch_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    """
+    Body:
+      {"patch": [ {op,path,value?}, ... ]}
+
+    Applies JSON Patch ops to draft.metadata.
+    """
+    cfg = _cfg()
+    ops = body.get("patch")
+    if not isinstance(ops, list):
+        raise HTTPException(status_code=400, detail="body.patch must be a list of JSON Patch operations")
+
+    try:
+        return patch_draft(cfg, draft_id=draft_id, patch_ops=ops)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="draft not found")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/metadata/validate")

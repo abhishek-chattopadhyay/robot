@@ -1,0 +1,68 @@
+id: model_evaluation_and_validation
+title: Model Evaluation and Validation
+description: Evaluation/validation activities and performance reporting.
+fields:
+  - id: evaluation_activities
+    path: /model_evaluation_and_validation/evaluation_activities
+    label: Evaluation activities
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: evaluation_description
+        path: /model_evaluation_and_validation/evaluation_activities/*/evaluation_description
+        label: Evaluation description
+        value_type: text
+        required: true
+
+      - id: evaluation_data
+        path: /model_evaluation_and_validation/evaluation_activities/*/evaluation_data
+        label: Evaluation data (reference)
+        value_type: text
+        required: false
+
+      - id: evaluation_method
+        path: /model_evaluation_and_validation/evaluation_activities/*/evaluation_method
+        label: Evaluation method
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Visual comparison
+          - Statistical goodness-of-fit
+          - Observed vs predicted regression
+          - Other
+
+      - id: performance_metrics
+        path: /model_evaluation_and_validation/evaluation_activities/*/performance_metrics
+        label: Performance metrics
+        value_type: object
+        required: false
+        cardinality: many
+        fields:
+          - id: metric_name
+            path: /model_evaluation_and_validation/evaluation_activities/*/performance_metrics/*/metric_name
+            label: Metric name
+            value_type: string
+            required: true
+          - id: metric_value
+            path: /model_evaluation_and_validation/evaluation_activities/*/performance_metrics/*/metric_value
+            label: Metric value
+            value_type: string
+            required: false
+          - id: metric_interpretation
+            path: /model_evaluation_and_validation/evaluation_activities/*/performance_metrics/*/metric_interpretation
+            label: Metric interpretation
+            value_type: text
+            required: false
+
+      - id: evaluation_outcome
+        path: /model_evaluation_and_validation/evaluation_activities/*/evaluation_outcome
+        label: Evaluation outcome
+        value_type: text
+        required: true
+
+      - id: evaluation_limitations
+        path: /model_evaluation_and_validation/evaluation_activities/*/evaluation_limitations
+        label: Evaluation limitations
+        value_type: text
+        required: false

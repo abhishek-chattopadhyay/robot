@@ -1,0 +1,57 @@
+id: biological_system_description
+title: Biological System Description
+description: Species, life stage(s), physiological scope, and compartments represented.
+fields:
+  - id: biological_systems
+    path: /biological_system_description/biological_systems
+    label: Biological system(s)
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: species
+        path: /biological_system_description/biological_systems/*/species
+        label: Species
+        value_type: controlled_term
+        required: true
+        vocabulary: species
+
+      - id: life_stages
+        path: /biological_system_description/biological_systems/*/life_stages
+        label: Life stage(s)
+        value_type: controlled_term
+        required: true
+        cardinality: many
+        allowed_values:
+          - Adult
+          - Juvenile
+          - Neonate
+          - Pregnant
+          - Lactating
+          - Other
+
+      - id: physiological_scope
+        path: /biological_system_description/biological_systems/*/physiological_scope
+        label: Physiological scope
+        value_type: text
+        required: true
+
+      - id: compartments
+        path: /biological_system_description/biological_systems/*/compartments
+        label: Compartments
+        value_type: controlled_term
+        required: true
+        cardinality: many
+        vocabulary: compartments
+
+      - id: population_description
+        path: /biological_system_description/biological_systems/*/population_description
+        label: Population description
+        value_type: text
+        required: false
+
+      - id: anatomical_assumptions
+        path: /biological_system_description/biological_systems/*/anatomical_assumptions
+        label: Anatomical assumptions
+        value_type: text
+        required: false

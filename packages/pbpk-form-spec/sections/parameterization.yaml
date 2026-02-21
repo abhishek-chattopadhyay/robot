@@ -1,0 +1,98 @@
+id: parameterisation
+title: Parameterisation
+description: Model parameters, values, units, scope, and sources.
+fields:
+  - id: parameters
+    path: /parameterisation/parameters
+    label: Parameters
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: parameter_name
+        path: /parameterisation/parameters/*/parameter_name
+        label: Parameter name
+        value_type: string
+        required: true
+
+      - id: parameter_category
+        path: /parameterisation/parameters/*/parameter_category
+        label: Parameter category
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Physiological
+          - Biochemical
+          - Physicochemical
+          - Empirical
+          - Other
+
+      - id: parameter_value
+        path: /parameterisation/parameters/*/parameter_value
+        label: Parameter value
+        value_type: number
+        required: true
+
+      - id: parameter_unit
+        path: /parameterisation/parameters/*/parameter_unit
+        label: Parameter unit
+        value_type: string
+        required: true
+
+      - id: parameter_scope
+        path: /parameterisation/parameters/*/parameter_scope
+        label: Parameter scope
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Global
+          - Species-specific
+          - Compartment-specific
+          - Chemical-specific
+
+      - id: applicable_species
+        path: /parameterisation/parameters/*/applicable_species
+        label: Applicable species
+        value_type: controlled_term
+        required: false
+        cardinality: many
+        vocabulary: species
+
+      - id: applicable_compartments
+        path: /parameterisation/parameters/*/applicable_compartments
+        label: Applicable compartments
+        value_type: controlled_term
+        required: false
+        cardinality: many
+        vocabulary: compartments
+
+      - id: applicable_chemicals
+        path: /parameterisation/parameters/*/applicable_chemicals
+        label: Applicable chemicals
+        value_type: string
+        required: false
+        cardinality: many
+
+      - id: parameter_source
+        path: /parameterisation/parameters/*/parameter_source
+        label: Parameter source
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Literature
+          - Experimental data
+          - In silico estimation
+          - Assumed
+          - Other
+
+      - id: source_reference
+        path: /parameterisation/parameters/*/source_reference
+        label: Source reference
+        value_type: text
+        required: false
+
+      - id: parameter_notes
+        path: /parameterisation/parameters/*/parameter_notes
+        label: Parameter notes
+        value_type: text
+        required: false

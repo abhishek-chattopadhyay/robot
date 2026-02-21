@@ -1,0 +1,53 @@
+id: sensitivity_uncertainty_variability
+title: Sensitivity, Uncertainty, and Variability Analyses
+description: Optional SUV analyses and their outcomes.
+fields:
+  - id: suv_analyses
+    path: /sensitivity_uncertainty_variability/suv_analyses
+    label: SUV analyses
+    value_type: object
+    required: false
+    cardinality: many
+    fields:
+      - id: analysis_type
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/analysis_type
+        label: Analysis type
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Sensitivity analysis
+          - Uncertainty analysis
+          - Variability analysis
+          - Combined analysis
+          - Other
+
+      - id: analysis_method
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/analysis_method
+        label: Analysis method
+        value_type: text
+        required: false
+
+      - id: analyzed_parameters
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/analyzed_parameters
+        label: Analyzed parameters
+        value_type: string
+        required: false
+        cardinality: many
+
+      - id: analysis_results
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/analysis_results
+        label: Analysis results
+        value_type: text
+        required: true
+
+      - id: robustness_interpretation
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/robustness_interpretation
+        label: Robustness interpretation
+        value_type: text
+        required: false
+
+      - id: suv_notes
+        path: /sensitivity_uncertainty_variability/suv_analyses/*/suv_notes
+        label: Additional notes
+        value_type: text
+        required: false

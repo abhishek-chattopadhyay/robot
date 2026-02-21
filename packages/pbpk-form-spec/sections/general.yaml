@@ -1,0 +1,88 @@
+id: general_model_information
+title: General Model Information
+description: Identify the PBPK model, provenance, authorship, licensing, and implementation.
+fields:
+  - id: model_name
+    path: /general_model_information/model_name
+    label: Model name
+    value_type: string
+    required: true
+    cardinality: one
+
+  - id: model_version
+    path: /general_model_information/model_version
+    label: Model version
+    value_type: string
+    required: true
+    cardinality: one
+
+  - id: model_description
+    path: /general_model_information/model_description
+    label: Model description
+    value_type: text
+    required: true
+    cardinality: one
+
+  - id: model_authors
+    path: /general_model_information/model_authors
+    label: Model author(s)
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: full_name
+        path: /general_model_information/model_authors/*/full_name
+        label: Full name
+        value_type: string
+        required: true
+      - id: orcid
+        path: /general_model_information/model_authors/*/orcid
+        label: ORCID
+        value_type: string
+        required: false
+      - id: affiliation
+        path: /general_model_information/model_authors/*/affiliation
+        label: Affiliation
+        value_type: string
+        required: false
+
+  - id: software_platform
+    path: /general_model_information/software_platform
+    label: Software platform
+    value_type: controlled_term
+    required: true
+    cardinality: many
+    allowed_values:
+      - SBML
+      - Python
+      - R
+      - MATLAB
+      - Other
+
+  - id: model_availability
+    path: /general_model_information/model_availability
+    label: Model availability (URLs/DOIs)
+    value_type: uri
+    required: true
+    cardinality: many
+
+  - id: license
+    path: /general_model_information/license
+    label: License
+    value_type: controlled_term
+    required: true
+    cardinality: one
+    allowed_values:
+      - CC-BY-4.0
+      - CC-BY-NC-4.0
+      - MIT
+      - GPL-3.0
+      - Apache-2.0
+      - Custom
+
+  - id: intended_application_category
+    path: /general_model_information/intended_application_category
+    label: Intended application category
+    value_type: string
+    required: true
+    cardinality: one

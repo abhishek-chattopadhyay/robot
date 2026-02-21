@@ -1,0 +1,53 @@
+id: calibration_and_parameter_estimation
+title: Calibration and Parameter Estimation
+description: Calibration / estimation methods and datasets used during development.
+fields:
+  - id: calibration_activities
+    path: /calibration_and_parameter_estimation/calibration_activities
+    label: Calibration activities
+    value_type: object
+    required: false
+    cardinality: many
+    fields:
+      - id: calibration_description
+        path: /calibration_and_parameter_estimation/calibration_activities/*/calibration_description
+        label: Calibration description
+        value_type: text
+        required: true
+
+      - id: calibration_method
+        path: /calibration_and_parameter_estimation/calibration_activities/*/calibration_method
+        label: Calibration method
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Manual fitting
+          - Least squares optimization
+          - Bayesian inference
+          - Visual inspection
+          - Other
+
+      - id: calibration_data
+        path: /calibration_and_parameter_estimation/calibration_activities/*/calibration_data
+        label: Calibration data
+        value_type: text
+        required: false
+
+      - id: calibrated_parameters
+        path: /calibration_and_parameter_estimation/calibration_activities/*/calibrated_parameters
+        label: Calibrated parameters
+        value_type: string
+        required: false
+        cardinality: many
+
+      - id: optimization_criteria
+        path: /calibration_and_parameter_estimation/calibration_activities/*/optimization_criteria
+        label: Optimization criteria
+        value_type: text
+        required: false
+
+      - id: calibration_notes
+        path: /calibration_and_parameter_estimation/calibration_activities/*/calibration_notes
+        label: Calibration notes
+        value_type: text
+        required: false

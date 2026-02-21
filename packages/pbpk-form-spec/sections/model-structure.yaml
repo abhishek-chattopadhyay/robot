@@ -1,0 +1,101 @@
+id: model_structure_and_representation
+title: Model Structure and Mathematical Representation
+description: Structure, connections, math representation, and implementation references.
+fields:
+  - id: model_structure_description
+    path: /model_structure_and_representation/model_structure_description
+    label: Model structure description
+    value_type: text
+    required: true
+    cardinality: one
+
+  - id: structural_compartments
+    path: /model_structure_and_representation/structural_compartments
+    label: Structural compartments
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: compartment_name
+        path: /model_structure_and_representation/structural_compartments/*/compartment_name
+        label: Compartment name (model)
+        value_type: string
+        required: true
+
+      - id: biological_reference
+        path: /model_structure_and_representation/structural_compartments/*/biological_reference
+        label: Biological reference
+        value_type: controlled_term
+        required: true
+        vocabulary: compartments
+
+      - id: compartment_description
+        path: /model_structure_and_representation/structural_compartments/*/compartment_description
+        label: Compartment description
+        value_type: text
+        required: false
+
+  - id: inter_compartmental_connections
+    path: /model_structure_and_representation/inter_compartmental_connections
+    label: Inter-compartmental connections
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: source_compartment
+        path: /model_structure_and_representation/inter_compartmental_connections/*/source_compartment
+        label: Source compartment
+        value_type: string
+        required: true
+
+      - id: target_compartment
+        path: /model_structure_and_representation/inter_compartmental_connections/*/target_compartment
+        label: Target compartment
+        value_type: string
+        required: true
+
+      - id: connection_type
+        path: /model_structure_and_representation/inter_compartmental_connections/*/connection_type
+        label: Connection type
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Blood flow
+          - Diffusion
+          - Permeation
+          - Other
+
+  - id: mathematical_representation
+    path: /model_structure_and_representation/mathematical_representation
+    label: Mathematical representation
+    value_type: controlled_term
+    required: true
+    allowed_values:
+      - Ordinary differential equations
+      - Algebraic equations
+      - Hybrid ODE-algebraic system
+      - Other
+
+  - id: model_implementation_reference
+    path: /model_structure_and_representation/model_implementation_reference
+    label: Model implementation reference(s)
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: implementation_type
+        path: /model_structure_and_representation/model_implementation_reference/*/implementation_type
+        label: Implementation type
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - SBML
+          - Python script
+          - R script
+          - Other
+
+      - id: implementation_location
+        path: /model_structure_and_representation/model_implementation_reference/*/implementation_location
+        label: Implementation location (relative path)
+        value_type: string
+        required: true

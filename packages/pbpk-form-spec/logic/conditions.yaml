@@ -1,0 +1,2 @@
+# v1: keep empty unless needed. This file exists so the schema can evolve without API changes.
+conditions: []

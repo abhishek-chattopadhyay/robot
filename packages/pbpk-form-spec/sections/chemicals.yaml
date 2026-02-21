@@ -1,0 +1,65 @@
+id: chemical_description
+title: Chemical(s) Description
+description: Chemical identity and identifiers represented in the model.
+fields:
+  - id: chemicals
+    path: /chemical_description/chemicals
+    label: Chemical substance(s)
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: chemical_name
+        path: /chemical_description/chemicals/*/chemical_name
+        label: Chemical name
+        value_type: string
+        required: true
+
+      - id: chemical_role
+        path: /chemical_description/chemicals/*/chemical_role
+        label: Role in the model
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Parent compound
+          - Metabolite
+          - Co-exposure component
+          - Other
+
+      - id: chemical_identifiers
+        path: /chemical_description/chemicals/*/chemical_identifiers
+        label: Chemical identifier(s)
+        value_type: object
+        required: true
+        cardinality: many
+        fields:
+          - id: identifier_type
+            path: /chemical_description/chemicals/*/chemical_identifiers/*/identifier_type
+            label: Identifier type
+            value_type: controlled_term
+            required: true
+            allowed_values:
+              - CAS RN
+              - InChI
+              - InChIKey
+              - SMILES
+              - PubChem CID
+              - Other
+
+          - id: identifier_value
+            path: /chemical_description/chemicals/*/chemical_identifiers/*/identifier_value
+            label: Identifier value
+            value_type: string
+            required: true
+
+      - id: molecular_weight
+        path: /chemical_description/chemicals/*/molecular_weight
+        label: Molecular weight (g/mol)
+        value_type: number
+        required: false
+
+      - id: physicochemical_notes
+        path: /chemical_description/chemicals/*/physicochemical_notes
+        label: Physicochemical notes
+        value_type: text
+        required: false

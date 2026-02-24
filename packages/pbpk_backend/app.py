@@ -10,7 +10,8 @@ from pbpk_backend.api import templates as templates_api
 from pbpk_backend.api import form_ui as form_ui_api
 from pbpk_backend.api import drafts as drafts_api
 from pbpk_backend.api import draft_apply
-from pbpk_backend.api.ui import router as ui_router
+#from pbpk_backend.api.ui import router as ui_router
+from pbpk_backend.api import ui as ui_api
 
 app = FastAPI(title="PBPK FAIR Platform API (v1)")
 
@@ -24,4 +25,5 @@ app.include_router(templates_api.router)
 app.include_router(form_ui_api.router)
 app.include_router(drafts_api.router)
 app.include_router(draft_apply.router)
-app.include_router(ui_router)
+#app.include_router(ui_router)
+app.include_router(ui_api.router)

@@ -75,7 +75,7 @@ def api_apply_array(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
     """
     Body:
       {
-        "array_path": "/.../array",
+        "array_path": "/.../array",.
         "action": "append|insert|remove_index|replace_index",
         "value": {...},   # required for append/insert/replace_index
         "index": 0        # required for insert/remove_index/replace_index

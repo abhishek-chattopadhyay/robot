@@ -1,488 +1,464 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PBPK Metadata Form (v1)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PBPK Metadata Form</title>
   <style>
-    :root { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
-    body { margin: 0; background: #f6f7f9; color: #111; }
-    header { background: #111827; color: #fff; padding: 16px 20px; }
-    header h1 { margin: 0; font-size: 18px; font-weight: 650; }
-    header .sub { opacity: .85; margin-top: 4px; font-size: 13px; }
-
-    main { max-width: 1100px; margin: 18px auto; padding: 0 14px 40px; display: grid; gap: 14px; grid-template-columns: 1fr; }
-    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04); overflow: hidden; }
-    .card h2 { margin: 0; padding: 12px 14px; font-size: 16px; border-bottom: 1px solid #e5e7eb; background: #fafafa; }
-    .card .content { padding: 12px 14px; }
-
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .row > * { margin: 0; }
-    label { font-size: 12px; color: #374151; font-weight: 600; }
+    :root { color-scheme: light; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px 60px; }
+    .topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .left { display: flex; gap: 10px; align-items: center; }
+    .title { font-size: 18px; font-weight: 650; }
+    .pill { font-size: 12px; opacity: 0.75; padding: 3px 8px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.18); }
+    .btn { border: 1px solid rgba(0,0,0,0.2); background: rgba(0,0,0,0.03); border-radius: 10px; padding: 9px 12px; cursor: pointer; }
+    .btn:hover { background: rgba(0,0,0,0.06); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .card { border: 1px solid rgba(0,0,0,0.14); border-radius: 14px; padding: 12px; margin: 12px 0; }
+    .section-title { font-size: 16px; font-weight: 650; margin: 6px 0 8px; }
+    .section-desc { font-size: 12px; opacity: 0.75; margin: 0 0 12px; }
+    .field { margin: 10px 0; }
+    .label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display:flex; gap:8px; align-items:center; }
+    .req { font-size: 11px; opacity: 0.7; border: 1px solid rgba(0,0,0,0.2); border-radius: 999px; padding: 1px 7px; }
+    .missing { color: #b00020; font-weight: 700; }
     input[type="text"], textarea, select {
-      width: 100%;
-      border: 1px solid #d1d5db;
+      width: 100%; box-sizing: border-box;
+      border: 1px solid rgba(0,0,0,0.22);
       border-radius: 10px;
-      padding: 9px 10px;
-      font-size: 14px;
-      background: #fff;
+      padding: 10px 10px;
+      background: transparent;
+      color: inherit;
     }
-    textarea { min-height: 72px; resize: vertical; }
-    .btn {
-      border: 1px solid #d1d5db;
-      background: #fff;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .btn.primary {
-      background: #2563eb;
-      border-color: #2563eb;
-      color: #fff;
-    }
-    .btn.danger { background: #fee2e2; border-color: #fecaca; }
-    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #e5e7eb; background: #fff; }
-    .pill.ok { background: #dcfce7; border-color: #bbf7d0; }
-    .pill.warn { background: #fef9c3; border-color: #fde68a; }
-    .pill.err { background: #fee2e2; border-color: #fecaca; }
+    textarea { min-height: 80px; resize: vertical; }
+    .small { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+    .actions { display:flex; gap: 10px; flex-wrap: wrap; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    .hr { height: 1px; background: rgba(0,0,0,0.12); margin: 14px 0; }
+    details > summary { cursor: pointer; user-select:none; font-weight: 650; }
+    details { border-radius: 12px; }
 
-    details.section { border-top: 1px solid #e5e7eb; }
-    details.section > summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 14px;
-      font-weight: 650;
-      background: #fff;
-    }
-    details.section[open] > summary { background: #fafafa; border-bottom: 1px solid #e5e7eb; }
-    summary::-webkit-details-marker { display:none; }
+    /* Theme: light/dark + high contrast */
+    body[data-theme="light"] { background: #ffffff; color: #111111; }
+    body[data-theme="dark"] { background: #000000; color: #ffffff; }
+    body[data-theme="light-hc"] { background: #ffffff; color: #000000; }
+    body[data-theme="dark-hc"] { background: #000000; color: #ffffff; }
 
-    .field { padding: 12px 14px; border-bottom: 1px solid #f0f2f5; }
-    .field:last-child { border-bottom: none; }
-    .field .meta { display:flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-    .field .path { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 11px; color: #6b7280; }
-    .field .req { font-size: 11px; color: #6b7280; }
-    .field .help { margin-top: 6px; font-size: 12px; color: #4b5563; }
+    body[data-theme="light"] .card,
+    body[data-theme="light"] .btn,
+    body[data-theme="light"] input[type="text"],
+    body[data-theme="light"] textarea,
+    body[data-theme="light"] select,
+    body[data-theme="light"] .pill,
+    body[data-theme="light"] .req { border-color: rgba(0,0,0,0.18); }
 
-    .array-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; margin-top: 10px; background: #fff; }
-    .array-item-head { display:flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .array-item-head strong { font-size: 13px; }
-    .small { font-size: 12px; color: #6b7280; }
-    .grid2 { display:grid; grid-template-columns: 1fr; gap: 10px; }
-    @media (min-width: 900px) { .grid2 { grid-template-columns: 1fr 1fr; } }
-    pre { background: #0b1020; color: #e5e7eb; padding: 12px; border-radius: 12px; overflow:auto; }
-    .muted { color: #6b7280; font-size: 13px; }
+    body[data-theme="dark"] .card,
+    body[data-theme="dark"] .btn,
+    body[data-theme="dark"] input[type="text"],
+    body[data-theme="dark"] textarea,
+    body[data-theme="dark"] select,
+    body[data-theme="dark"] .pill,
+    body[data-theme="dark"] .req { border-color: rgba(255,255,255,0.26); }
+
+    body[data-theme="light-hc"] .card,
+    body[data-theme="light-hc"] .btn,
+    body[data-theme="light-hc"] input[type="text"],
+    body[data-theme="light-hc"] textarea,
+    body[data-theme="light-hc"] select,
+    body[data-theme="light-hc"] .pill,
+    body[data-theme="light-hc"] .req { border-color: rgba(0,0,0,0.55); }
+
+    body[data-theme="dark-hc"] .card,
+    body[data-theme="dark-hc"] .btn,
+    body[data-theme="dark-hc"] input[type="text"],
+    body[data-theme="dark-hc"] textarea,
+    body[data-theme="dark-hc"] select,
+    body[data-theme="dark-hc"] .pill,
+    body[data-theme="dark-hc"] .req { border-color: rgba(255,255,255,0.55); }
+
+    body[data-theme="dark"] .btn,
+    body[data-theme="dark-hc"] .btn { background: rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .btn:hover,
+    body[data-theme="dark-hc"] .btn:hover { background: rgba(255,255,255,0.10); }
+
+    body[data-theme="dark"] .hr,
+    body[data-theme="dark-hc"] .hr { background: rgba(255,255,255,0.18); }
+
+    body[data-theme="dark"] .missing,
+    body[data-theme="dark-hc"] .missing { color: #ff6b6b; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>PBPK Metadata Form (v1)</h1>
-    <div class="sub">Static UI (Option A) — talks to your existing API</div>
-  </header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="left">
+        <div class="title">PBPK metadata</div>
+        <div id="draftPill" class="pill">draft: (not created)</div>
+      </div>
 
-  <main>
+      <div class="row">
+        <select id="themeSelect" class="btn" style="padding: 9px 10px;">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="light-hc">Light (High contrast)</option>
+          <option value="dark-hc">Dark (High contrast)</option>
+        </select>
+        <a class="btn" href="/ui" style="text-decoration:none; color:inherit;">Back</a>
+      </div>
+    </div>
+
     <div class="card">
-      <h2>Controls</h2>
-      <div class="content">
-        <div class="row" style="justify-content: space-between;">
-          <div class="row" style="flex: 1 1 520px;">
-            <div style="min-width: 260px; flex: 1 1 320px;">
-              <label>Backend base URL</label>
-              <input id="baseUrl" type="text" value="http://127.0.0.1:8000" />
-            </div>
-            <div style="min-width: 260px; flex: 1 1 320px;">
-              <label>Draft ID (optional)</label>
-              <input id="draftId" type="text" placeholder="draft_..." />
-              <div class="muted" style="margin-top: 6px;">Leave empty to load from a metadata JSON file instead.</div>
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" id="btnLoad">Load UI</button>
-            <button class="btn primary" id="btnSave">Apply edits → Draft</button>
-            <button class="btn" id="btnValidate">Validate draft</button>
-            <button class="btn" id="btnBuild">Build crate</button>
-          </div>
+      <div class="row" style="justify-content:space-between;">
+        <div class="row">
+          <button id="startBlankBtn" class="btn" type="button">Start blank</button>
+          <label class="btn" style="display:inline-flex; align-items:center; gap:8px;">
+            <span>Import JSON</span>
+            <input id="fileInput" type="file" accept="application/json" style="display:none;" />
+          </label>
         </div>
-
-        <div class="row" style="margin-top: 12px;">
-          <div style="flex: 1 1 520px;">
-            <label>OR load from local metadata JSON file</label>
-            <input id="fileInput" type="file" accept="application/json" />
-          </div>
-          <div class="row" style="flex: 0 0 auto;">
-            <span id="statusPill" class="pill">idle</span>
-          </div>
-        </div>
-
-        <div style="margin-top: 12px;">
-          <label>Last API response</label>
-          <pre id="apiOut">{}</pre>
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button" disabled>Apply edits → draft</button>
+          <button id="validateBtn" class="btn" type="button" disabled>Validate</button>
+          <button id="buildBtn" class="btn" type="button" disabled>Build RO-Crate</button>
         </div>
       </div>
+
+      <div class="hr"></div>
+
+      <!-- Debug hidden by default -->
+      <details id="debugPanel">
+        <summary>Show debug</summary>
+        <div class="small" style="margin-top:10px;">Last API response</div>
+        <pre id="lastResp" class="mono"></pre>
+      </details>
     </div>
 
-    <div class="card" id="formCard">
-      <h2>Form</h2>
-      <div class="content" id="formRoot">
-        <div class="muted">Click “Load UI”.</div>
-      </div>
-    </div>
-  </main>
+    <div id="formRoot"></div>
+  </div>
 
 <script>
-  const el = (id) => document.getElementById(id);
-  const state = {
-    formUi: null,
-    // pending edits: JSON Pointer -> value
-    edits: {},
-    draftId: null,
-    // if user loads raw metadata file, store it here
-    metadataPayload: null
+  const API = {
+    formUI: (opts="") => `/v1/form-ui/pbpk${opts}`,
+    drafts: () => `/v1/drafts`,
+    applyEdits: (id) => `/v1/drafts/${id}/apply-edits`,
+    validate: (id) => `/v1/drafts/${id}/validate`,
+    build: (id) => `/v1/drafts/${id}/build`,
   };
 
-  function setPill(kind, text) {
-    const p = el("statusPill");
-    p.className = "pill " + (kind || "");
-    p.textContent = text;
+  let currentDraftId = null;
+  let currentUI = null;
+  let currentEdits = {};
+
+  function setLastResp(obj) {
+    const el = document.getElementById("lastResp");
+    if (!el) return;
+    el.textContent = (typeof obj === "string") ? obj : JSON.stringify(obj, null, 2);
   }
 
-  function setOut(obj) {
-    el("apiOut").textContent = JSON.stringify(obj, null, 2);
-  }
+  async function jfetch(url, options={}) {
+    const resp = await fetch(url, options);
+    const ct = resp.headers.get("content-type") || "";
+    let payload = null;
+    if (ct.includes("application/json")) payload = await resp.json();
+    else payload = await resp.text();
 
-  async function api(path, opts={}) {
-    const base = el("baseUrl").value.replace(/\/+$/, "");
-    const url = base + path;
-    const res = await fetch(url, opts);
-    const ct = res.headers.get("content-type") || "";
-    let body;
-    if (ct.includes("application/json")) body = await res.json();
-    else body = await res.text();
-    if (!res.ok) {
-      throw new Error(typeof body === "string" ? body : JSON.stringify(body));
+    if (!resp.ok) {
+      const msg = (typeof payload === "string") ? payload : JSON.stringify(payload);
+      throw new Error(msg);
     }
-    return body;
+    return payload;
   }
 
-  function isScalarField(f) {
-    return (f.value_type !== "object") && (f.cardinality !== "many");
+  function applyTheme(theme) {
+    const t = theme || "light";
+    document.body.setAttribute("data-theme", t);
+    localStorage.setItem("pbpk_theme", t);
+    const sel = document.getElementById("themeSelect");
+    if (sel && sel.value !== t) sel.value = t;
   }
 
-  function isArrayOfObjectsField(f) {
-    return (f.value_type === "object") && (f.cardinality === "many") && Array.isArray(f.fields);
+  function applyThemeFromStorage() {
+    const saved = localStorage.getItem("pbpk_theme") || "light";
+    applyTheme(saved);
   }
 
-  function fieldWidget(field) {
-    const vtype = field.value_type;
-    const allowed = field.allowed_values || null;
-
-    // scalar
-    if (isScalarField(field)) {
-      const current = (field.value !== undefined && field.value !== null) ? field.value : "";
-      if (allowed && Array.isArray(allowed) && allowed.length) {
-        const sel = document.createElement("select");
-        sel.innerHTML = allowed.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
-        sel.value = current || "";
-        sel.onchange = () => { state.edits[field.path] = sel.value; };
-        return sel;
-      }
-      if (vtype === "text") {
-        const ta = document.createElement("textarea");
-        ta.value = current || "";
-        ta.oninput = () => { state.edits[field.path] = ta.value; };
-        return ta;
-      } else {
-        const inp = document.createElement("input");
-        inp.type = "text";
-        inp.value = (current === null || current === undefined) ? "" : String(current);
-        inp.oninput = () => { state.edits[field.path] = inp.value; };
-        return inp;
-      }
-    }
-
-    // array of scalars
-    if (field.cardinality === "many" && field.value_type !== "object") {
-      const wrap = document.createElement("div");
-      const arr = Array.isArray(field.value) ? field.value.slice() : [];
-      const list = document.createElement("div");
-
-      function render() {
-        list.innerHTML = "";
-        arr.forEach((val, i) => {
-          const row = document.createElement("div");
-          row.className = "row";
-          row.style.marginTop = "8px";
-          const inp = document.createElement("input");
-          inp.type = "text";
-          inp.value = val;
-          inp.style.flex = "1 1 auto";
-          inp.oninput = () => {
-            arr[i] = inp.value;
-            state.edits[field.path] = arr.slice();
-          };
-          const rm = document.createElement("button");
-          rm.className = "btn danger";
-          rm.textContent = "Remove";
-          rm.onclick = () => {
-            arr.splice(i, 1);
-            state.edits[field.path] = arr.slice();
-            render();
-          };
-          row.appendChild(inp);
-          row.appendChild(rm);
-          list.appendChild(row);
-        });
-        // ensure edits written
-        // state.edits[field.path] = arr.slice();
-      }
-
-      const add = document.createElement("button");
-      add.className = "btn";
-      add.textContent = "Add item";
-      add.onclick = () => {
-        arr.push("");
-        render();
-      };
-
-      wrap.appendChild(add);
-      wrap.appendChild(list);
-      render();
-      return wrap;
-    }
-
-    // array of objects (render minimal nested editor)
-    if (isArrayOfObjectsField(field)) {
-      const wrap = document.createElement("div");
-      const items = Array.isArray(field.value) ? field.value.slice() : [];
-      const tmpl = field.fields || [];
-
-      const list = document.createElement("div");
-
-      function renderItem(item, idx) {
-        const box = document.createElement("div");
-        box.className = "array-item";
-
-        const head = document.createElement("div");
-        head.className = "array-item-head";
-        const title = document.createElement("strong");
-        title.textContent = `${field.label} #${idx+1}`;
-        const rm = document.createElement("button");
-        rm.className = "btn danger";
-        rm.textContent = "Remove";
-        rm.onclick = () => {
-          items.splice(idx, 1);
-          state.edits[field.path] = items.slice();
-          render();
-        };
-        head.appendChild(title);
-        head.appendChild(rm);
-
-        const grid = document.createElement("div");
-        grid.className = "grid2";
-        grid.style.marginTop = "10px";
-
-        tmpl.forEach(sub => {
-          const cell = document.createElement("div");
-          const lab = document.createElement("label");
-          lab.textContent = sub.label + (sub.required ? " *" : "");
-          const inp = document.createElement("input");
-          inp.type = "text";
-          const key = sub.path.split("*/").pop(); // "species", etc.
-          inp.value = (item && item[key] !== undefined && item[key] !== null) ? String(item[key]) : "";
-          inp.oninput = () => {
-            const next = Object.assign({}, items[idx] || {});
-            next[key] = inp.value;
-            items[idx] = next;
-            state.edits[field.path] = items.slice();
-          };
-          cell.appendChild(lab);
-          cell.appendChild(inp);
-          grid.appendChild(cell);
-        });
-
-        box.appendChild(head);
-        box.appendChild(grid);
-        return box;
-      }
-
-      function render() {
-        list.innerHTML = "";
-        items.forEach((item, idx) => list.appendChild(renderItem(item, idx)));
-        // state.edits[field.path] = items.slice();
-      }
-
-      const add = document.createElement("button");
-      add.className = "btn";
-      add.textContent = "Append new";
-      add.onclick = async () => {
-        // use template endpoint if it exists (best), otherwise create a blank object
-        // We don't know template name reliably here, so just add blank and user fills.
-        items.push({});
-        render();
-      };
-
-      wrap.appendChild(add);
-      wrap.appendChild(list);
-      render();
-      return wrap;
-    }
-
-    const msg = document.createElement("div");
-    msg.className = "muted";
-    msg.textContent = "Widget not implemented for this field type yet (still safe).";
-    return msg;
+  function setDraftPill() {
+    const el = document.getElementById("draftPill");
+    el.textContent = currentDraftId ? `draft: ${currentDraftId}` : "draft: (not created)";
   }
 
-  function renderForm(formUi) {
-    const root = el("formRoot");
+  function enableActions(enabled) {
+    document.getElementById("saveBtn").disabled = !enabled;
+    document.getElementById("validateBtn").disabled = !enabled;
+    document.getElementById("buildBtn").disabled = !enabled;
+  }
+
+  function renderForm(ui) {
+    currentUI = ui;
+    currentEdits = {};
+    const root = document.getElementById("formRoot");
     root.innerHTML = "";
-    state.edits = {};
 
-    (formUi.sections || []).forEach(section => {
-      const det = document.createElement("details");
-      det.className = "section";
-      det.open = true;
+    ui.sections.forEach(section => {
+      const card = document.createElement("div");
+      card.className = "card";
 
-      const sum = document.createElement("summary");
-      sum.textContent = section.title;
-      det.appendChild(sum);
+      const h = document.createElement("div");
+      h.className = "section-title";
+      h.textContent = section.title || section.id;
 
-      (section.fields || []).forEach(field => {
-        const div = document.createElement("div");
-        div.className = "field";
+      const d = document.createElement("div");
+      d.className = "section-desc";
+      d.textContent = section.description || "";
 
-        const meta = document.createElement("div");
-        meta.className = "meta";
+      card.appendChild(h);
+      card.appendChild(d);
 
-        const left = document.createElement("div");
-        const lab = document.createElement("div");
-        lab.style.fontWeight = "650";
-        lab.textContent = field.label + (field.required ? " *" : "");
-        const path = document.createElement("div");
-        path.className = "path";
-        path.textContent = field.path;
-        left.appendChild(lab);
-        left.appendChild(path);
-
-        const right = document.createElement("div");
-        right.className = "req";
-        right.textContent = `${field.value_type}${field.cardinality ? " • " + field.cardinality : ""}${field.missing ? " • missing" : ""}`;
-
-        meta.appendChild(left);
-        meta.appendChild(right);
-
-        div.appendChild(meta);
-
-        const w = fieldWidget(field);
-        w.style.marginTop = "8px";
-        div.appendChild(w);
-
-        if (field.description) {
-          const help = document.createElement("div");
-          help.className = "help";
-          help.textContent = field.description;
-          div.appendChild(help);
-        }
-
-        det.appendChild(div);
+      section.fields.forEach(field => {
+        card.appendChild(renderField(field));
       });
 
-      root.appendChild(det);
+      root.appendChild(card);
     });
 
-    const info = document.createElement("div");
-    info.className = "muted";
-    info.style.marginTop = "10px";
-    info.textContent = "Edits are collected locally and applied to the draft when you click “Apply edits → Draft”.";
-    root.appendChild(info);
+    enableActions(true);
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
+  function renderField(field) {
+    if (field.widget === "group" || field.value_type === "object") {
+      const wrap = document.createElement("div");
+      wrap.className = "field";
 
-  async function loadUi() {
-    setPill("", "loading…");
-    const draftId = el("draftId").value.trim() || null;
-    state.draftId = draftId;
+      const lab = document.createElement("div");
+      lab.className = "label";
+      lab.textContent = field.label || field.id;
 
-    let body;
-    if (draftId) body = JSON.stringify({ draft_id: draftId });
-    else if (state.metadataPayload) body = JSON.stringify(state.metadataPayload);
-    else {
-      throw new Error("Provide a draft_id or load a metadata JSON file.");
+      if (field.required) {
+        const req = document.createElement("span");
+        req.className = "req";
+        req.textContent = "required";
+        lab.appendChild(req);
+      }
+      if (field.missing) {
+        const miss = document.createElement("span");
+        miss.className = "missing";
+        miss.textContent = "missing";
+        lab.appendChild(miss);
+      }
+      wrap.appendChild(lab);
+
+      // Minimal v1: if group is "many", edit item 0 only
+      const val = Array.isArray(field.value) ? field.value : [];
+      const item = (field.cardinality === "many") ? (val[0] || {}) : (val || {});
+
+      const inner = document.createElement("div");
+      inner.style.paddingLeft = "10px";
+      inner.style.borderLeft = "2px solid rgba(0,0,0,0.12)";
+      if (document.body.getAttribute("data-theme")?.startsWith("dark")) {
+        inner.style.borderLeft = "2px solid rgba(255,255,255,0.18)";
+      }
+
+      (field.fields || []).forEach(sub => {
+        const concrete = Object.assign({}, sub);
+        concrete.path = (sub.path || "").replace("/*/", "/0/").replace("/*", "/0");
+
+        try {
+          const key = (sub.path || "").split("/").pop();
+          if (key && item && typeof item === "object" && key in item) concrete.value = item[key];
+          else concrete.value = "";
+        } catch (_) {
+          concrete.value = "";
+        }
+
+        inner.appendChild(renderScalarField(concrete));
+      });
+
+      wrap.appendChild(inner);
+      return wrap;
     }
 
-    const ui = await api(`/v1/form-ui/pbpk?include_helptexts=true&include_vocabularies=true`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body
+    return renderScalarField(field);
+  }
+
+  function renderScalarField(field) {
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+
+    const lab = document.createElement("div");
+    lab.className = "label";
+    lab.textContent = field.label || field.id;
+
+    if (field.required) {
+      const req = document.createElement("span");
+      req.className = "req";
+      req.textContent = "required";
+      lab.appendChild(req);
+    }
+    if (field.missing) {
+      const miss = document.createElement("span");
+      miss.className = "missing";
+      miss.textContent = "missing";
+      lab.appendChild(miss);
+    }
+    wrap.appendChild(lab);
+
+    const path = field.path;
+    let input;
+
+    if (field.value_type === "text") {
+      input = document.createElement("textarea");
+      input.value = (field.value ?? "");
+    } else if (field.value_type === "controlled_term" && Array.isArray(field.allowed_values)) {
+      input = document.createElement("select");
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "";
+      input.appendChild(opt0);
+      field.allowed_values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        input.appendChild(opt);
+      });
+      input.value = (field.value ?? "");
+    } else {
+      input = document.createElement("input");
+      input.type = "text";
+      input.value = (field.value ?? "");
+    }
+
+    input.addEventListener("input", () => {
+      currentEdits[path] = input.value;
     });
 
-    state.formUi = ui;
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  async function ensureDraftExistsFromMetadata(metadataObj) {
+    if (currentDraftId) return currentDraftId;
+    const draft = await jfetch(API.drafts(), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(metadataObj || {})
+    });
+    currentDraftId = draft.draft_id;
+    setDraftPill();
+    return currentDraftId;
+  }
+
+  async function loadFormFromMetadata(metadataObj) {
+    const ui = await jfetch(API.formUI("?include_helptexts=true&include_vocabularies=true"), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(metadataObj || {})
+    });
     renderForm(ui);
-    setOut(ui);
-    setPill("ok", "loaded");
+    setLastResp(ui);
+    await ensureDraftExistsFromMetadata(metadataObj || {});
   }
 
   async function applyEdits() {
-    const draftId = el("draftId").value.trim();
-    if (!draftId) throw new Error("Draft ID is required to save edits.");
+    if (!currentDraftId) throw new Error("No draft_id");
+    const payload = { edits: currentEdits };
 
-    setPill("", "saving…");
-    const payload = { edits: state.edits };
-
-    const out = await api(`/v1/drafts/${draftId}/apply-edits`, {
+    const out = await jfetch(API.applyEdits(currentDraftId), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type":"application/json"},
       body: JSON.stringify(payload)
     });
 
-    setOut(out);
-    setPill("ok", "saved");
-    // reload UI from draft to reflect server state
-    await loadUi();
+    setLastResp(out);
+
+    // reload values from server truth
+    const ui = await jfetch(API.formUI("?include_helptexts=false&include_vocabularies=true"), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ draft_id: currentDraftId })
+    });
+    renderForm(ui);
   }
 
   async function validateDraft() {
-    const draftId = el("draftId").value.trim();
-    if (!draftId) throw new Error("Draft ID is required to validate.");
-    setPill("", "validating…");
-    const out = await api(`/v1/drafts/${draftId}/validate`, { method: "POST" });
-    setOut(out);
-    const warns = (out.validation && out.validation.warnings) ? out.validation.warnings.length : 0;
-    setPill(warns ? "warn" : "ok", warns ? `validated (${warns} warnings)` : "validated");
+    if (!currentDraftId) throw new Error("No draft_id");
+    const out = await jfetch(API.validate(currentDraftId), { method: "POST" });
+    setLastResp(out);
   }
 
   async function buildCrate() {
-    const draftId = el("draftId").value.trim();
-    if (!draftId) throw new Error("Draft ID is required to build.");
-    setPill("", "building…");
-    const out = await api(`/v1/drafts/${draftId}/build`, { method: "POST" });
-    setOut(out);
-    const crateId = out && out.build && out.build.crate_id;
-    setPill("ok", crateId ? `built: ${crateId}` : "built");
+    if (!currentDraftId) throw new Error("No draft_id");
+    const out = await jfetch(API.build(currentDraftId), { method: "POST" });
+    setLastResp(out);
   }
 
-  el("btnLoad").onclick = async () => { try { await loadUi(); } catch (e) { setPill("err","error"); setOut({error: String(e)}); } };
-  el("btnSave").onclick = async () => { try { await applyEdits(); } catch (e) { setPill("err","error"); setOut({error: String(e)}); } };
-  el("btnValidate").onclick = async () => { try { await validateDraft(); } catch (e) { setPill("err","error"); setOut({error: String(e)}); } };
-  el("btnBuild").onclick = async () => { try { await buildCrate(); } catch (e) { setPill("err","error"); setOut({error: String(e)}); } };
+  // Wire UI
+  document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value));
 
-  el("fileInput").addEventListener("change", async (ev) => {
-    const f = ev.target.files && ev.target.files[0];
-    if (!f) return;
-    const txt = await f.text();
+  document.getElementById("startBlankBtn").addEventListener("click", async () => {
     try {
-      state.metadataPayload = JSON.parse(txt);
-      setPill("ok", "file loaded");
-      setOut({ ok: true, loaded_file: f.name });
+      currentDraftId = null;
+      setDraftPill();
+      await loadFormFromMetadata({});
     } catch (e) {
-      setPill("err", "bad json");
-      setOut({ error: "Invalid JSON file" });
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
     }
   });
+
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+    try { await applyEdits(); }
+    catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("validateBtn").addEventListener("click", async () => {
+    try { await validateDraft(); }
+    catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("buildBtn").addEventListener("click", async () => {
+    try { await buildCrate(); }
+    catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("fileInput").addEventListener("change", async (ev) => {
+    try {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      const txt = await f.text();
+      const obj = JSON.parse(txt);
+      currentDraftId = null;
+      setDraftPill();
+      await loadFormFromMetadata(obj);
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  // Initial boot: show form immediately (blank)
+  (async function boot() {
+    applyThemeFromStorage();
+    setDraftPill();
+    enableActions(false);
+    try {
+      await loadFormFromMetadata({});
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  })();
 </script>
+
 </body>
 </html>

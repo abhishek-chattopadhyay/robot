@@ -6,27 +6,176 @@
   <title>PBPK Metadata Form</title>
   <style>
     :root { color-scheme: light; }
+    html { scroll-behavior: smooth; }
     body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px 60px; }
-    .topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .left { display: flex; gap: 10px; align-items: center; }
+
+    .topbar {
+      display: flex; gap: 10px; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .title { font-size: 18px; font-weight: 650; }
-    .pill { font-size: 12px; opacity: 0.75; padding: 3px 8px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.18); }
-    .btn { border: 1px solid rgba(0,0,0,0.2); background: rgba(0,0,0,0.03); border-radius: 10px; padding: 9px 12px; cursor: pointer; }
+
+    .pill {
+      font-size: 12px; opacity: 0.85; padding: 4px 9px; border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .pill.saved { background: rgba(16,185,129,0.10); }
+    .pill.unsaved { background: rgba(245,158,11,0.10); }
+    .pill.saving { background: rgba(59,130,246,0.10); }
+    .pill.error { background: rgba(239,68,68,0.12); }
+
+    .btn {
+      border: 1px solid rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.03);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
     .btn:hover { background: rgba(0,0,0,0.06); }
     .btn:disabled { opacity: 0.55; cursor: not-allowed; }
     .btn.danger { color: #b00020; }
+    .btn.primary {
+      background: rgba(16,185,129,0.12);
+      border-color: rgba(16,185,129,0.28);
+    }
+    .btn.primary:hover { background: rgba(16,185,129,0.18); }
+
     .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .card { border: 1px solid rgba(0,0,0,0.14); border-radius: 14px; padding: 12px; margin: 12px 0; }
-    .section-title { font-size: 16px; font-weight: 650; margin: 6px 0 8px; }
-    .section-desc { font-size: 12px; opacity: 0.75; margin: 0 0 12px; }
+    .actions { display:flex; gap: 10px; flex-wrap: wrap; }
+
+    .card {
+      border: 1px solid rgba(0,0,0,0.14);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .section-card {
+      border: 1px solid rgba(0,0,0,0.14);
+      border-radius: 14px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .section-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-header:hover { background: rgba(0,0,0,0.02); }
+    .section-head-left {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 650;
+      margin: 0 0 6px;
+    }
+    .section-desc {
+      font-size: 12px;
+      opacity: 0.75;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .section-meta {
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 0 0 auto;
+    }
+    .section-badge {
+      font-size: 11px;
+      border: 1px solid rgba(0,0,0,0.16);
+      border-radius: 999px;
+      padding: 3px 8px;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+    .section-badge.missing {
+      color: #b00020;
+      font-weight: 700;
+    }
+    .section-toggle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .section-body {
+      padding: 0 12px 12px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .section-body.collapsed { display: none; }
+
+    .navigator {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      border: 1px solid rgba(0,0,0,0.14);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 12px 0;
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.92);
+    }
+    .navigator-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .nav-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      background: rgba(0,0,0,0.02);
+    }
+    .nav-link:hover { background: rgba(0,0,0,0.06); }
+    .nav-missing {
+      color: #b00020;
+      font-weight: 700;
+    }
+
     .field { margin: 10px 0; }
-    .label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display:flex; gap:8px; align-items:center; }
-    .req { font-size: 11px; opacity: 0.7; border: 1px solid rgba(0,0,0,0.2); border-radius: 999px; padding: 1px 7px; }
+    .label {
+      font-size: 13px; font-weight: 600; margin-bottom: 6px;
+      display:flex; gap:8px; align-items:center;
+    }
+    .req {
+      font-size: 11px; opacity: 0.7;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 999px;
+      padding: 1px 7px;
+    }
     .missing { color: #b00020; font-weight: 700; }
     .small { font-size: 12px; opacity: 0.75; margin-top: 4px; }
-    .actions { display:flex; gap: 10px; flex-wrap: wrap; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
     pre { white-space: pre-wrap; word-break: break-word; }
     .hr { height: 1px; background: rgba(0,0,0,0.12); margin: 14px 0; }
     details > summary { cursor: pointer; user-select:none; font-weight: 650; }
@@ -88,6 +237,58 @@
       margin: 6px 0;
     }
 
+    .status-box {
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .status-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 6px 10px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .kv .k {
+      opacity: 0.72;
+    }
+    .status-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast-wrap {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 360px;
+    }
+    .toast {
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(0,0,0,0.14);
+      background: rgba(255,255,255,0.96);
+      color: #111;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      font-size: 13px;
+    }
+    .toast.success { border-color: rgba(16,185,129,0.35); }
+    .toast.info { border-color: rgba(59,130,246,0.35); }
+    .toast.warn { border-color: rgba(245,158,11,0.35); }
+    .toast.error { border-color: rgba(239,68,68,0.35); }
+
     /* Themes */
     body[data-theme="light"] { background: #ffffff; color: #111111; }
     body[data-theme="dark"] { background: #000000; color: #ffffff; }
@@ -95,7 +296,10 @@
     body[data-theme="dark-hc"] { background: #000000; color: #ffffff; }
 
     body[data-theme="light"] .card,
+    body[data-theme="light"] .section-card,
+    body[data-theme="light"] .navigator,
     body[data-theme="light"] .btn,
+    body[data-theme="light"] .nav-link,
     body[data-theme="light"] input[type="text"],
     body[data-theme="light"] input[type="number"],
     body[data-theme="light"] textarea,
@@ -104,12 +308,18 @@
     body[data-theme="light"] .req,
     body[data-theme="light"] .group-box,
     body[data-theme="light"] .group-item,
-    body[data-theme="light"] .suggest-box {
+    body[data-theme="light"] .suggest-box,
+    body[data-theme="light"] .status-box,
+    body[data-theme="light"] .toast,
+    body[data-theme="light"] .section-badge {
       border-color: rgba(0,0,0,0.18);
     }
 
     body[data-theme="dark"] .card,
+    body[data-theme="dark"] .section-card,
+    body[data-theme="dark"] .navigator,
     body[data-theme="dark"] .btn,
+    body[data-theme="dark"] .nav-link,
     body[data-theme="dark"] input[type="text"],
     body[data-theme="dark"] input[type="number"],
     body[data-theme="dark"] textarea,
@@ -118,12 +328,18 @@
     body[data-theme="dark"] .req,
     body[data-theme="dark"] .group-box,
     body[data-theme="dark"] .group-item,
-    body[data-theme="dark"] .suggest-box {
+    body[data-theme="dark"] .suggest-box,
+    body[data-theme="dark"] .status-box,
+    body[data-theme="dark"] .toast,
+    body[data-theme="dark"] .section-badge {
       border-color: rgba(255,255,255,0.26);
     }
 
     body[data-theme="light-hc"] .card,
+    body[data-theme="light-hc"] .section-card,
+    body[data-theme="light-hc"] .navigator,
     body[data-theme="light-hc"] .btn,
+    body[data-theme="light-hc"] .nav-link,
     body[data-theme="light-hc"] input[type="text"],
     body[data-theme="light-hc"] input[type="number"],
     body[data-theme="light-hc"] textarea,
@@ -132,12 +348,18 @@
     body[data-theme="light-hc"] .req,
     body[data-theme="light-hc"] .group-box,
     body[data-theme="light-hc"] .group-item,
-    body[data-theme="light-hc"] .suggest-box {
+    body[data-theme="light-hc"] .suggest-box,
+    body[data-theme="light-hc"] .status-box,
+    body[data-theme="light-hc"] .toast,
+    body[data-theme="light-hc"] .section-badge {
       border-color: rgba(0,0,0,0.55);
     }
 
     body[data-theme="dark-hc"] .card,
+    body[data-theme="dark-hc"] .section-card,
+    body[data-theme="dark-hc"] .navigator,
     body[data-theme="dark-hc"] .btn,
+    body[data-theme="dark-hc"] .nav-link,
     body[data-theme="dark-hc"] input[type="text"],
     body[data-theme="dark-hc"] input[type="number"],
     body[data-theme="dark-hc"] textarea,
@@ -146,18 +368,47 @@
     body[data-theme="dark-hc"] .req,
     body[data-theme="dark-hc"] .group-box,
     body[data-theme="dark-hc"] .group-item,
-    body[data-theme="dark-hc"] .suggest-box {
+    body[data-theme="dark-hc"] .suggest-box,
+    body[data-theme="dark-hc"] .status-box,
+    body[data-theme="dark-hc"] .toast,
+    body[data-theme="dark-hc"] .section-badge {
       border-color: rgba(255,255,255,0.55);
     }
 
     body[data-theme="dark"] .btn,
-    body[data-theme="dark-hc"] .btn { background: rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .nav-link,
+    body[data-theme="dark-hc"] .btn,
+    body[data-theme="dark-hc"] .nav-link {
+      background: rgba(255,255,255,0.06);
+    }
     body[data-theme="dark"] .btn:hover,
-    body[data-theme="dark-hc"] .btn:hover { background: rgba(255,255,255,0.10); }
+    body[data-theme="dark"] .nav-link:hover,
+    body[data-theme="dark-hc"] .btn:hover,
+    body[data-theme="dark-hc"] .nav-link:hover {
+      background: rgba(255,255,255,0.10);
+    }
     body[data-theme="dark"] .hr,
     body[data-theme="dark-hc"] .hr { background: rgba(255,255,255,0.18); }
     body[data-theme="dark"] .missing,
-    body[data-theme="dark-hc"] .missing { color: #ff6b6b; }
+    body[data-theme="dark-hc"] .missing,
+    body[data-theme="dark"] .nav-missing,
+    body[data-theme="dark-hc"] .nav-missing { color: #ff6b6b; }
+    body[data-theme="dark"] .toast,
+    body[data-theme="dark-hc"] .toast,
+    body[data-theme="dark"] .navigator,
+    body[data-theme="dark-hc"] .navigator {
+      background: rgba(20,20,20,0.96);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    }
+    body[data-theme="dark"] .section-header:hover,
+    body[data-theme="dark-hc"] .section-header:hover {
+      background: rgba(255,255,255,0.04);
+    }
+    body[data-theme="dark"] .section-body,
+    body[data-theme="dark-hc"] .section-body {
+      border-top-color: rgba(255,255,255,0.08);
+    }
   </style>
 </head>
 <body>
@@ -166,6 +417,7 @@
       <div class="left">
         <div class="title">PBPK metadata</div>
         <div id="draftPill" class="pill">draft: (not created)</div>
+        <div id="saveStatePill" class="pill saved">Saved</div>
       </div>
 
       <div class="row">
@@ -175,7 +427,7 @@
           <option value="light-hc">Light (High contrast)</option>
           <option value="dark-hc">Dark (High contrast)</option>
         </select>
-        <a class="btn" href="/ui" style="text-decoration:none; color:inherit;">Back</a>
+        <a class="btn" href="/ui">Back</a>
       </div>
     </div>
 
@@ -189,10 +441,13 @@
           </label>
         </div>
         <div class="actions">
+          <button id="expandAllBtn" class="btn" type="button" disabled>Expand all</button>
+          <button id="collapseAllBtn" class="btn" type="button" disabled>Collapse all</button>
           <button id="saveBtn" class="btn" type="button" disabled>Apply edits → draft</button>
           <button id="suggestBtn" class="btn" type="button" disabled>Suggest improvements</button>
           <button id="validateBtn" class="btn" type="button" disabled>Validate</button>
           <button id="buildBtn" class="btn" type="button" disabled>Build RO-Crate</button>
+          <button id="validateBuildBtn" class="btn primary" type="button" disabled>Validate + Build</button>
         </div>
       </div>
 
@@ -205,6 +460,25 @@
       </details>
     </div>
 
+    <div id="latestBuildCard" class="card" style="display:none;">
+      <div class="section-title">Latest build</div>
+      <div class="section-desc">Most recent successfully built RO-Crate from this editor session.</div>
+      <div class="status-box">
+        <div class="status-title">Build summary</div>
+        <div class="kv">
+          <div class="k">Crate ID</div><div id="latestCrateId">—</div>
+          <div class="k">Validation</div><div id="latestCrateValidation">—</div>
+          <div class="k">Crate dir</div><div id="latestCrateDir" class="mono">—</div>
+          <div class="k">Metadata path</div><div id="latestMetadataPath" class="mono">—</div>
+        </div>
+        <div class="status-actions">
+          <a id="downloadLatestBtn" class="btn" href="#" style="display:none;">Download latest crate</a>
+          <button id="validateLatestCrateBtn" class="btn" type="button" style="display:none;">Validate latest crate</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="navigatorRoot"></div>
     <div id="formRoot"></div>
 
     <div id="suggestionsCard" class="card" style="display:none;">
@@ -219,6 +493,8 @@
     </div>
   </div>
 
+  <div id="toastWrap" class="toast-wrap"></div>
+
 <script>
   const API = {
     formUI: (opts="") => `/v1/form-ui/pbpk${opts}`,
@@ -229,13 +505,22 @@
     validate: (id) => `/v1/drafts/${id}/validate`,
     build: (id) => `/v1/drafts/${id}/build`,
     template: (name) => `/v1/form-spec/pbpk/templates/${name}`,
-    aiSuggest: () => `/v1/ai/suggest`
+    aiSuggest: () => `/v1/ai/suggest`,
+    validateCrate: (crateId) => `/v1/rocrate/${crateId}/validate`,
+    downloadCrate: (crateId) => `/v1/rocrate/${crateId}/download`
   };
 
   let currentDraftId = null;
   let currentUI = null;
   let currentEdits = {};
   let currentSuggestions = null;
+  let latestBuild = null;
+
+  let autosaveTimer = null;
+  let autosaveDelayMs = 900;
+  let isSaving = false;
+
+  const collapsedSections = new Set();
 
   const TEMPLATE_MAP = {
     "/biological_system_description/biological_systems": "biological_systems",
@@ -252,6 +537,39 @@
     const el = document.getElementById("lastResp");
     if (!el) return;
     el.textContent = (typeof obj === "string") ? obj : JSON.stringify(obj, null, 2);
+  }
+
+  function showToast(message, kind="info", timeout=2400) {
+    const wrap = document.getElementById("toastWrap");
+    const el = document.createElement("div");
+    el.className = `toast ${kind}`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => { el.remove(); }, timeout);
+  }
+
+  function setSaveState(state, text=null) {
+    const el = document.getElementById("saveStatePill");
+    el.className = "pill";
+    if (state === "saved") {
+      el.classList.add("saved");
+      el.textContent = text || "Saved";
+    } else if (state === "unsaved") {
+      el.classList.add("unsaved");
+      el.textContent = text || "Unsaved changes";
+    } else if (state === "saving") {
+      el.classList.add("saving");
+      el.textContent = text || "Saving...";
+    } else if (state === "error") {
+      el.classList.add("error");
+      el.textContent = text || "Save error";
+    } else {
+      el.textContent = text || state || "Saved";
+    }
+  }
+
+  function hasPendingEdits() {
+    return Object.keys(currentEdits).length > 0;
   }
 
   async function jfetch(url, options={}) {
@@ -287,21 +605,133 @@
   }
 
   function enableActions(enabled) {
+    document.getElementById("expandAllBtn").disabled = !enabled;
+    document.getElementById("collapseAllBtn").disabled = !enabled;
     document.getElementById("saveBtn").disabled = !enabled;
     document.getElementById("suggestBtn").disabled = !enabled;
     document.getElementById("validateBtn").disabled = !enabled;
     document.getElementById("buildBtn").disabled = !enabled;
+    document.getElementById("validateBuildBtn").disabled = !enabled;
+  }
+
+  function markDirty() {
+    setSaveState("unsaved");
+    queueAutosave();
+  }
+
+  function queueAutosave() {
+    if (!currentDraftId || !hasPendingEdits()) return;
+    if (autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(async () => {
+      try {
+        await applyEdits(true);
+      } catch (e) {
+        setLastResp({ error: String(e) });
+        setSaveState("error");
+        document.getElementById("debugPanel").open = true;
+      }
+    }, autosaveDelayMs);
+  }
+
+  function clearAutosave() {
+    if (autosaveTimer) {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = null;
+    }
+  }
+
+  function countMissingInField(field) {
+    let count = field.missing ? 1 : 0;
+    if (Array.isArray(field.fields)) {
+      for (const sub of field.fields) count += countMissingInField(sub);
+    }
+    return count;
+  }
+
+  function getSectionStats(section) {
+    const fields = Array.isArray(section.fields) ? section.fields : [];
+    let fieldCount = 0;
+    let missingCount = 0;
+
+    function walk(f) {
+      fieldCount += 1;
+      if (f.missing) missingCount += 1;
+      if (Array.isArray(f.fields)) {
+        for (const sub of f.fields) walk(sub);
+      }
+    }
+
+    fields.forEach(walk);
+    return { fieldCount, missingCount };
+  }
+
+  function renderNavigator(ui) {
+    const root = document.getElementById("navigatorRoot");
+    root.innerHTML = "";
+
+    if (!ui || !Array.isArray(ui.sections) || ui.sections.length === 0) return;
+
+    const nav = document.createElement("div");
+    nav.className = "navigator";
+
+    const title = document.createElement("div");
+    title.className = "navigator-title";
+    title.textContent = "Quick navigation";
+    nav.appendChild(title);
+
+    const list = document.createElement("div");
+    list.className = "nav-list";
+
+    ui.sections.forEach(section => {
+      const stats = getSectionStats(section);
+      const a = document.createElement("a");
+      a.className = "nav-link";
+      a.href = `#section-${section.id}`;
+
+      const text = document.createElement("span");
+      text.textContent = section.title || section.id;
+      a.appendChild(text);
+
+      const count = document.createElement("span");
+      count.className = "section-badge";
+      count.textContent = `${stats.fieldCount} fields`;
+      a.appendChild(count);
+
+      if (stats.missingCount > 0) {
+        const miss = document.createElement("span");
+        miss.className = "section-badge missing nav-missing";
+        miss.textContent = `${stats.missingCount} missing`;
+        a.appendChild(miss);
+      }
+
+      list.appendChild(a);
+    });
+
+    nav.appendChild(list);
+    root.appendChild(nav);
   }
 
   function renderForm(ui) {
     currentUI = ui;
     currentEdits = {};
+    clearAutosave();
+    renderNavigator(ui);
+
     const root = document.getElementById("formRoot");
     root.innerHTML = "";
 
     ui.sections.forEach(section => {
-      const card = document.createElement("div");
-      card.className = "card";
+      const stats = getSectionStats(section);
+
+      const card = document.createElement("section");
+      card.className = "section-card";
+      card.id = `section-${section.id}`;
+
+      const header = document.createElement("div");
+      header.className = "section-header";
+
+      const left = document.createElement("div");
+      left.className = "section-head-left";
 
       const h = document.createElement("div");
       h.className = "section-title";
@@ -311,17 +741,71 @@
       d.className = "section-desc";
       d.textContent = section.description || "";
 
-      card.appendChild(h);
-      card.appendChild(d);
+      left.appendChild(h);
+      left.appendChild(d);
+
+      const meta = document.createElement("div");
+      meta.className = "section-meta";
+
+      const fieldsBadge = document.createElement("span");
+      fieldsBadge.className = "section-badge";
+      fieldsBadge.textContent = `${stats.fieldCount} fields`;
+      meta.appendChild(fieldsBadge);
+
+      if (stats.missingCount > 0) {
+        const missingBadge = document.createElement("span");
+        missingBadge.className = "section-badge missing";
+        missingBadge.textContent = `${stats.missingCount} missing`;
+        meta.appendChild(missingBadge);
+      }
+
+      const toggle = document.createElement("span");
+      toggle.className = "section-toggle";
+      meta.appendChild(toggle);
+
+      const body = document.createElement("div");
+      body.className = "section-body";
 
       (section.fields || []).forEach(field => {
-        card.appendChild(renderField(field));
+        body.appendChild(renderField(field));
       });
 
+      function syncCollapsed() {
+        const collapsed = collapsedSections.has(section.id);
+        body.classList.toggle("collapsed", collapsed);
+        toggle.textContent = collapsed ? "Expand" : "Collapse";
+      }
+
+      header.addEventListener("click", () => {
+        if (collapsedSections.has(section.id)) collapsedSections.delete(section.id);
+        else collapsedSections.add(section.id);
+        syncCollapsed();
+      });
+
+      syncCollapsed();
+
+      header.appendChild(left);
+      header.appendChild(meta);
+
+      card.appendChild(header);
+      card.appendChild(body);
       root.appendChild(card);
     });
 
     enableActions(true);
+    setSaveState("saved");
+  }
+
+  function expandAllSections() {
+    if (!currentUI || !Array.isArray(currentUI.sections)) return;
+    collapsedSections.clear();
+    renderForm(currentUI);
+  }
+
+  function collapseAllSections() {
+    if (!currentUI || !Array.isArray(currentUI.sections)) return;
+    currentUI.sections.forEach(section => collapsedSections.add(section.id));
+    renderForm(currentUI);
   }
 
   function renderField(field) {
@@ -368,11 +852,14 @@
       addBtn.className = "btn";
       addBtn.type = "button";
       addBtn.textContent = "Add item";
-      addBtn.addEventListener("click", async () => {
+      addBtn.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
         try {
           await addGroupItem(arrayPath);
+          showToast("Item added", "success");
         } catch (e) {
           setLastResp({ error: String(e) });
+          setSaveState("error");
           document.getElementById("debugPanel").open = true;
         }
       });
@@ -416,11 +903,14 @@
       rmBtn.className = "btn danger";
       rmBtn.type = "button";
       rmBtn.textContent = "Remove";
-      rmBtn.addEventListener("click", async () => {
+      rmBtn.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
         try {
           await removeGroupItem(field.path, index);
+          showToast("Item removed", "info");
         } catch (e) {
           setLastResp({ error: String(e) });
+          setSaveState("error");
           document.getElementById("debugPanel").open = true;
         }
       });
@@ -486,6 +976,7 @@
       input.value = (field.value ?? "");
       input.addEventListener("input", () => {
         currentEdits[path] = input.value;
+        markDirty();
       });
       wrap.appendChild(input);
       return wrap;
@@ -498,6 +989,7 @@
       input.addEventListener("input", () => {
         const v = input.value;
         currentEdits[path] = v === "" ? null : Number(v);
+        markDirty();
       });
       wrap.appendChild(input);
       return wrap;
@@ -523,6 +1015,7 @@
         input.addEventListener("change", () => {
           const vals = Array.from(input.selectedOptions).map(o => o.value);
           currentEdits[path] = vals;
+          markDirty();
         });
 
         wrap.appendChild(input);
@@ -544,6 +1037,7 @@
         input.value = (field.value ?? "");
         input.addEventListener("change", () => {
           currentEdits[path] = input.value;
+          markDirty();
         });
 
         wrap.appendChild(input);
@@ -559,6 +1053,7 @@
           .split("\n")
           .map(s => s.trim())
           .filter(Boolean);
+        markDirty();
       });
       wrap.appendChild(input);
       return wrap;
@@ -569,6 +1064,7 @@
     input.value = (field.value ?? "");
     input.addEventListener("input", () => {
       currentEdits[path] = input.value;
+      markDirty();
     });
 
     wrap.appendChild(input);
@@ -588,6 +1084,8 @@
 
   async function addGroupItem(arrayPath) {
     if (!currentDraftId) throw new Error("No draft_id");
+    setSaveState("saving");
+
     const value = await fetchTemplateForPath(arrayPath);
 
     const out = await jfetch(API.applyArray(currentDraftId), {
@@ -602,10 +1100,12 @@
 
     setLastResp(out);
     await reloadFormFromDraft();
+    setSaveState("saved");
   }
 
   async function removeGroupItem(arrayPath, index) {
     if (!currentDraftId) throw new Error("No draft_id");
+    setSaveState("saving");
 
     const out = await jfetch(API.applyArray(currentDraftId), {
       method: "POST",
@@ -619,6 +1119,7 @@
 
     setLastResp(out);
     await reloadFormFromDraft();
+    setSaveState("saved");
   }
 
   async function ensureDraftExistsFromMetadata(metadataObj) {
@@ -636,6 +1137,7 @@
   }
 
   async function loadFormFromMetadata(metadataObj) {
+    setSaveState("saving", "Loading...");
     const ui = await jfetch(API.formUI("?include_helptexts=true&include_vocabularies=true"), {
       method: "POST",
       headers: {"Content-Type":"application/json"},
@@ -645,6 +1147,7 @@
     renderForm(ui);
     setLastResp(ui);
     await ensureDraftExistsFromMetadata(metadataObj || {});
+    setSaveState("saved");
   }
 
   async function reloadFormFromDraft() {
@@ -655,6 +1158,46 @@
       body: JSON.stringify({ draft_id: currentDraftId })
     });
     renderForm(ui);
+  }
+
+  function renderLatestBuild(buildOut) {
+    latestBuild = buildOut;
+    if (!buildOut || !buildOut.build) return;
+
+    const card = document.getElementById("latestBuildCard");
+    const build = buildOut.build;
+
+    document.getElementById("latestCrateId").textContent = build.crate_id || "—";
+    document.getElementById("latestCrateValidation").textContent = build.validation?.ok ? "ok" : "not ok";
+    document.getElementById("latestCrateDir").textContent = build.crate_dir || "—";
+    document.getElementById("latestMetadataPath").textContent = build.metadata_path || "—";
+
+    const dl = document.getElementById("downloadLatestBtn");
+    const validateBtn = document.getElementById("validateLatestCrateBtn");
+
+    if (build.crate_id) {
+      dl.style.display = "inline-flex";
+      dl.href = API.downloadCrate(build.crate_id);
+      dl.setAttribute("download", `${build.crate_id}.zip`);
+
+      validateBtn.style.display = "inline-flex";
+      validateBtn.onclick = async () => {
+        try {
+          const out = await jfetch(API.validateCrate(build.crate_id));
+          setLastResp(out);
+          const warnings = Array.isArray(out.warnings) ? out.warnings.length : 0;
+          showToast(warnings ? `Crate validated with ${warnings} warning(s)` : "Latest crate validation passed", warnings ? "warn" : "success");
+        } catch (e) {
+          setLastResp({ error: String(e) });
+          document.getElementById("debugPanel").open = true;
+        }
+      };
+    } else {
+      dl.style.display = "none";
+      validateBtn.style.display = "none";
+    }
+
+    card.style.display = "block";
   }
 
   function renderSuggestionsPanel(data) {
@@ -743,8 +1286,10 @@
         btn.addEventListener("click", async () => {
           try {
             await applySuggestionPatch([patch]);
+            showToast(`Applied suggestion ${idx + 1}`, "success");
           } catch (e) {
             setLastResp({ error: String(e) });
+            setSaveState("error");
             document.getElementById("debugPanel").open = true;
           }
         });
@@ -771,10 +1316,12 @@
 
     setLastResp(out);
     renderSuggestionsPanel(out);
+    showToast("Suggestions loaded", "info");
   }
 
   async function applySuggestionPatch(patchList) {
     if (!currentDraftId) throw new Error("No draft_id");
+    setSaveState("saving");
 
     const out = await jfetch(API.apply(currentDraftId), {
       method: "POST",
@@ -784,10 +1331,9 @@
 
     setLastResp(out);
     await reloadFormFromDraft();
+    setSaveState("saved");
 
-    try {
-      await suggestImprovements();
-    } catch (_) {}
+    try { await suggestImprovements(); } catch (_) {}
   }
 
   async function applyAllSuggestions() {
@@ -803,10 +1349,20 @@
     }
 
     await applySuggestionPatch(patches);
+    showToast("Applied all suggestions", "success");
   }
 
-  async function applyEdits() {
+  async function applyEdits(isAutosave=false) {
     if (!currentDraftId) throw new Error("No draft_id");
+
+    if (!hasPendingEdits()) {
+      setSaveState("saved");
+      return;
+    }
+
+    clearAutosave();
+    isSaving = true;
+    setSaveState("saving", isAutosave ? "Autosaving..." : "Saving...");
 
     const payload = { edits: currentEdits };
 
@@ -818,40 +1374,97 @@
 
     setLastResp(out);
     await reloadFormFromDraft();
+    currentEdits = {};
+    isSaving = false;
+    setSaveState("saved");
+    if (!isAutosave) showToast("Changes saved", "success");
   }
 
   async function validateDraft() {
     if (!currentDraftId) throw new Error("No draft_id");
     const out = await jfetch(API.validate(currentDraftId), { method: "POST" });
     setLastResp(out);
+    return out;
   }
 
   async function buildCrate() {
     if (!currentDraftId) throw new Error("No draft_id");
     const out = await jfetch(API.build(currentDraftId), { method: "POST" });
     setLastResp(out);
+    renderLatestBuild(out);
+    return out;
+  }
+
+  async function validateAndBuild() {
+    if (!currentDraftId) throw new Error("No draft_id");
+
+    if (hasPendingEdits()) {
+      await applyEdits(false);
+    }
+
+    setSaveState("saving", "Validating...");
+    const validationOut = await validateDraft();
+
+    const hasErrors = Array.isArray(validationOut?.validation?.errors) && validationOut.validation.errors.length > 0;
+    const warnings = Array.isArray(validationOut?.validation?.warnings) ? validationOut.validation.warnings.length : 0;
+
+    if (hasErrors) {
+      setSaveState("error", "Validation failed");
+      showToast("Validation failed. Fix errors before build.", "error", 3200);
+      document.getElementById("debugPanel").open = true;
+      return;
+    }
+
+    showToast(warnings ? `Validation passed with ${warnings} warning(s)` : "Validation passed", warnings ? "warn" : "success");
+
+    setSaveState("saving", "Building...");
+    const buildOut = await buildCrate();
+    const crateId = buildOut?.build?.crate_id || "";
+
+    setSaveState("saved");
+    if (crateId) {
+      showToast(`Validate + Build complete: ${crateId}`, "success", 3500);
+    } else {
+      showToast("Validate + Build complete", "success");
+    }
   }
 
   document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value));
 
+  document.getElementById("expandAllBtn").addEventListener("click", () => {
+    expandAllSections();
+    showToast("Expanded all sections", "info", 1500);
+  });
+
+  document.getElementById("collapseAllBtn").addEventListener("click", () => {
+    collapseAllSections();
+    showToast("Collapsed all sections", "info", 1500);
+  });
+
   document.getElementById("startBlankBtn").addEventListener("click", async () => {
     try {
       currentDraftId = null;
-      setDraftPill();
-      document.getElementById("suggestionsCard").style.display = "none";
       currentSuggestions = null;
+      latestBuild = null;
+      collapsedSections.clear();
+      document.getElementById("suggestionsCard").style.display = "none";
+      document.getElementById("latestBuildCard").style.display = "none";
+      setDraftPill();
       await loadFormFromMetadata({});
+      showToast("Started blank draft", "info");
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   });
 
   document.getElementById("saveBtn").addEventListener("click", async () => {
     try {
-      await applyEdits();
+      await applyEdits(false);
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   });
@@ -861,6 +1474,7 @@
       await suggestImprovements();
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   });
@@ -870,25 +1484,53 @@
       await applyAllSuggestions();
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   });
 
   document.getElementById("validateBtn").addEventListener("click", async () => {
     try {
-      await validateDraft();
+      if (hasPendingEdits()) await applyEdits(false);
+      const out = await validateDraft();
+      const warnings = Array.isArray(out?.validation?.warnings) ? out.validation.warnings.length : 0;
+      const errors = Array.isArray(out?.validation?.errors) ? out.validation.errors.length : 0;
+      if (errors > 0) {
+        setSaveState("error", "Validation failed");
+        showToast(`Validation failed with ${errors} error(s)`, "error", 3200);
+      } else {
+        setSaveState("saved");
+        showToast(warnings ? `Validated with ${warnings} warning(s)` : "Validation passed", warnings ? "warn" : "success");
+      }
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   });
 
   document.getElementById("buildBtn").addEventListener("click", async () => {
     try {
-      await buildCrate();
+      if (hasPendingEdits()) await applyEdits(false);
+      const out = await buildCrate();
+      const crateId = out?.build?.crate_id || "";
+      showToast(crateId ? `Built crate ${crateId}` : "RO-Crate built", "success", 3200);
+      setSaveState("saved");
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("validateBuildBtn").addEventListener("click", async () => {
+    try {
+      await validateAndBuild();
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      setSaveState("error");
+      document.getElementById("debugPanel").open = true;
+      showToast("Validate + Build failed", "error", 3200);
     }
   });
 
@@ -899,13 +1541,25 @@
       const txt = await f.text();
       const obj = JSON.parse(txt);
       currentDraftId = null;
-      setDraftPill();
-      document.getElementById("suggestionsCard").style.display = "none";
       currentSuggestions = null;
+      latestBuild = null;
+      collapsedSections.clear();
+      document.getElementById("suggestionsCard").style.display = "none";
+      document.getElementById("latestBuildCard").style.display = "none";
+      setDraftPill();
       await loadFormFromMetadata(obj);
+      showToast(`Imported ${f.name}`, "success");
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (hasPendingEdits() || isSaving) {
+      e.preventDefault();
+      e.returnValue = "";
     }
   });
 
@@ -913,10 +1567,13 @@
     applyThemeFromStorage();
     setDraftPill();
     enableActions(false);
+    setSaveState("saving", "Loading...");
     try {
       await loadFormFromMetadata({});
+      showToast("PBPK editor ready", "info");
     } catch (e) {
       setLastResp({ error: String(e) });
+      setSaveState("error");
       document.getElementById("debugPanel").open = true;
     }
   })();

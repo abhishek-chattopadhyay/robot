@@ -15,6 +15,7 @@
     .btn { border: 1px solid rgba(0,0,0,0.2); background: rgba(0,0,0,0.03); border-radius: 10px; padding: 9px 12px; cursor: pointer; }
     .btn:hover { background: rgba(0,0,0,0.06); }
     .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn.danger { color: #b00020; }
     .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .card { border: 1px solid rgba(0,0,0,0.14); border-radius: 14px; padding: 12px; margin: 12px 0; }
     .section-title { font-size: 16px; font-weight: 650; margin: 6px 0 8px; }
@@ -23,15 +24,6 @@
     .label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display:flex; gap:8px; align-items:center; }
     .req { font-size: 11px; opacity: 0.7; border: 1px solid rgba(0,0,0,0.2); border-radius: 999px; padding: 1px 7px; }
     .missing { color: #b00020; font-weight: 700; }
-    input[type="text"], textarea, select {
-      width: 100%; box-sizing: border-box;
-      border: 1px solid rgba(0,0,0,0.22);
-      border-radius: 10px;
-      padding: 10px 10px;
-      background: transparent;
-      color: inherit;
-    }
-    textarea { min-height: 80px; resize: vertical; }
     .small { font-size: 12px; opacity: 0.75; margin-top: 4px; }
     .actions { display:flex; gap: 10px; flex-wrap: wrap; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
@@ -40,7 +32,44 @@
     details > summary { cursor: pointer; user-select:none; font-weight: 650; }
     details { border-radius: 12px; }
 
-    /* Theme: light/dark + high contrast */
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid rgba(0,0,0,0.22);
+      border-radius: 10px;
+      padding: 10px 10px;
+      background: transparent;
+      color: inherit;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    select[multiple] { min-height: 120px; }
+
+    .group-box {
+      border: 1px dashed rgba(0,0,0,0.18);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .group-item {
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .group-item-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .group-item-title {
+      font-size: 13px;
+      font-weight: 650;
+      opacity: 0.9;
+    }
+
+    /* Themes */
     body[data-theme="light"] { background: #ffffff; color: #111111; }
     body[data-theme="dark"] { background: #000000; color: #ffffff; }
     body[data-theme="light-hc"] { background: #ffffff; color: #000000; }
@@ -49,43 +78,61 @@
     body[data-theme="light"] .card,
     body[data-theme="light"] .btn,
     body[data-theme="light"] input[type="text"],
+    body[data-theme="light"] input[type="number"],
     body[data-theme="light"] textarea,
     body[data-theme="light"] select,
     body[data-theme="light"] .pill,
-    body[data-theme="light"] .req { border-color: rgba(0,0,0,0.18); }
+    body[data-theme="light"] .req,
+    body[data-theme="light"] .group-box,
+    body[data-theme="light"] .group-item {
+      border-color: rgba(0,0,0,0.18);
+    }
 
     body[data-theme="dark"] .card,
     body[data-theme="dark"] .btn,
     body[data-theme="dark"] input[type="text"],
+    body[data-theme="dark"] input[type="number"],
     body[data-theme="dark"] textarea,
     body[data-theme="dark"] select,
     body[data-theme="dark"] .pill,
-    body[data-theme="dark"] .req { border-color: rgba(255,255,255,0.26); }
+    body[data-theme="dark"] .req,
+    body[data-theme="dark"] .group-box,
+    body[data-theme="dark"] .group-item {
+      border-color: rgba(255,255,255,0.26);
+    }
 
     body[data-theme="light-hc"] .card,
     body[data-theme="light-hc"] .btn,
     body[data-theme="light-hc"] input[type="text"],
+    body[data-theme="light-hc"] input[type="number"],
     body[data-theme="light-hc"] textarea,
     body[data-theme="light-hc"] select,
     body[data-theme="light-hc"] .pill,
-    body[data-theme="light-hc"] .req { border-color: rgba(0,0,0,0.55); }
+    body[data-theme="light-hc"] .req,
+    body[data-theme="light-hc"] .group-box,
+    body[data-theme="light-hc"] .group-item {
+      border-color: rgba(0,0,0,0.55);
+    }
 
     body[data-theme="dark-hc"] .card,
     body[data-theme="dark-hc"] .btn,
     body[data-theme="dark-hc"] input[type="text"],
+    body[data-theme="dark-hc"] input[type="number"],
     body[data-theme="dark-hc"] textarea,
     body[data-theme="dark-hc"] select,
     body[data-theme="dark-hc"] .pill,
-    body[data-theme="dark-hc"] .req { border-color: rgba(255,255,255,0.55); }
+    body[data-theme="dark-hc"] .req,
+    body[data-theme="dark-hc"] .group-box,
+    body[data-theme="dark-hc"] .group-item {
+      border-color: rgba(255,255,255,0.55);
+    }
 
     body[data-theme="dark"] .btn,
     body[data-theme="dark-hc"] .btn { background: rgba(255,255,255,0.06); }
     body[data-theme="dark"] .btn:hover,
     body[data-theme="dark-hc"] .btn:hover { background: rgba(255,255,255,0.10); }
-
     body[data-theme="dark"] .hr,
     body[data-theme="dark-hc"] .hr { background: rgba(255,255,255,0.18); }
-
     body[data-theme="dark"] .missing,
     body[data-theme="dark-hc"] .missing { color: #ff6b6b; }
   </style>
@@ -127,7 +174,6 @@
 
       <div class="hr"></div>
 
-      <!-- Debug hidden by default -->
       <details id="debugPanel">
         <summary>Show debug</summary>
         <div class="small" style="margin-top:10px;">Last API response</div>
@@ -143,13 +189,26 @@
     formUI: (opts="") => `/v1/form-ui/pbpk${opts}`,
     drafts: () => `/v1/drafts`,
     applyEdits: (id) => `/v1/drafts/${id}/apply-edits`,
+    applyArray: (id) => `/v1/drafts/${id}/apply-array`,
     validate: (id) => `/v1/drafts/${id}/validate`,
     build: (id) => `/v1/drafts/${id}/build`,
+    template: (name) => `/v1/form-spec/pbpk/templates/${name}`
   };
 
   let currentDraftId = null;
   let currentUI = null;
   let currentEdits = {};
+
+  const TEMPLATE_MAP = {
+    "/biological_system_description/biological_systems": "biological_systems",
+    "/chemical_description/chemicals": "chemicals",
+    "/model_evaluation_and_validation/evaluation_activities": "evaluation_activities",
+    "/parameterisation/parameters": "parameters",
+    "/model_structure_and_representation/structural_compartments": "structural_compartments",
+    "/model_structure_and_representation/inter_compartmental_connections": "inter_compartmental_connections",
+    "/model_structure_and_representation/model_implementation_reference": "model_implementation_reference",
+    "/electronic_files_and_reproducibility/digital_artifacts": "digital_artifacts"
+  };
 
   function setLastResp(obj) {
     const el = document.getElementById("lastResp");
@@ -216,7 +275,7 @@
       card.appendChild(h);
       card.appendChild(d);
 
-      section.fields.forEach(field => {
+      (section.fields || []).forEach(field => {
         card.appendChild(renderField(field));
       });
 
@@ -228,58 +287,133 @@
 
   function renderField(field) {
     if (field.widget === "group" || field.value_type === "object") {
-      const wrap = document.createElement("div");
-      wrap.className = "field";
+      return renderGroupField(field);
+    }
+    return renderScalarField(field);
+  }
 
-      const lab = document.createElement("div");
-      lab.className = "label";
-      lab.textContent = field.label || field.id;
+  function renderGroupField(field) {
+    const wrap = document.createElement("div");
+    wrap.className = "field";
 
-      if (field.required) {
-        const req = document.createElement("span");
-        req.className = "req";
-        req.textContent = "required";
-        lab.appendChild(req);
-      }
-      if (field.missing) {
-        const miss = document.createElement("span");
-        miss.className = "missing";
-        miss.textContent = "missing";
-        lab.appendChild(miss);
-      }
-      wrap.appendChild(lab);
+    const lab = document.createElement("div");
+    lab.className = "label";
+    lab.textContent = field.label || field.id;
 
-      // Minimal v1: if group is "many", edit item 0 only
-      const val = Array.isArray(field.value) ? field.value : [];
-      const item = (field.cardinality === "many") ? (val[0] || {}) : (val || {});
+    if (field.required) {
+      const req = document.createElement("span");
+      req.className = "req";
+      req.textContent = "required";
+      lab.appendChild(req);
+    }
+    if (field.missing) {
+      const miss = document.createElement("span");
+      miss.className = "missing";
+      miss.textContent = "missing";
+      lab.appendChild(miss);
+    }
+    wrap.appendChild(lab);
 
-      const inner = document.createElement("div");
-      inner.style.paddingLeft = "10px";
-      inner.style.borderLeft = "2px solid rgba(0,0,0,0.12)";
-      if (document.body.getAttribute("data-theme")?.startsWith("dark")) {
-        inner.style.borderLeft = "2px solid rgba(255,255,255,0.18)";
-      }
+    const box = document.createElement("div");
+    box.className = "group-box";
 
-      (field.fields || []).forEach(sub => {
-        const concrete = Object.assign({}, sub);
-        concrete.path = (sub.path || "").replace("/*/", "/0/").replace("/*", "/0");
+    const isMany = field.cardinality === "many";
+    const items = Array.isArray(field.value) ? field.value : [];
+    const arrayPath = field.path;
 
+    if (isMany) {
+      const topRow = document.createElement("div");
+      topRow.className = "row";
+
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn";
+      addBtn.type = "button";
+      addBtn.textContent = "Add item";
+      addBtn.addEventListener("click", async () => {
         try {
-          const key = (sub.path || "").split("/").pop();
-          if (key && item && typeof item === "object" && key in item) concrete.value = item[key];
-          else concrete.value = "";
-        } catch (_) {
-          concrete.value = "";
+          await addGroupItem(arrayPath);
+        } catch (e) {
+          setLastResp({ error: String(e) });
+          document.getElementById("debugPanel").open = true;
         }
-
-        inner.appendChild(renderScalarField(concrete));
       });
 
-      wrap.appendChild(inner);
-      return wrap;
+      topRow.appendChild(addBtn);
+      box.appendChild(topRow);
+
+      items.forEach((item, index) => {
+        box.appendChild(renderGroupItem(field, item || {}, index));
+      });
+
+      if (items.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "small";
+        empty.textContent = "No items yet.";
+        box.appendChild(empty);
+      }
+    } else {
+      const item = (field.value && typeof field.value === "object") ? field.value : {};
+      box.appendChild(renderGroupItem(field, item, null));
     }
 
-    return renderScalarField(field);
+    wrap.appendChild(box);
+    return wrap;
+  }
+
+  function renderGroupItem(field, item, index) {
+    const itemBox = document.createElement("div");
+    itemBox.className = "group-item";
+
+    const head = document.createElement("div");
+    head.className = "group-item-head";
+
+    const title = document.createElement("div");
+    title.className = "group-item-title";
+    title.textContent = index === null ? (field.label || field.id) : `${field.label || field.id} #${index + 1}`;
+    head.appendChild(title);
+
+    if (index !== null) {
+      const rmBtn = document.createElement("button");
+      rmBtn.className = "btn danger";
+      rmBtn.type = "button";
+      rmBtn.textContent = "Remove";
+      rmBtn.addEventListener("click", async () => {
+        try {
+          await removeGroupItem(field.path, index);
+        } catch (e) {
+          setLastResp({ error: String(e) });
+          document.getElementById("debugPanel").open = true;
+        }
+      });
+      head.appendChild(rmBtn);
+    }
+
+    itemBox.appendChild(head);
+
+    (field.fields || []).forEach(sub => {
+      const concrete = Object.assign({}, sub);
+
+      if (index !== null) {
+        concrete.path = (sub.path || "").replace("/*/", `/${index}/`).replace("/*", `/${index}`);
+      } else {
+        concrete.path = sub.path || "";
+      }
+
+      try {
+        const key = (sub.path || "").split("/").pop();
+        if (key && item && typeof item === "object" && key in item) {
+          concrete.value = item[key];
+        } else {
+          concrete.value = (sub.cardinality === "many") ? [] : "";
+        }
+      } catch (_) {
+        concrete.value = (sub.cardinality === "many") ? [] : "";
+      }
+
+      itemBox.appendChild(renderScalarField(concrete));
+    });
+
+    return itemBox;
   }
 
   function renderScalarField(field) {
@@ -302,6 +436,7 @@
       miss.textContent = "missing";
       lab.appendChild(miss);
     }
+
     wrap.appendChild(lab);
 
     const path = field.path;
@@ -310,25 +445,89 @@
     if (field.value_type === "text") {
       input = document.createElement("textarea");
       input.value = (field.value ?? "");
-    } else if (field.value_type === "controlled_term" && Array.isArray(field.allowed_values)) {
-      input = document.createElement("select");
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "";
-      input.appendChild(opt0);
-      field.allowed_values.forEach(v => {
-        const opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        input.appendChild(opt);
+      input.addEventListener("input", () => {
+        currentEdits[path] = input.value;
       });
-      input.value = (field.value ?? "");
-    } else {
-      input = document.createElement("input");
-      input.type = "text";
-      input.value = (field.value ?? "");
+      wrap.appendChild(input);
+      return wrap;
     }
 
+    if (field.value_type === "number") {
+      input = document.createElement("input");
+      input.type = "number";
+      input.value = (field.value ?? "");
+      input.addEventListener("input", () => {
+        const v = input.value;
+        currentEdits[path] = v === "" ? null : Number(v);
+      });
+      wrap.appendChild(input);
+      return wrap;
+    }
+
+    if (field.value_type === "controlled_term" && Array.isArray(field.allowed_values)) {
+      if (field.cardinality === "many") {
+        input = document.createElement("select");
+        input.multiple = true;
+
+        field.allowed_values.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          input.appendChild(opt);
+        });
+
+        const current = Array.isArray(field.value) ? field.value : [];
+        Array.from(input.options).forEach(opt => {
+          opt.selected = current.includes(opt.value);
+        });
+
+        input.addEventListener("change", () => {
+          const vals = Array.from(input.selectedOptions).map(o => o.value);
+          currentEdits[path] = vals;
+        });
+
+        wrap.appendChild(input);
+        return wrap;
+      } else {
+        input = document.createElement("select");
+        const opt0 = document.createElement("option");
+        opt0.value = "";
+        opt0.textContent = "";
+        input.appendChild(opt0);
+
+        field.allowed_values.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          input.appendChild(opt);
+        });
+
+        input.value = (field.value ?? "");
+        input.addEventListener("change", () => {
+          currentEdits[path] = input.value;
+        });
+
+        wrap.appendChild(input);
+        return wrap;
+      }
+    }
+
+    if (field.cardinality === "many") {
+      input = document.createElement("textarea");
+      input.value = Array.isArray(field.value) ? field.value.join("\n") : "";
+      input.addEventListener("input", () => {
+        currentEdits[path] = input.value
+          .split("\n")
+          .map(s => s.trim())
+          .filter(Boolean);
+      });
+      wrap.appendChild(input);
+      return wrap;
+    }
+
+    input = document.createElement("input");
+    input.type = "text";
+    input.value = (field.value ?? "");
     input.addEventListener("input", () => {
       currentEdits[path] = input.value;
     });
@@ -337,13 +536,61 @@
     return wrap;
   }
 
+  async function fetchTemplateForPath(arrayPath) {
+    const name = TEMPLATE_MAP[arrayPath];
+    if (!name) return {};
+    try {
+      const out = await jfetch(API.template(name));
+      return out.value || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  async function addGroupItem(arrayPath) {
+    if (!currentDraftId) throw new Error("No draft_id");
+    const value = await fetchTemplateForPath(arrayPath);
+
+    const out = await jfetch(API.applyArray(currentDraftId), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        array_path: arrayPath,
+        action: "append",
+        value: value
+      })
+    });
+
+    setLastResp(out);
+    await reloadFormFromDraft();
+  }
+
+  async function removeGroupItem(arrayPath, index) {
+    if (!currentDraftId) throw new Error("No draft_id");
+
+    const out = await jfetch(API.applyArray(currentDraftId), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        array_path: arrayPath,
+        action: "remove_index",
+        index: index
+      })
+    });
+
+    setLastResp(out);
+    await reloadFormFromDraft();
+  }
+
   async function ensureDraftExistsFromMetadata(metadataObj) {
     if (currentDraftId) return currentDraftId;
+
     const draft = await jfetch(API.drafts(), {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify(metadataObj || {})
     });
+
     currentDraftId = draft.draft_id;
     setDraftPill();
     return currentDraftId;
@@ -355,13 +602,25 @@
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify(metadataObj || {})
     });
+
     renderForm(ui);
     setLastResp(ui);
     await ensureDraftExistsFromMetadata(metadataObj || {});
   }
 
+  async function reloadFormFromDraft() {
+    if (!currentDraftId) return;
+    const ui = await jfetch(API.formUI("?include_helptexts=false&include_vocabularies=true"), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ draft_id: currentDraftId })
+    });
+    renderForm(ui);
+  }
+
   async function applyEdits() {
     if (!currentDraftId) throw new Error("No draft_id");
+
     const payload = { edits: currentEdits };
 
     const out = await jfetch(API.applyEdits(currentDraftId), {
@@ -371,14 +630,7 @@
     });
 
     setLastResp(out);
-
-    // reload values from server truth
-    const ui = await jfetch(API.formUI("?include_helptexts=false&include_vocabularies=true"), {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ draft_id: currentDraftId })
-    });
-    renderForm(ui);
+    await reloadFormFromDraft();
   }
 
   async function validateDraft() {
@@ -393,7 +645,6 @@
     setLastResp(out);
   }
 
-  // Wire UI
   document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value));
 
   document.getElementById("startBlankBtn").addEventListener("click", async () => {
@@ -408,24 +659,27 @@
   });
 
   document.getElementById("saveBtn").addEventListener("click", async () => {
-    try { await applyEdits(); }
-    catch (e) {
+    try {
+      await applyEdits();
+    } catch (e) {
       setLastResp({ error: String(e) });
       document.getElementById("debugPanel").open = true;
     }
   });
 
   document.getElementById("validateBtn").addEventListener("click", async () => {
-    try { await validateDraft(); }
-    catch (e) {
+    try {
+      await validateDraft();
+    } catch (e) {
       setLastResp({ error: String(e) });
       document.getElementById("debugPanel").open = true;
     }
   });
 
   document.getElementById("buildBtn").addEventListener("click", async () => {
-    try { await buildCrate(); }
-    catch (e) {
+    try {
+      await buildCrate();
+    } catch (e) {
       setLastResp({ error: String(e) });
       document.getElementById("debugPanel").open = true;
     }
@@ -446,7 +700,6 @@
     }
   });
 
-  // Initial boot: show form immediately (blank)
   (async function boot() {
     applyThemeFromStorage();
     setDraftPill();
@@ -459,6 +712,5 @@
     }
   })();
 </script>
-
 </body>
 </html>

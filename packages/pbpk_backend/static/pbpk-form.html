@@ -69,6 +69,25 @@
       opacity: 0.9;
     }
 
+    .suggest-box {
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .suggest-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .suggest-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .suggest-list li {
+      margin: 6px 0;
+    }
+
     /* Themes */
     body[data-theme="light"] { background: #ffffff; color: #111111; }
     body[data-theme="dark"] { background: #000000; color: #ffffff; }
@@ -84,7 +103,8 @@
     body[data-theme="light"] .pill,
     body[data-theme="light"] .req,
     body[data-theme="light"] .group-box,
-    body[data-theme="light"] .group-item {
+    body[data-theme="light"] .group-item,
+    body[data-theme="light"] .suggest-box {
       border-color: rgba(0,0,0,0.18);
     }
 
@@ -97,7 +117,8 @@
     body[data-theme="dark"] .pill,
     body[data-theme="dark"] .req,
     body[data-theme="dark"] .group-box,
-    body[data-theme="dark"] .group-item {
+    body[data-theme="dark"] .group-item,
+    body[data-theme="dark"] .suggest-box {
       border-color: rgba(255,255,255,0.26);
     }
 
@@ -110,7 +131,8 @@
     body[data-theme="light-hc"] .pill,
     body[data-theme="light-hc"] .req,
     body[data-theme="light-hc"] .group-box,
-    body[data-theme="light-hc"] .group-item {
+    body[data-theme="light-hc"] .group-item,
+    body[data-theme="light-hc"] .suggest-box {
       border-color: rgba(0,0,0,0.55);
     }
 
@@ -123,7 +145,8 @@
     body[data-theme="dark-hc"] .pill,
     body[data-theme="dark-hc"] .req,
     body[data-theme="dark-hc"] .group-box,
-    body[data-theme="dark-hc"] .group-item {
+    body[data-theme="dark-hc"] .group-item,
+    body[data-theme="dark-hc"] .suggest-box {
       border-color: rgba(255,255,255,0.55);
     }
 
@@ -167,6 +190,7 @@
         </div>
         <div class="actions">
           <button id="saveBtn" class="btn" type="button" disabled>Apply edits → draft</button>
+          <button id="suggestBtn" class="btn" type="button" disabled>Suggest improvements</button>
           <button id="validateBtn" class="btn" type="button" disabled>Validate</button>
           <button id="buildBtn" class="btn" type="button" disabled>Build RO-Crate</button>
         </div>
@@ -182,22 +206,36 @@
     </div>
 
     <div id="formRoot"></div>
+
+    <div id="suggestionsCard" class="card" style="display:none;">
+      <div class="section-title">AI suggestions</div>
+      <div class="section-desc">Suggestions based on the current draft metadata.</div>
+
+      <div class="row" style="margin-bottom:10px;">
+        <button id="applyAllSuggestionsBtn" class="btn" type="button" disabled>Apply all suggestions</button>
+      </div>
+
+      <div id="suggestionsRoot"></div>
+    </div>
   </div>
 
 <script>
   const API = {
     formUI: (opts="") => `/v1/form-ui/pbpk${opts}`,
     drafts: () => `/v1/drafts`,
+    apply: (id) => `/v1/drafts/${id}/apply`,
     applyEdits: (id) => `/v1/drafts/${id}/apply-edits`,
     applyArray: (id) => `/v1/drafts/${id}/apply-array`,
     validate: (id) => `/v1/drafts/${id}/validate`,
     build: (id) => `/v1/drafts/${id}/build`,
-    template: (name) => `/v1/form-spec/pbpk/templates/${name}`
+    template: (name) => `/v1/form-spec/pbpk/templates/${name}`,
+    aiSuggest: () => `/v1/ai/suggest`
   };
 
   let currentDraftId = null;
   let currentUI = null;
   let currentEdits = {};
+  let currentSuggestions = null;
 
   const TEMPLATE_MAP = {
     "/biological_system_description/biological_systems": "biological_systems",
@@ -250,6 +288,7 @@
 
   function enableActions(enabled) {
     document.getElementById("saveBtn").disabled = !enabled;
+    document.getElementById("suggestBtn").disabled = !enabled;
     document.getElementById("validateBtn").disabled = !enabled;
     document.getElementById("buildBtn").disabled = !enabled;
   }
@@ -618,6 +657,154 @@
     renderForm(ui);
   }
 
+  function renderSuggestionsPanel(data) {
+    currentSuggestions = data;
+
+    const card = document.getElementById("suggestionsCard");
+    const root = document.getElementById("suggestionsRoot");
+    const applyAllBtn = document.getElementById("applyAllSuggestionsBtn");
+
+    root.innerHTML = "";
+    card.style.display = "block";
+
+    const missing = Array.isArray(data.missing_required) ? data.missing_required : [];
+    const warnings = Array.isArray(data.soft_warnings) ? data.soft_warnings : [];
+    const questions = Array.isArray(data.clarifying_questions) ? data.clarifying_questions : [];
+    const patches = Array.isArray(data.suggested_patches) ? data.suggested_patches : [];
+
+    const summary = document.createElement("div");
+    summary.className = "small";
+    summary.textContent = `Missing required: ${missing.length} · Warnings: ${warnings.length} · Questions: ${questions.length} · Suggested patches: ${patches.length}`;
+    root.appendChild(summary);
+
+    if (missing.length > 0) {
+      const box = document.createElement("div");
+      box.className = "suggest-box";
+      box.innerHTML = `<div class="suggest-title">Missing required fields</div>`;
+      const ul = document.createElement("ul");
+      ul.className = "suggest-list";
+      missing.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.path || ""} — ${item.message || ""}`;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+      root.appendChild(box);
+    }
+
+    if (warnings.length > 0) {
+      const box = document.createElement("div");
+      box.className = "suggest-box";
+      box.innerHTML = `<div class="suggest-title">Soft warnings</div>`;
+      const ul = document.createElement("ul");
+      ul.className = "suggest-list";
+      warnings.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.path || ""} — ${item.message || ""}`;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+      root.appendChild(box);
+    }
+
+    if (questions.length > 0) {
+      const box = document.createElement("div");
+      box.className = "suggest-box";
+      box.innerHTML = `<div class="suggest-title">Clarifying questions</div>`;
+      const ul = document.createElement("ul");
+      ul.className = "suggest-list";
+      questions.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item.question || "";
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+      root.appendChild(box);
+    }
+
+    if (patches.length > 0) {
+      const box = document.createElement("div");
+      box.className = "suggest-box";
+      box.innerHTML = `<div class="suggest-title">Suggested patches</div>`;
+
+      patches.forEach((patch, idx) => {
+        const row = document.createElement("div");
+        row.style.margin = "10px 0";
+
+        const pre = document.createElement("pre");
+        pre.className = "mono";
+        pre.style.margin = "0 0 8px";
+        pre.textContent = JSON.stringify(patch, null, 2);
+
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.type = "button";
+        btn.textContent = `Apply suggestion ${idx + 1}`;
+        btn.addEventListener("click", async () => {
+          try {
+            await applySuggestionPatch([patch]);
+          } catch (e) {
+            setLastResp({ error: String(e) });
+            document.getElementById("debugPanel").open = true;
+          }
+        });
+
+        row.appendChild(pre);
+        row.appendChild(btn);
+        box.appendChild(row);
+      });
+
+      root.appendChild(box);
+    }
+
+    applyAllBtn.disabled = patches.length === 0;
+  }
+
+  async function suggestImprovements() {
+    if (!currentDraftId) throw new Error("No draft_id");
+
+    const out = await jfetch(API.aiSuggest(), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ draft_id: currentDraftId })
+    });
+
+    setLastResp(out);
+    renderSuggestionsPanel(out);
+  }
+
+  async function applySuggestionPatch(patchList) {
+    if (!currentDraftId) throw new Error("No draft_id");
+
+    const out = await jfetch(API.apply(currentDraftId), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ patch: patchList })
+    });
+
+    setLastResp(out);
+    await reloadFormFromDraft();
+
+    try {
+      await suggestImprovements();
+    } catch (_) {}
+  }
+
+  async function applyAllSuggestions() {
+    if (!currentSuggestions) throw new Error("No suggestions loaded");
+
+    const patches = Array.isArray(currentSuggestions.suggested_patches)
+      ? currentSuggestions.suggested_patches
+      : [];
+
+    if (patches.length === 0) {
+      setLastResp({ ok: true, note: "No suggested patches to apply." });
+      return;
+    }
+
+    await applySuggestionPatch(patches);
+  }
+
   async function applyEdits() {
     if (!currentDraftId) throw new Error("No draft_id");
 
@@ -651,6 +838,8 @@
     try {
       currentDraftId = null;
       setDraftPill();
+      document.getElementById("suggestionsCard").style.display = "none";
+      currentSuggestions = null;
       await loadFormFromMetadata({});
     } catch (e) {
       setLastResp({ error: String(e) });
@@ -661,6 +850,24 @@
   document.getElementById("saveBtn").addEventListener("click", async () => {
     try {
       await applyEdits();
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("suggestBtn").addEventListener("click", async () => {
+    try {
+      await suggestImprovements();
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+    }
+  });
+
+  document.getElementById("applyAllSuggestionsBtn").addEventListener("click", async () => {
+    try {
+      await applyAllSuggestions();
     } catch (e) {
       setLastResp({ error: String(e) });
       document.getElementById("debugPanel").open = true;
@@ -693,6 +900,8 @@
       const obj = JSON.parse(txt);
       currentDraftId = null;
       setDraftPill();
+      document.getElementById("suggestionsCard").style.display = "none";
+      currentSuggestions = null;
       await loadFormFromMetadata(obj);
     } catch (e) {
       setLastResp({ error: String(e) });

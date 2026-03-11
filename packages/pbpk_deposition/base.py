@@ -13,6 +13,12 @@ class DepositionResult:
     doi: Optional[str] = None
     url: Optional[str] = None
     message: Optional[str] = None
+
+    # richer Zenodo/other platform metadata
+    bucket_url: Optional[str] = None
+    file_name: Optional[str] = None
+    published: Optional[bool] = None
+
     raw: Optional[Dict[str, Any]] = None
 
 

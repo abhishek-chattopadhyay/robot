@@ -176,12 +176,13 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px;
     }
+    .muted { opacity: 0.75; }
     pre { white-space: pre-wrap; word-break: break-word; }
     .hr { height: 1px; background: rgba(0,0,0,0.12); margin: 14px 0; }
     details > summary { cursor: pointer; user-select:none; font-weight: 650; }
     details { border-radius: 12px; }
 
-    input[type="text"], input[type="number"], textarea, select {
+    input[type="text"], input[type="number"], input[type="password"], textarea, select {
       width: 100%;
       box-sizing: border-box;
       border: 1px solid rgba(0,0,0,0.22);
@@ -192,6 +193,24 @@
     }
     textarea { min-height: 80px; resize: vertical; }
     select[multiple] { min-height: 120px; }
+
+    .checkrow {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .checkrow label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .checkrow input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
 
     .group-box {
       border: 1px dashed rgba(0,0,0,0.18);
@@ -302,6 +321,7 @@
     body[data-theme="light"] .nav-link,
     body[data-theme="light"] input[type="text"],
     body[data-theme="light"] input[type="number"],
+    body[data-theme="light"] input[type="password"],
     body[data-theme="light"] textarea,
     body[data-theme="light"] select,
     body[data-theme="light"] .pill,
@@ -322,6 +342,7 @@
     body[data-theme="dark"] .nav-link,
     body[data-theme="dark"] input[type="text"],
     body[data-theme="dark"] input[type="number"],
+    body[data-theme="dark"] input[type="password"],
     body[data-theme="dark"] textarea,
     body[data-theme="dark"] select,
     body[data-theme="dark"] .pill,
@@ -342,6 +363,7 @@
     body[data-theme="light-hc"] .nav-link,
     body[data-theme="light-hc"] input[type="text"],
     body[data-theme="light-hc"] input[type="number"],
+    body[data-theme="light-hc"] input[type="password"],
     body[data-theme="light-hc"] textarea,
     body[data-theme="light-hc"] select,
     body[data-theme="light-hc"] .pill,
@@ -362,6 +384,7 @@
     body[data-theme="dark-hc"] .nav-link,
     body[data-theme="dark-hc"] input[type="text"],
     body[data-theme="dark-hc"] input[type="number"],
+    body[data-theme="dark-hc"] input[type="password"],
     body[data-theme="dark-hc"] textarea,
     body[data-theme="dark-hc"] select,
     body[data-theme="dark-hc"] .pill,
@@ -476,6 +499,37 @@
           <button id="validateLatestCrateBtn" class="btn" type="button" style="display:none;">Validate latest crate</button>
         </div>
       </div>
+
+      <div class="status-box">
+        <div class="status-title">Deposit to Zenodo</div>
+        <div class="small">Use a Zenodo token for the selected environment. The token is only used for this request and is not stored by the UI.</div>
+
+        <div class="field">
+          <div class="label">Zenodo access token</div>
+          <input id="zenodoTokenInput" type="password" placeholder="Paste Zenodo token here" autocomplete="off" />
+        </div>
+
+        <div class="checkrow">
+          <label><input id="zenodoSandboxInput" type="checkbox" checked /> Use sandbox</label>
+          <label><input id="zenodoPublishInput" type="checkbox" /> Publish immediately</label>
+        </div>
+
+        <div class="status-actions">
+          <button id="depositZenodoBtn" class="btn primary" type="button">Deposit to Zenodo</button>
+        </div>
+
+        <div id="depositResultBox" class="status-box" style="display:none; margin-top:12px;">
+          <div class="status-title">Deposit result</div>
+          <div class="kv">
+            <div class="k">Platform</div><div id="depositPlatform">—</div>
+            <div class="k">Record ID</div><div id="depositRecordId">—</div>
+            <div class="k">DOI</div><div id="depositDoi">—</div>
+            <div class="k">URL</div><div id="depositUrl">—</div>
+            <div class="k">Published</div><div id="depositPublished">—</div>
+            <div class="k">Message</div><div id="depositMessage">—</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="navigatorRoot"></div>
@@ -507,7 +561,8 @@
     template: (name) => `/v1/form-spec/pbpk/templates/${name}`,
     aiSuggest: () => `/v1/ai/suggest`,
     validateCrate: (crateId) => `/v1/rocrate/${crateId}/validate`,
-    downloadCrate: (crateId) => `/v1/rocrate/${crateId}/download`
+    downloadCrate: (crateId) => `/v1/rocrate/${crateId}/download`,
+    depositZenodo: () => `/v1/deposit/zenodo`
   };
 
   let currentDraftId = null;
@@ -638,14 +693,6 @@
       clearTimeout(autosaveTimer);
       autosaveTimer = null;
     }
-  }
-
-  function countMissingInField(field) {
-    let count = field.missing ? 1 : 0;
-    if (Array.isArray(field.fields)) {
-      for (const sub of field.fields) count += countMissingInField(sub);
-    }
-    return count;
   }
 
   function getSectionStats(section) {
@@ -1200,6 +1247,71 @@
     card.style.display = "block";
   }
 
+  function renderDepositResult(out) {
+    const box = document.getElementById("depositResultBox");
+    const platform = document.getElementById("depositPlatform");
+    const recordId = document.getElementById("depositRecordId");
+    const doi = document.getElementById("depositDoi");
+    const url = document.getElementById("depositUrl");
+    const published = document.getElementById("depositPublished");
+    const message = document.getElementById("depositMessage");
+
+    box.style.display = "block";
+    platform.textContent = out.platform ?? "—";
+    recordId.textContent = out.record_id ?? "—";
+    doi.textContent = out.doi ?? "—";
+    published.textContent = (out.published === true) ? "true" : (out.published === false ? "false" : "—");
+    message.textContent = out.message ?? "—";
+
+    if (out.url) {
+      url.innerHTML = "";
+      const a = document.createElement("a");
+      a.href = out.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = out.url;
+      url.appendChild(a);
+    } else {
+      url.textContent = "—";
+    }
+  }
+
+  async function depositLatestToZenodo() {
+    const token = document.getElementById("zenodoTokenInput").value.trim();
+    const sandbox = document.getElementById("zenodoSandboxInput").checked;
+    const publish = document.getElementById("zenodoPublishInput").checked;
+    const crateId = latestBuild?.build?.crate_id;
+
+    if (!crateId) {
+      throw new Error("No built crate available. Build a crate first.");
+    }
+    if (!token) {
+      throw new Error("Zenodo token is required.");
+    }
+
+    const out = await jfetch(API.depositZenodo(), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        crate_id: crateId,
+        token: token,
+        sandbox: sandbox,
+        publish: publish
+      })
+    });
+
+    setLastResp(out);
+    renderDepositResult(out);
+
+    if (out.ok) {
+      showToast(publish ? "Deposited and published to Zenodo" : "Deposited draft to Zenodo", "success", 3200);
+      document.getElementById("zenodoTokenInput").value = "";
+    } else {
+      showToast("Zenodo deposition failed", "error", 3200);
+      document.getElementById("debugPanel").open = true;
+    }
+  }
+
   function renderSuggestionsPanel(data) {
     currentSuggestions = data;
 
@@ -1422,11 +1534,8 @@
     const crateId = buildOut?.build?.crate_id || "";
 
     setSaveState("saved");
-    if (crateId) {
-      showToast(`Validate + Build complete: ${crateId}`, "success", 3500);
-    } else {
-      showToast("Validate + Build complete", "success");
-    }
+    if (crateId) showToast(`Validate + Build complete: ${crateId}`, "success", 3500);
+    else showToast("Validate + Build complete", "success");
   }
 
   document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value));
@@ -1449,6 +1558,8 @@
       collapsedSections.clear();
       document.getElementById("suggestionsCard").style.display = "none";
       document.getElementById("latestBuildCard").style.display = "none";
+      document.getElementById("depositResultBox").style.display = "none";
+      document.getElementById("zenodoTokenInput").value = "";
       setDraftPill();
       await loadFormFromMetadata({});
       showToast("Started blank draft", "info");
@@ -1534,6 +1645,16 @@
     }
   });
 
+  document.getElementById("depositZenodoBtn").addEventListener("click", async () => {
+    try {
+      await depositLatestToZenodo();
+    } catch (e) {
+      setLastResp({ error: String(e) });
+      document.getElementById("debugPanel").open = true;
+      showToast(String(e), "error", 3200);
+    }
+  });
+
   document.getElementById("fileInput").addEventListener("change", async (ev) => {
     try {
       const f = ev.target.files && ev.target.files[0];
@@ -1546,6 +1667,8 @@
       collapsedSections.clear();
       document.getElementById("suggestionsCard").style.display = "none";
       document.getElementById("latestBuildCard").style.display = "none";
+      document.getElementById("depositResultBox").style.display = "none";
+      document.getElementById("zenodoTokenInput").value = "";
       setDraftPill();
       await loadFormFromMetadata(obj);
       showToast(`Imported ${f.name}`, "success");

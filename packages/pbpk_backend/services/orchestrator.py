@@ -1,16 +1,17 @@
 from __future__ import annotations
+
 from pbpk_backend.services.audit import AuditContext, audit_upload_event, audit_crate_event, audit_deposit_event_jsonl
 
 import json
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from pbpk_backend.rocrate_builder import build_rocrate_from_pbpk_metadata
 from pbpk_deposition.base import get_depositor
 from pbpk_validation.validator import validate_pbpk_metadata, validate_pbpk_rocrate
-
+import pbpk_deposition.zenodo  # noqa: F401
 
 @dataclass
 class OrchestratorConfig:
@@ -43,7 +44,6 @@ def build_crate(
     crate_dir = (cfg.data_root / "crates" / crate_id).resolve()
     crate_dir.mkdir(parents=True, exist_ok=True)
 
-    # Persist payload for provenance/debug
     _write_json(crate_dir / "pbpk-metadata.json", pbpk_metadata)
 
     res = build_rocrate_from_pbpk_metadata(
@@ -53,7 +53,6 @@ def build_crate(
         source_files_dir=source_files_dir,
     )
 
-    # Validate crate after build (recommended)
     rocrate_obj = json.loads((crate_dir / "ro-crate-metadata.json").read_text(encoding="utf-8"))
     c_errors, c_warnings = validate_pbpk_rocrate(rocrate_obj, crate_dir=crate_dir)
 
@@ -69,7 +68,11 @@ def validate_crate(cfg: OrchestratorConfig, crate_id: str) -> Dict[str, Any]:
     crate_dir = (cfg.data_root / "crates" / crate_id).resolve()
     meta_path = crate_dir / "ro-crate-metadata.json"
     if not meta_path.exists():
-        return {"ok": False, "errors": [{"code": "E_NOT_FOUND", "message": "ro-crate-metadata.json not found"}], "warnings": []}
+        return {
+            "ok": False,
+            "errors": [{"code": "E_NOT_FOUND", "message": "ro-crate-metadata.json not found"}],
+            "warnings": [],
+        }
 
     rocrate_obj = json.loads(meta_path.read_text(encoding="utf-8"))
     errors, warnings = validate_pbpk_rocrate(rocrate_obj, crate_dir=crate_dir)
@@ -87,10 +90,18 @@ def deposit_crate(
 ) -> Dict[str, Any]:
     crate_dir = (cfg.data_root / "crates" / crate_id).resolve()
     meta_path = crate_dir / "ro-crate-metadata.json"
+
+    if not crate_dir.exists():
+        return {"ok": False, "error": f"crate_id not found: {crate_id}"}
+
     if not meta_path.exists():
         return {"ok": False, "error": "ro-crate-metadata.json not found"}
 
-    depositor_cls = get_depositor(platform)
+    try:
+        depositor_cls = get_depositor(platform)
+    except KeyError as e:
+        return {"ok": False, "error": str(e)}
+
     depositor = depositor_cls()
 
     res = depositor.deposit(
@@ -101,11 +112,19 @@ def deposit_crate(
         publish=publish,
     )
 
-    return {
+    out = {
         "ok": res.ok,
         "platform": res.platform,
         "record_id": res.record_id,
         "doi": res.doi,
         "url": res.url,
+        "bucket_url": res.bucket_url,
+        "file_name": res.file_name,
+        "published": res.published,
         "message": res.message,
     }
+
+    if res.raw is not None:
+        out["raw"] = res.raw
+
+    return out

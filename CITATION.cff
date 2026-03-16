@@ -1,1 +1,30 @@
+cff-version: 1.2.0
+title: ROBOT
+message: "If you use ROBOT in your research, please cite this repository."
+type: software
 
+authors:
+  - family-names: Chattopadhyay
+    given-names: Abhishek
+
+abstract: >
+  ROBOT (Research Object Builder for Open Toxicology) is a platform
+  for creating, validating, packaging, and depositing FAIR toxicology
+  model metadata as RO-Crates.
+
+keywords:
+  - toxicology
+  - FAIR
+  - RO-Crate
+  - PBPK
+  - computational toxicology
+  - metadata
+  - research objects
+
+license: MIT
+
+repository-code: https://github.com/<your-org>/robot
+
+version: 0.1.0
+
+date-released: 2026-03-16

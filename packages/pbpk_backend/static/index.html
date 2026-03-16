@@ -1,60 +1,1020 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Model Metadata UI</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ROBOT</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    .wrap { max-width: 900px; margin: 40px auto; padding: 0 16px; }
-    h1 { font-size: 22px; margin: 0 0 8px; }
-    p { margin: 0 0 18px; opacity: 0.8; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    .btn {
-      display: block;
-      padding: 14px 14px;
-      border: 1px solid rgba(0,0,0,0.18);
-      border-radius: 10px;
-      text-decoration: none;
-      color: inherit;
-      background: rgba(0,0,0,0.03);
+    :root {
+      --bg: #03122c;
+      --panel: rgba(255,255,255,0.10);
+      --panel-2: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.16);
+      --text: #f8fbff;
+      --muted: rgba(248,251,255,0.78);
+      --soft: rgba(248,251,255,0.62);
+      --accent: #10b981;
+      --btn: rgba(255,255,255,0.08);
+      --btn-hover: rgba(255,255,255,0.14);
+      --danger: #fecaca;
+      --shadow: 0 18px 44px rgba(0,0,0,0.28);
     }
-    .btn:hover { background: rgba(0,0,0,0.06); }
-    .tag { font-size: 12px; opacity: 0.7; margin-top: 6px; }
-    .note { margin-top: 20px; font-size: 12px; opacity: 0.7; }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14,165,233,0.10), transparent 26%),
+        radial-gradient(circle at top right, rgba(16,185,129,0.10), transparent 20%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+
+    .hero-left { max-width: 760px; }
+
+    .title {
+      font-size: 40px;
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .api-pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 14px;
+      color: var(--soft);
+      font-size: 14px;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .model-card {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .model-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+    }
+
+    .model-desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+      min-height: 64px;
+      margin-bottom: 14px;
+    }
+
+    .btn, .btn-link {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--btn);
+      color: var(--text);
+      padding: 11px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+
+    .btn:hover, .btn-link:hover { background: var(--btn-hover); }
+
+    .btn-primary {
+      background: rgba(16,185,129,0.22);
+      border-color: rgba(16,185,129,0.45);
+    }
+
+    .btn-primary:hover { background: rgba(16,185,129,0.30); }
+
+    .note {
+      margin-top: 14px;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .collapse-card {
+      margin-top: 28px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .collapse-head {
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+      border: none;
+      padding: 16px 18px;
+      font-size: 17px;
+      font-weight: 750;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .collapse-head:hover { background: rgba(255,255,255,0.04); }
+
+    .collapse-meta {
+      font-size: 13px;
+      color: var(--soft);
+      font-weight: 600;
+    }
+
+    .collapse-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .collapse-body.open { display: block; }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      color: var(--soft);
+      font-size: 14px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: var(--btn);
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .action-btn:hover { background: var(--btn-hover); }
+
+    .action-btn.danger {
+      color: var(--danger);
+      border-color: rgba(254,202,202,0.35);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0 8px;
+    }
+
+    .filters-4 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0 8px;
+    }
+
+    .filter-input, .filter-select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .filter-input::placeholder { color: rgba(248,251,255,0.45); }
+    .filter-select option { color: #111; }
+
+    .summary-line {
+      font-size: 13px;
+      color: var(--soft);
+      margin: 4px 0 14px;
+    }
+
+    .draft-list, .deposit-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .draft-card, .deposit-card {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: var(--panel-2);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .draft-head, .deposit-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .draft-title, .deposit-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .draft-sub, .deposit-sub {
+      margin-top: 4px;
+      color: var(--soft);
+      font-size: 13px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 7px 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .k { color: var(--soft); }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+
+    .draft-actions, .deposit-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .empty, .error, .loading {
+      padding: 10px 2px;
+      font-size: 14px;
+    }
+
+    .loading, .empty { color: var(--soft); }
+    .error { color: #fecaca; }
+
+    @media (max-width: 980px) {
+      .model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { flex-direction: column; }
+      .filters, .filters-4 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .model-grid { grid-template-columns: 1fr; }
+      .title { font-size: 32px; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Model metadata</h1>
-    <p>Select a model type to start entering metadata.</p>
+    <div class="hero">
+      <div class="hero-left">
+        <h1 class="title">ROBOT</h1>
+        <p class="subtitle">
+          Reaseach Object Builder for Open Toxicology
+        </p>
+      </div>
+      <div class="api-pill">API: /v1</div>
+    </div>
 
-    <div class="grid">
-      <a class="btn" href="/ui/pbpk">
-        PBPK
-        <div class="tag">Physiologically Based PK</div>
-      </a>
+    <div class="section-title">Model types</div>
+    <div class="model-grid">
+      <div class="model-card">
+        <div class="model-name">PBPK</div>
+        <div class="model-desc">Physiologically Based Pharmacokinetic models.</div>
+        <a class="btn-link btn-primary" href="/ui/pbpk">Open PBPK editor</a>
+      </div>
 
-      <a class="btn" href="/ui/pbpk#coming-soon">
-        QSAR
-        <div class="tag">Coming soon</div>
-      </a>
+      <div class="model-card">
+        <div class="model-name">QSAR</div>
+        <div class="model-desc">Quantitative Structure–Activity Relationship models.</div>
+        <button class="btn" type="button" disabled>Coming soon</button>
+      </div>
 
-      <a class="btn" href="/ui/pbpk#coming-soon">
-        qAOP
-        <div class="tag">Coming soon</div>
-      </a>
+      <div class="model-card">
+        <div class="model-name">qAOP</div>
+        <div class="model-desc">Quantitative Adverse Outcome Pathway models.</div>
+        <button class="btn" type="button" disabled>Coming soon</button>
+      </div>
 
-      <a class="btn" href="/ui/pbpk#coming-soon">
-        NAM
-        <div class="tag">Coming soon</div>
-      </a>
+      <div class="model-card">
+        <div class="model-name">NAM</div>
+        <div class="model-desc">New Approach Methodologies and hybrid workflows.</div>
+        <button class="btn" type="button" disabled>Coming soon</button>
+      </div>
     </div>
 
     <div class="note">
-      PBPK is implemented now. Other model types can be added as separate UIs later (e.g., <code>/ui/qsar</code>).
+      PBPK is active now. Others will come soon.
+    </div>
+
+    <div class="collapse-card">
+      <button id="recentDraftsToggle" class="collapse-head" type="button">
+        <span>Recent Drafts</span>
+        <span id="recentDraftsToggleLabel" class="collapse-meta">Show</span>
+      </button>
+
+      <div id="recentDraftsBody" class="collapse-body">
+        <div class="toolbar">
+          <div class="toolbar-left">Resume, validate, build, archive, duplicate, or delete a recent draft.</div>
+          <div class="toolbar-right">
+            <button id="refreshBtn" class="action-btn" type="button">Refresh drafts</button>
+          </div>
+        </div>
+
+        <div class="filters">
+          <input id="draftSearchInput" class="filter-input" type="text" placeholder="Search by model name, draft ID, crate ID..." />
+          <select id="draftStatusFilter" class="filter-select">
+            <option value="all">All statuses</option>
+            <option value="draft">draft</option>
+            <option value="validated">validated</option>
+            <option value="built">built</option>
+            <option value="archived">archived</option>
+          </select>
+          <select id="draftArchivedFilter" class="filter-select">
+            <option value="hide">Hide archived</option>
+            <option value="show">Show archived</option>
+          </select>
+          <select id="draftSortSelect" class="filter-select">
+            <option value="updated_desc">Updated: newest first</option>
+            <option value="updated_asc">Updated: oldest first</option>
+            <option value="created_desc">Created: newest first</option>
+            <option value="created_asc">Created: oldest first</option>
+            <option value="name_asc">Name: A → Z</option>
+            <option value="name_desc">Name: Z → A</option>
+          </select>
+        </div>
+
+        <div id="draftSummary" class="summary-line"></div>
+        <div id="draftRoot"><div class="loading">Open this section to load recent drafts.</div></div>
+      </div>
+    </div>
+
+    <div class="collapse-card">
+      <button id="recentDepositsToggle" class="collapse-head" type="button">
+        <span>Recent Deposits</span>
+        <span id="recentDepositsToggleLabel" class="collapse-meta">Show</span>
+      </button>
+
+      <div id="recentDepositsBody" class="collapse-body">
+        <div class="toolbar">
+          <div class="toolbar-left">View recently deposited records and open them directly.</div>
+          <div class="toolbar-right">
+            <button id="refreshDepositsBtn" class="action-btn" type="button">Refresh deposits</button>
+          </div>
+        </div>
+
+        <div class="filters-4">
+          <input id="depositSearchInput" class="filter-input" type="text" placeholder="Search by DOI, record ID, crate ID, platform..." />
+          <select id="depositEnvFilter" class="filter-select">
+            <option value="all">All environments</option>
+            <option value="sandbox">sandbox</option>
+            <option value="production">production</option>
+          </select>
+          <select id="depositPublishFilter" class="filter-select">
+            <option value="all">All publish states</option>
+            <option value="published">published</option>
+            <option value="draft">draft</option>
+          </select>
+          <select id="depositSortSelect" class="filter-select">
+            <option value="timestamp_desc">Newest first</option>
+            <option value="timestamp_asc">Oldest first</option>
+            <option value="platform_asc">Platform: A → Z</option>
+            <option value="platform_desc">Platform: Z → A</option>
+          </select>
+        </div>
+
+        <div id="depositSummary" class="summary-line"></div>
+        <div id="depositRoot"><div class="loading">Open this section to load recent deposits.</div></div>
+      </div>
     </div>
   </div>
+
+<script>
+  const API = {
+    drafts: (limit=50, includeArchived=false) =>
+      `/v1/drafts?limit=${encodeURIComponent(limit)}&include_archived=${includeArchived ? "true" : "false"}`,
+    validateDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/validate`,
+    buildDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/build`,
+    archiveDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/archive`,
+    duplicateDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/duplicate`,
+    deleteDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}`,
+    deposits: (limit=50) => `/v1/deposits?limit=${encodeURIComponent(limit)}`
+  };
+
+  const UI_STATE_KEYS = {
+    lastDraftId: "pbpk_ui_last_draft_id"
+  };
+
+  let draftsLoaded = false;
+  let depositsLoaded = false;
+  let allDrafts = [];
+  let allDeposits = [];
+
+  async function jfetch(url, options={}) {
+    const resp = await fetch(url, options);
+    const ct = resp.headers.get("content-type") || "";
+    let payload = null;
+    if (ct.includes("application/json")) payload = await resp.json();
+    else payload = await resp.text();
+
+    if (!resp.ok) {
+      const msg = (typeof payload === "string") ? payload : JSON.stringify(payload);
+      throw new Error(msg);
+    }
+    return payload;
+  }
+
+  function setLastDraftId(draftId) {
+    localStorage.setItem(UI_STATE_KEYS.lastDraftId, draftId);
+  }
+
+  function fmtTs(ts) {
+    if (!ts) return "—";
+    try {
+      return new Date(ts).toLocaleString();
+    } catch (_) {
+      return String(ts);
+    }
+  }
+
+  function lc(v) {
+    return String(v || "").toLowerCase();
+  }
+
+  function cmpText(a, b) {
+    return String(a || "").localeCompare(String(b || ""));
+  }
+
+  function cmpTime(a, b) {
+    return String(a || "").localeCompare(String(b || ""));
+  }
+
+  async function validateDraft(draftId) {
+    const out = await jfetch(API.validateDraft(draftId), { method: "POST" });
+    await loadDrafts();
+    return out;
+  }
+
+  async function buildDraft(draftId) {
+    const out = await jfetch(API.buildDraft(draftId), { method: "POST" });
+    setLastDraftId(draftId);
+    await loadDrafts();
+    return out;
+  }
+
+  async function archiveDraft(draftId) {
+    const out = await jfetch(API.archiveDraft(draftId), { method: "POST" });
+    await loadDrafts();
+    return out;
+  }
+
+  async function duplicateDraft(draftId) {
+    const out = await jfetch(API.duplicateDraft(draftId), { method: "POST" });
+    await loadDrafts();
+    return out;
+  }
+
+  async function deleteDraft(draftId) {
+    const out = await jfetch(API.deleteDraft(draftId), { method: "DELETE" });
+    await loadDrafts();
+    return out;
+  }
+
+  function applyDraftFilters(items) {
+    const q = lc(document.getElementById("draftSearchInput").value.trim());
+    const status = document.getElementById("draftStatusFilter").value;
+    const sort = document.getElementById("draftSortSelect").value;
+
+    let out = items.filter((item) => {
+      if (status !== "all" && String(item.status || "") !== status) return false;
+
+      if (!q) return true;
+
+      const hay = [
+        item.model_name,
+        item.model_version,
+        item.draft_id,
+        item.status,
+        item.latest_build?.crate_id
+      ].map(lc).join(" ");
+
+      return hay.includes(q);
+    });
+
+    out.sort((a, b) => {
+      switch (sort) {
+        case "updated_asc": return cmpTime(a.updated_at, b.updated_at);
+        case "updated_desc": return cmpTime(b.updated_at, a.updated_at);
+        case "created_asc": return cmpTime(a.created_at, b.created_at);
+        case "created_desc": return cmpTime(b.created_at, a.created_at);
+        case "name_asc": return cmpText(a.model_name || "Untitled", b.model_name || "Untitled");
+        case "name_desc": return cmpText(b.model_name || "Untitled", a.model_name || "Untitled");
+        default: return cmpTime(b.updated_at, a.updated_at);
+      }
+    });
+
+    return out;
+  }
+
+  function applyDepositFilters(items) {
+    const q = lc(document.getElementById("depositSearchInput").value.trim());
+    const env = document.getElementById("depositEnvFilter").value;
+    const pub = document.getElementById("depositPublishFilter").value;
+    const sort = document.getElementById("depositSortSelect").value;
+
+    let out = items.filter((item) => {
+      const envValue = item.sandbox ? "sandbox" : "production";
+      const pubValue = item.published === true ? "published" : "draft";
+
+      if (env !== "all" && envValue !== env) return false;
+      if (pub !== "all" && pubValue !== pub) return false;
+
+      if (!q) return true;
+
+      const hay = [
+        item.platform,
+        item.crate_id,
+        item.record_id,
+        item.doi,
+        item.url,
+        item.message,
+        envValue,
+        pubValue
+      ].map(lc).join(" ");
+
+      return hay.includes(q);
+    });
+
+    out.sort((a, b) => {
+      switch (sort) {
+        case "timestamp_asc": return cmpTime(a.timestamp, b.timestamp);
+        case "timestamp_desc": return cmpTime(b.timestamp, a.timestamp);
+        case "platform_asc": return cmpText(a.platform, b.platform);
+        case "platform_desc": return cmpText(b.platform, a.platform);
+        default: return cmpTime(b.timestamp, a.timestamp);
+      }
+    });
+
+    return out;
+  }
+
+  function renderDrafts(items) {
+    const root = document.getElementById("draftRoot");
+    const summary = document.getElementById("draftSummary");
+    root.innerHTML = "";
+
+    summary.textContent = `Showing ${items.length} of ${allDrafts.length} drafts`;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "No drafts match the current filters.";
+      root.appendChild(empty);
+      return;
+    }
+
+    const list = document.createElement("div");
+    list.className = "draft-list";
+
+    items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "draft-card";
+
+      const head = document.createElement("div");
+      head.className = "draft-head";
+
+      const left = document.createElement("div");
+      const title = document.createElement("div");
+      title.className = "draft-title";
+      title.textContent = item.model_name || "Untitled PBPK draft";
+
+      const sub = document.createElement("div");
+      sub.className = "draft-sub";
+      sub.textContent = item.model_version ? `Version ${item.model_version}` : "No version";
+
+      left.appendChild(title);
+      left.appendChild(sub);
+
+      const right = document.createElement("div");
+      right.className = "pill-row";
+
+      const draftPill = document.createElement("span");
+      draftPill.className = "pill";
+      draftPill.textContent = item.status || "unknown";
+      right.appendChild(draftPill);
+
+      if (item.latest_build && item.latest_build.crate_id) {
+        const buildPill = document.createElement("span");
+        buildPill.className = "pill";
+        buildPill.textContent = `crate ${item.latest_build.crate_id}`;
+        right.appendChild(buildPill);
+      }
+
+      head.appendChild(left);
+      head.appendChild(right);
+      card.appendChild(head);
+
+      const kv = document.createElement("div");
+      kv.className = "kv";
+      kv.innerHTML = `
+        <div class="k">Draft ID</div><div class="mono">${item.draft_id || "—"}</div>
+        <div class="k">Updated</div><div>${fmtTs(item.updated_at)}</div>
+        <div class="k">Created</div><div>${fmtTs(item.created_at)}</div>
+        <div class="k">Latest build</div><div>${item.latest_build?.crate_id || "—"}</div>
+      `;
+      card.appendChild(kv);
+
+      const actions = document.createElement("div");
+      actions.className = "draft-actions";
+
+      const openBtn = document.createElement("a");
+      openBtn.className = "action-btn";
+      openBtn.href = "/ui/pbpk";
+      openBtn.textContent = "Open in editor";
+      openBtn.addEventListener("click", () => setLastDraftId(item.draft_id));
+      actions.appendChild(openBtn);
+
+      const validateBtn = document.createElement("button");
+      validateBtn.className = "action-btn";
+      validateBtn.type = "button";
+      validateBtn.textContent = "Validate";
+      validateBtn.addEventListener("click", async () => {
+        validateBtn.disabled = true;
+        const old = validateBtn.textContent;
+        validateBtn.textContent = "Validating...";
+        try {
+          setLastDraftId(item.draft_id);
+          await validateDraft(item.draft_id);
+        } catch (e) {
+          alert(String(e));
+        } finally {
+          validateBtn.disabled = false;
+          validateBtn.textContent = old;
+        }
+      });
+      actions.appendChild(validateBtn);
+
+      const buildBtn = document.createElement("button");
+      buildBtn.className = "action-btn";
+      buildBtn.type = "button";
+      buildBtn.textContent = "Build";
+      buildBtn.addEventListener("click", async () => {
+        buildBtn.disabled = true;
+        const old = buildBtn.textContent;
+        buildBtn.textContent = "Building...";
+        try {
+          setLastDraftId(item.draft_id);
+          await buildDraft(item.draft_id);
+        } catch (e) {
+          alert(String(e));
+        } finally {
+          buildBtn.disabled = false;
+          buildBtn.textContent = old;
+        }
+      });
+      actions.appendChild(buildBtn);
+
+      const duplicateBtn = document.createElement("button");
+      duplicateBtn.className = "action-btn";
+      duplicateBtn.type = "button";
+      duplicateBtn.textContent = "Duplicate";
+      duplicateBtn.addEventListener("click", async () => {
+        duplicateBtn.disabled = true;
+        const old = duplicateBtn.textContent;
+        duplicateBtn.textContent = "Duplicating...";
+        try {
+          const out = await duplicateDraft(item.draft_id);
+          if (out.draft_id) setLastDraftId(out.draft_id);
+        } catch (e) {
+          alert(String(e));
+        } finally {
+          duplicateBtn.disabled = false;
+          duplicateBtn.textContent = old;
+        }
+      });
+      actions.appendChild(duplicateBtn);
+
+      const archiveBtn = document.createElement("button");
+      archiveBtn.className = "action-btn";
+      archiveBtn.type = "button";
+      archiveBtn.textContent = "Archive";
+      archiveBtn.disabled = item.status === "archived";
+      archiveBtn.addEventListener("click", async () => {
+        const ok = window.confirm(`Archive draft ${item.draft_id}?`);
+        if (!ok) return;
+        archiveBtn.disabled = true;
+        const old = archiveBtn.textContent;
+        archiveBtn.textContent = "Archiving...";
+        try {
+          await archiveDraft(item.draft_id);
+        } catch (e) {
+          alert(String(e));
+        } finally {
+          archiveBtn.disabled = false;
+          archiveBtn.textContent = old;
+        }
+      });
+      actions.appendChild(archiveBtn);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "action-btn danger";
+      deleteBtn.type = "button";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", async () => {
+        const ok = window.confirm(`Permanently delete draft ${item.draft_id}? This cannot be undone.`);
+        if (!ok) return;
+        deleteBtn.disabled = true;
+        const old = deleteBtn.textContent;
+        deleteBtn.textContent = "Deleting...";
+        try {
+          await deleteDraft(item.draft_id);
+        } catch (e) {
+          alert(String(e));
+        } finally {
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = old;
+        }
+      });
+      actions.appendChild(deleteBtn);
+
+      card.appendChild(actions);
+      list.appendChild(card);
+    });
+
+    root.appendChild(list);
+  }
+
+  function renderDeposits(items) {
+    const root = document.getElementById("depositRoot");
+    const summary = document.getElementById("depositSummary");
+    root.innerHTML = "";
+
+    summary.textContent = `Showing ${items.length} of ${allDeposits.length} deposits`;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "No deposits match the current filters.";
+      root.appendChild(empty);
+      return;
+    }
+
+    const list = document.createElement("div");
+    list.className = "deposit-list";
+
+    items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "deposit-card";
+
+      const head = document.createElement("div");
+      head.className = "deposit-head";
+
+      const left = document.createElement("div");
+      const title = document.createElement("div");
+      title.className = "deposit-title";
+      title.textContent = item.platform ? `${item.platform} deposit` : "Deposit";
+
+      const sub = document.createElement("div");
+      sub.className = "deposit-sub";
+      sub.textContent = item.message || "No message";
+      left.appendChild(title);
+      left.appendChild(sub);
+
+      const right = document.createElement("div");
+      right.className = "pill-row";
+
+      const envPill = document.createElement("span");
+      envPill.className = "pill";
+      envPill.textContent = item.sandbox ? "sandbox" : "production";
+      right.appendChild(envPill);
+
+      const pubPill = document.createElement("span");
+      pubPill.className = "pill";
+      pubPill.textContent = item.published === true ? "published" : "draft";
+      right.appendChild(pubPill);
+
+      head.appendChild(left);
+      head.appendChild(right);
+      card.appendChild(head);
+
+      const kv = document.createElement("div");
+      kv.className = "kv";
+      kv.innerHTML = `
+        <div class="k">Timestamp</div><div>${fmtTs(item.timestamp)}</div>
+        <div class="k">Crate ID</div><div class="mono">${item.crate_id || "—"}</div>
+        <div class="k">Record ID</div><div>${item.record_id || "—"}</div>
+        <div class="k">DOI</div><div>${item.doi || "—"}</div>
+      `;
+      card.appendChild(kv);
+
+      if (item.url) {
+        const actions = document.createElement("div");
+        actions.className = "deposit-actions";
+
+        const openBtn = document.createElement("a");
+        openBtn.className = "action-btn";
+        openBtn.href = item.url;
+        openBtn.target = "_blank";
+        openBtn.rel = "noopener noreferrer";
+        openBtn.textContent = "Open record";
+        actions.appendChild(openBtn);
+
+        card.appendChild(actions);
+      }
+
+      list.appendChild(card);
+    });
+
+    root.appendChild(list);
+  }
+
+  function rerenderDrafts() {
+    renderDrafts(applyDraftFilters(allDrafts));
+  }
+
+  function rerenderDeposits() {
+    renderDeposits(applyDepositFilters(allDeposits));
+  }
+
+  async function loadDrafts() {
+    const root = document.getElementById("draftRoot");
+    const summary = document.getElementById("draftSummary");
+    const includeArchived = document.getElementById("draftArchivedFilter").value === "show";
+
+    root.innerHTML = `<div class="loading">Loading drafts...</div>`;
+    summary.textContent = "";
+    try {
+      const out = await jfetch(API.drafts(50, includeArchived));
+      allDrafts = out.items || [];
+      rerenderDrafts();
+      draftsLoaded = true;
+    } catch (e) {
+      root.innerHTML = `<div class="error">Could not load drafts: ${String(e)}</div>`;
+    }
+  }
+
+  async function loadDeposits() {
+    const root = document.getElementById("depositRoot");
+    const summary = document.getElementById("depositSummary");
+    root.innerHTML = `<div class="loading">Loading deposits...</div>`;
+    summary.textContent = "";
+    try {
+      const out = await jfetch(API.deposits(50));
+      allDeposits = out.items || [];
+      rerenderDeposits();
+      depositsLoaded = true;
+    } catch (e) {
+      root.innerHTML = `<div class="error">Could not load deposits: ${String(e)}</div>`;
+    }
+  }
+
+  const draftsToggleBtn = document.getElementById("recentDraftsToggle");
+  const draftsToggleLabel = document.getElementById("recentDraftsToggleLabel");
+  const draftsBody = document.getElementById("recentDraftsBody");
+
+  draftsToggleBtn.addEventListener("click", async () => {
+    const isOpen = draftsBody.classList.contains("open");
+    if (isOpen) {
+      draftsBody.classList.remove("open");
+      draftsToggleLabel.textContent = "Show";
+      return;
+    }
+
+    draftsBody.classList.add("open");
+    draftsToggleLabel.textContent = "Hide";
+
+    if (!draftsLoaded) {
+      await loadDrafts();
+    }
+  });
+
+  const depositsToggleBtn = document.getElementById("recentDepositsToggle");
+  const depositsToggleLabel = document.getElementById("recentDepositsToggleLabel");
+  const depositsBody = document.getElementById("recentDepositsBody");
+
+  depositsToggleBtn.addEventListener("click", async () => {
+    const isOpen = depositsBody.classList.contains("open");
+    if (isOpen) {
+      depositsBody.classList.remove("open");
+      depositsToggleLabel.textContent = "Show";
+      return;
+    }
+
+    depositsBody.classList.add("open");
+    depositsToggleLabel.textContent = "Hide";
+
+    if (!depositsLoaded) {
+      await loadDeposits();
+    }
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", async () => {
+    await loadDrafts();
+  });
+
+  document.getElementById("refreshDepositsBtn").addEventListener("click", async () => {
+    await loadDeposits();
+  });
+
+  document.getElementById("draftSearchInput").addEventListener("input", rerenderDrafts);
+  document.getElementById("draftStatusFilter").addEventListener("change", rerenderDrafts);
+  document.getElementById("draftSortSelect").addEventListener("change", rerenderDrafts);
+  document.getElementById("draftArchivedFilter").addEventListener("change", async () => {
+    await loadDrafts();
+  });
+
+  document.getElementById("depositSearchInput").addEventListener("input", rerenderDeposits);
+  document.getElementById("depositEnvFilter").addEventListener("change", rerenderDeposits);
+  document.getElementById("depositPublishFilter").addEventListener("change", rerenderDeposits);
+  document.getElementById("depositSortSelect").addEventListener("change", rerenderDeposits);
+</script>
 </body>
 </html>

@@ -10,17 +10,13 @@
     body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px 60px; }
 
-    .topbar {
-      display: flex; gap: 10px; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
-    }
+    .topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .title { font-size: 18px; font-weight: 650; }
 
     .pill {
       font-size: 12px; opacity: 0.85; padding: 4px 9px; border-radius: 999px;
-      border: 1px solid rgba(0,0,0,0.18);
-      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(0,0,0,0.18); display: inline-flex; align-items: center; gap: 6px;
     }
     .pill.saved { background: rgba(16,185,129,0.10); }
     .pill.unsaved { background: rgba(245,158,11,0.10); }
@@ -43,139 +39,56 @@
     .btn:hover { background: rgba(0,0,0,0.06); }
     .btn:disabled { opacity: 0.55; cursor: not-allowed; }
     .btn.danger { color: #b00020; }
-    .btn.primary {
-      background: rgba(16,185,129,0.12);
-      border-color: rgba(16,185,129,0.28);
-    }
+    .btn.primary { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.28); }
     .btn.primary:hover { background: rgba(16,185,129,0.18); }
+    .btn.warn { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.28); }
+    .btn.warn:hover { background: rgba(245,158,11,0.18); }
+    .btn.critical { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.35); }
+    .btn.critical:hover { background: rgba(239,68,68,0.20); }
 
     .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .actions { display:flex; gap: 10px; flex-wrap: wrap; }
 
-    .card {
-      border: 1px solid rgba(0,0,0,0.14);
-      border-radius: 14px;
-      padding: 12px;
-      margin: 12px 0;
-    }
+    .card { border: 1px solid rgba(0,0,0,0.14); border-radius: 14px; padding: 12px; margin: 12px 0; }
 
-    .section-card {
-      border: 1px solid rgba(0,0,0,0.14);
-      border-radius: 14px;
-      margin: 12px 0;
-      overflow: hidden;
-    }
-    .section-header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      padding: 12px;
-      cursor: pointer;
-      user-select: none;
-    }
+    .section-card { border: 1px solid rgba(0,0,0,0.14); border-radius: 14px; margin: 12px 0; overflow: hidden; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 12px; cursor: pointer; user-select: none; }
     .section-header:hover { background: rgba(0,0,0,0.02); }
-    .section-head-left {
-      min-width: 0;
-      flex: 1 1 auto;
-    }
-    .section-title {
-      font-size: 16px;
-      font-weight: 650;
-      margin: 0 0 6px;
-    }
-    .section-desc {
-      font-size: 12px;
-      opacity: 0.75;
-      margin: 0;
-      line-height: 1.4;
-    }
-    .section-meta {
-      display:flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-end;
-      flex: 0 0 auto;
-    }
+    .section-head-left { min-width: 0; flex: 1 1 auto; }
+    .section-title { font-size: 16px; font-weight: 650; margin: 0 0 6px; }
+    .section-desc { font-size: 12px; opacity: 0.75; margin: 0; line-height: 1.4; }
+    .section-meta { display:flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
     .section-badge {
-      font-size: 11px;
-      border: 1px solid rgba(0,0,0,0.16);
-      border-radius: 999px;
-      padding: 3px 8px;
-      opacity: 0.9;
-      white-space: nowrap;
+      font-size: 11px; border: 1px solid rgba(0,0,0,0.16);
+      border-radius: 999px; padding: 3px 8px; opacity: 0.9; white-space: nowrap;
     }
-    .section-badge.missing {
-      color: #b00020;
-      font-weight: 700;
-    }
-    .section-toggle {
-      font-size: 12px;
-      opacity: 0.8;
-    }
-    .section-body {
-      padding: 0 12px 12px;
-      border-top: 1px solid rgba(0,0,0,0.08);
-    }
+    .section-badge.missing { color: #b00020; font-weight: 700; }
+    .section-toggle { font-size: 12px; opacity: 0.8; }
+    .section-body { padding: 0 12px 12px; border-top: 1px solid rgba(0,0,0,0.08); }
     .section-body.collapsed { display: none; }
 
     .navigator {
-      position: sticky;
-      top: 10px;
-      z-index: 20;
-      border: 1px solid rgba(0,0,0,0.14);
-      border-radius: 14px;
-      padding: 12px;
-      margin: 12px 0;
-      backdrop-filter: blur(6px);
+      position: sticky; top: 10px; z-index: 20;
+      border: 1px solid rgba(0,0,0,0.14); border-radius: 14px;
+      padding: 12px; margin: 12px 0; backdrop-filter: blur(6px);
       background: rgba(255,255,255,0.92);
     }
-    .navigator-title {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .nav-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    .navigator-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+    .nav-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .nav-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid rgba(0,0,0,0.15);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      background: rgba(0,0,0,0.02);
+      display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: inherit;
+      border: 1px solid rgba(0,0,0,0.15); border-radius: 999px; padding: 6px 10px;
+      font-size: 12px; background: rgba(0,0,0,0.02);
     }
     .nav-link:hover { background: rgba(0,0,0,0.06); }
-    .nav-missing {
-      color: #b00020;
-      font-weight: 700;
-    }
+    .nav-missing { color: #b00020; font-weight: 700; }
 
     .field { margin: 10px 0; }
-    .label {
-      font-size: 13px; font-weight: 600; margin-bottom: 6px;
-      display:flex; gap:8px; align-items:center;
-    }
-    .req {
-      font-size: 11px; opacity: 0.7;
-      border: 1px solid rgba(0,0,0,0.2);
-      border-radius: 999px;
-      padding: 1px 7px;
-    }
+    .label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display:flex; gap:8px; align-items:center; }
+    .req { font-size: 11px; opacity: 0.7; border: 1px solid rgba(0,0,0,0.2); border-radius: 999px; padding: 1px 7px; }
     .missing { color: #b00020; font-weight: 700; }
     .small { font-size: 12px; opacity: 0.75; margin-top: 4px; }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 12px;
-    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
     .muted { opacity: 0.75; }
     pre { white-space: pre-wrap; word-break: break-word; }
     .hr { height: 1px; background: rgba(0,0,0,0.12); margin: 14px 0; }
@@ -183,124 +96,62 @@
     details { border-radius: 12px; }
 
     input[type="text"], input[type="number"], input[type="password"], textarea, select {
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid rgba(0,0,0,0.22);
-      border-radius: 10px;
-      padding: 10px 10px;
-      background: transparent;
-      color: inherit;
+      width: 100%; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.22);
+      border-radius: 10px; padding: 10px 10px; background: transparent; color: inherit;
     }
     textarea { min-height: 80px; resize: vertical; }
     select[multiple] { min-height: 120px; }
 
-    .checkrow {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .checkrow label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .checkrow input[type="checkbox"] {
-      width: auto;
-      margin: 0;
-    }
+    .checkrow { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .checkrow label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+    .checkrow input[type="checkbox"] { width: auto; margin: 0; }
 
-    .group-box {
-      border: 1px dashed rgba(0,0,0,0.18);
-      border-radius: 12px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-    .group-item {
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 12px;
-      padding: 12px;
-      margin: 10px 0;
-    }
-    .group-item-head {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .group-item-title {
-      font-size: 13px;
-      font-weight: 650;
-      opacity: 0.9;
-    }
+    .group-box { border: 1px dashed rgba(0,0,0,0.18); border-radius: 12px; padding: 10px; margin-top: 8px; }
+    .group-item { border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 12px; margin: 10px 0; }
+    .group-item-head { display:flex; align-items:center; justify-content:space-between; gap: 10px; margin-bottom: 8px; }
+    .group-item-title { font-size: 13px; font-weight: 650; opacity: 0.9; }
 
-    .suggest-box {
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 12px;
-      padding: 10px;
-      margin: 10px 0;
+    .suggest-box, .status-box {
+      border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 12px; margin-top: 10px;
     }
-    .suggest-title {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .suggest-list {
-      margin: 0;
-      padding-left: 18px;
-    }
-    .suggest-list li {
-      margin: 6px 0;
-    }
+    .suggest-title, .status-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .suggest-list { margin: 0; padding-left: 18px; }
+    .suggest-list li { margin: 6px 0; }
 
-    .status-box {
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-    .status-title {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
     .kv {
-      display: grid;
-      grid-template-columns: 130px 1fr;
-      gap: 6px 10px;
-      font-size: 13px;
-      line-height: 1.45;
+      display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px;
+      font-size: 13px; line-height: 1.45;
     }
-    .kv .k {
-      opacity: 0.72;
+    .kv .k { opacity: 0.72; }
+    .status-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .warning-box, .success-box, .danger-box, .info-box {
+      border-radius: 12px; padding: 10px 12px; margin-top: 10px; font-size: 13px; line-height: 1.45;
     }
-    .status-actions {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .warning-box { border: 1px solid rgba(245,158,11,0.35); background: rgba(245,158,11,0.08); }
+    .success-box { border: 1px solid rgba(16,185,129,0.35); background: rgba(16,185,129,0.08); }
+    .danger-box { border: 1px solid rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); }
+    .info-box { border: 1px solid rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); }
+
+    .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .history-item {
+      border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 10px;
+      display: grid; gap: 6px;
     }
+    .history-head {
+      display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .history-badges { display:flex; gap:8px; flex-wrap:wrap; }
+    .history-meta { font-size: 12px; opacity: 0.8; }
+    .history-empty { font-size: 13px; opacity: 0.7; }
 
     .toast-wrap {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-width: 360px;
+      position: fixed; right: 18px; bottom: 18px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px; max-width: 360px;
     }
     .toast {
-      border-radius: 12px;
-      padding: 12px 14px;
-      border: 1px solid rgba(0,0,0,0.14);
-      background: rgba(255,255,255,0.96);
-      color: #111;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      border-radius: 12px; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.14);
+      background: rgba(255,255,255,0.96); color: #111; box-shadow: 0 10px 24px rgba(0,0,0,0.12);
       font-size: 13px;
     }
     .toast.success { border-color: rgba(16,185,129,0.35); }
@@ -308,7 +159,6 @@
     .toast.warn { border-color: rgba(245,158,11,0.35); }
     .toast.error { border-color: rgba(239,68,68,0.35); }
 
-    /* Themes */
     body[data-theme="light"] { background: #ffffff; color: #111111; }
     body[data-theme="dark"] { background: #000000; color: #ffffff; }
     body[data-theme="light-hc"] { background: #ffffff; color: #000000; }
@@ -330,10 +180,9 @@
     body[data-theme="light"] .group-item,
     body[data-theme="light"] .suggest-box,
     body[data-theme="light"] .status-box,
+    body[data-theme="light"] .history-item,
     body[data-theme="light"] .toast,
-    body[data-theme="light"] .section-badge {
-      border-color: rgba(0,0,0,0.18);
-    }
+    body[data-theme="light"] .section-badge { border-color: rgba(0,0,0,0.18); }
 
     body[data-theme="dark"] .card,
     body[data-theme="dark"] .section-card,
@@ -351,10 +200,9 @@
     body[data-theme="dark"] .group-item,
     body[data-theme="dark"] .suggest-box,
     body[data-theme="dark"] .status-box,
+    body[data-theme="dark"] .history-item,
     body[data-theme="dark"] .toast,
-    body[data-theme="dark"] .section-badge {
-      border-color: rgba(255,255,255,0.26);
-    }
+    body[data-theme="dark"] .section-badge { border-color: rgba(255,255,255,0.26); }
 
     body[data-theme="light-hc"] .card,
     body[data-theme="light-hc"] .section-card,
@@ -372,10 +220,9 @@
     body[data-theme="light-hc"] .group-item,
     body[data-theme="light-hc"] .suggest-box,
     body[data-theme="light-hc"] .status-box,
+    body[data-theme="light-hc"] .history-item,
     body[data-theme="light-hc"] .toast,
-    body[data-theme="light-hc"] .section-badge {
-      border-color: rgba(0,0,0,0.55);
-    }
+    body[data-theme="light-hc"] .section-badge { border-color: rgba(0,0,0,0.55); }
 
     body[data-theme="dark-hc"] .card,
     body[data-theme="dark-hc"] .section-card,
@@ -393,45 +240,40 @@
     body[data-theme="dark-hc"] .group-item,
     body[data-theme="dark-hc"] .suggest-box,
     body[data-theme="dark-hc"] .status-box,
+    body[data-theme="dark-hc"] .history-item,
     body[data-theme="dark-hc"] .toast,
-    body[data-theme="dark-hc"] .section-badge {
-      border-color: rgba(255,255,255,0.55);
-    }
+    body[data-theme="dark-hc"] .section-badge { border-color: rgba(255,255,255,0.55); }
 
     body[data-theme="dark"] .btn,
     body[data-theme="dark"] .nav-link,
     body[data-theme="dark-hc"] .btn,
-    body[data-theme="dark-hc"] .nav-link {
-      background: rgba(255,255,255,0.06);
-    }
+    body[data-theme="dark-hc"] .nav-link { background: rgba(255,255,255,0.06); }
+
     body[data-theme="dark"] .btn:hover,
     body[data-theme="dark"] .nav-link:hover,
     body[data-theme="dark-hc"] .btn:hover,
-    body[data-theme="dark-hc"] .nav-link:hover {
-      background: rgba(255,255,255,0.10);
-    }
+    body[data-theme="dark-hc"] .nav-link:hover { background: rgba(255,255,255,0.10); }
+
     body[data-theme="dark"] .hr,
     body[data-theme="dark-hc"] .hr { background: rgba(255,255,255,0.18); }
+
     body[data-theme="dark"] .missing,
     body[data-theme="dark-hc"] .missing,
     body[data-theme="dark"] .nav-missing,
     body[data-theme="dark-hc"] .nav-missing { color: #ff6b6b; }
+
     body[data-theme="dark"] .toast,
     body[data-theme="dark-hc"] .toast,
     body[data-theme="dark"] .navigator,
     body[data-theme="dark-hc"] .navigator {
-      background: rgba(20,20,20,0.96);
-      color: #fff;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+      background: rgba(20,20,20,0.96); color: #fff; box-shadow: 0 10px 24px rgba(0,0,0,0.4);
     }
+
     body[data-theme="dark"] .section-header:hover,
-    body[data-theme="dark-hc"] .section-header:hover {
-      background: rgba(255,255,255,0.04);
-    }
+    body[data-theme="dark-hc"] .section-header:hover { background: rgba(255,255,255,0.04); }
+
     body[data-theme="dark"] .section-body,
-    body[data-theme="dark-hc"] .section-body {
-      border-top-color: rgba(255,255,255,0.08);
-    }
+    body[data-theme="dark-hc"] .section-body { border-top-color: rgba(255,255,255,0.08); }
   </style>
 </head>
 <body>
@@ -486,6 +328,7 @@
     <div id="latestBuildCard" class="card" style="display:none;">
       <div class="section-title">Latest build</div>
       <div class="section-desc">Most recent successfully built RO-Crate from this editor session.</div>
+
       <div class="status-box">
         <div class="status-title">Build summary</div>
         <div class="kv">
@@ -502,11 +345,12 @@
 
       <div class="status-box">
         <div class="status-title">Deposit to Zenodo</div>
-        <div class="small">Use a Zenodo token for the selected environment. The token is only used for this request and is not stored by the UI.</div>
+        <div class="small">Use a Zenodo token for the selected environment. The token is used only for this request and is cleared after every attempt.</div>
 
         <div class="field">
           <div class="label">Zenodo access token</div>
           <input id="zenodoTokenInput" type="password" placeholder="Paste Zenodo token here" autocomplete="off" />
+          <div class="small">Use separate tokens for sandbox and production. The UI does not store the token between page reloads.</div>
         </div>
 
         <div class="checkrow">
@@ -514,8 +358,16 @@
           <label><input id="zenodoPublishInput" type="checkbox" /> Publish immediately</label>
         </div>
 
+        <div id="depositModeNotice" class="warning-box">
+          You are creating a Zenodo sandbox draft. This is the safest mode for testing.
+        </div>
+
+        <div id="depositRiskBox" class="info-box">
+          This mode only creates a draft on Zenodo sandbox. Nothing is published publicly.
+        </div>
+
         <div class="status-actions">
-          <button id="depositZenodoBtn" class="btn primary" type="button">Deposit to Zenodo</button>
+          <button id="depositZenodoBtn" class="btn primary" type="button">Create sandbox draft</button>
         </div>
 
         <div id="depositResultBox" class="status-box" style="display:none; margin-top:12px;">
@@ -528,7 +380,28 @@
             <div class="k">Published</div><div id="depositPublished">—</div>
             <div class="k">Message</div><div id="depositMessage">—</div>
           </div>
+          <div class="status-actions">
+            <a id="depositOpenRecordBtn" class="btn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">Open deposited record</a>
+          </div>
         </div>
+
+        <div id="depositSuccessBox" class="success-box" style="display:none;">
+          Deposition completed successfully.
+        </div>
+
+        <div id="depositFailureBox" class="danger-box" style="display:none;">
+          Deposition failed.
+        </div>
+      </div>
+
+      <div class="status-box">
+        <div class="status-title">Deposition history</div>
+        <div class="small">Loaded from backend audit history for the current crate.</div>
+        <div class="status-actions">
+          <button id="refreshHistoryBtn" class="btn" type="button">Refresh history</button>
+          <button id="clearHistoryBtn" class="btn danger" type="button">Clear history for this draft/crate</button>
+        </div>
+        <div id="historyRoot" class="history-list"></div>
       </div>
     </div>
 
@@ -562,7 +435,16 @@
     aiSuggest: () => `/v1/ai/suggest`,
     validateCrate: (crateId) => `/v1/rocrate/${crateId}/validate`,
     downloadCrate: (crateId) => `/v1/rocrate/${crateId}/download`,
-    depositZenodo: () => `/v1/deposit/zenodo`
+    depositZenodo: () => `/v1/deposit/zenodo`,
+    depositHistory: (crateId, limit=20) =>
+      `/v1/deposits/history?crate_id=${encodeURIComponent(crateId)}&limit=${encodeURIComponent(limit)}`,
+    draftActivity: (draftId, limit=20) =>
+      `/v1/drafts/${encodeURIComponent(draftId)}/activity?limit=${encodeURIComponent(limit)}`
+  };
+
+  const UI_STATE_KEYS = {
+    lastDraftId: "pbpk_ui_last_draft_id",
+    lastCrateId: "pbpk_ui_last_crate_id"
   };
 
   let currentDraftId = null;
@@ -574,6 +456,7 @@
   let autosaveTimer = null;
   let autosaveDelayMs = 900;
   let isSaving = false;
+  let isDepositing = false;
 
   const collapsedSections = new Set();
 
@@ -695,6 +578,81 @@
     }
   }
 
+  function saveUiState() {
+    if (currentDraftId) localStorage.setItem(UI_STATE_KEYS.lastDraftId, currentDraftId);
+    else localStorage.removeItem(UI_STATE_KEYS.lastDraftId);
+  }
+
+  function loadUiState() {
+    return {
+      draftId: localStorage.getItem(UI_STATE_KEYS.lastDraftId)
+    };
+  }
+
+  function clearUiState() {
+    localStorage.removeItem(UI_STATE_KEYS.lastDraftId);
+    localStorage.removeItem(UI_STATE_KEYS.lastCrateId);
+  }
+
+  function getDepositMode() {
+    const sandbox = document.getElementById("zenodoSandboxInput").checked;
+    const publish = document.getElementById("zenodoPublishInput").checked;
+    return { sandbox, publish };
+  }
+
+  function updateDepositButtonLabel() {
+    const { sandbox, publish } = getDepositMode();
+    const btn = document.getElementById("depositZenodoBtn");
+    btn.classList.remove("primary", "warn", "critical");
+
+    if (sandbox && !publish) {
+      btn.textContent = "Create sandbox draft";
+      btn.classList.add("primary");
+      return;
+    }
+    if (sandbox && publish) {
+      btn.textContent = "Publish to sandbox";
+      btn.classList.add("warn");
+      return;
+    }
+    if (!sandbox && !publish) {
+      btn.textContent = "Create production draft";
+      btn.classList.add("warn");
+      return;
+    }
+    btn.textContent = "Publish to production";
+    btn.classList.add("critical");
+  }
+
+  function updateDepositModeNotice() {
+    const { sandbox, publish } = getDepositMode();
+    const notice = document.getElementById("depositModeNotice");
+    const risk = document.getElementById("depositRiskBox");
+
+    notice.className = "warning-box";
+    risk.className = "info-box";
+
+    if (sandbox && !publish) {
+      notice.textContent = "You are creating a Zenodo sandbox draft. This is the safest mode for testing.";
+      risk.textContent = "This mode only creates a draft on Zenodo sandbox. Nothing is published publicly.";
+    } else if (sandbox && publish) {
+      notice.textContent = "You are publishing directly to Zenodo sandbox. This is useful for end-to-end testing.";
+      risk.textContent = "The record will be published on the Zenodo sandbox environment, not production.";
+      risk.className = "warning-box";
+    } else if (!sandbox && !publish) {
+      notice.textContent = "You are creating a draft on production Zenodo. Review metadata carefully before any later publish.";
+      risk.textContent = "This does not publish the record, but it does create a real draft in your production Zenodo account.";
+      risk.className = "warning-box";
+    } else {
+      notice.textContent = "You are about to publish directly to production Zenodo.";
+      risk.textContent = "This is the highest-risk mode. Use it only for final public release after careful review.";
+      notice.className = "danger-box";
+      risk.className = "danger-box";
+    }
+
+    updateDepositButtonLabel();
+  }
+
   function getSectionStats(section) {
     const fields = Array.isArray(section.fields) ? section.fields : [];
     let fieldCount = 0;
@@ -710,6 +668,100 @@
 
     fields.forEach(walk);
     return { fieldCount, missingCount };
+  }
+
+  async function renderHistory() {
+    const root = document.getElementById("historyRoot");
+    root.innerHTML = "";
+
+    const crateId = latestBuild?.build?.crate_id;
+    if (!crateId) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.textContent = "No built crate yet. Build a crate to see server deposition history.";
+      root.appendChild(empty);
+      return;
+    }
+
+    let items = [];
+    try {
+      const out = await jfetch(API.depositHistory(crateId, 20));
+      items = Array.isArray(out.items) ? out.items : [];
+    } catch (e) {
+      const err = document.createElement("div");
+      err.className = "history-empty";
+      err.textContent = `Could not load server history: ${String(e)}`;
+      root.appendChild(err);
+      return;
+    }
+
+    if (items.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.textContent = "No server deposition history yet for this crate.";
+      root.appendChild(empty);
+      return;
+    }
+
+    items.forEach((item) => {
+      const box = document.createElement("div");
+      box.className = "history-item";
+
+      const head = document.createElement("div");
+      head.className = "history-head";
+
+      const when = document.createElement("div");
+      when.className = "history-meta";
+      when.textContent = item.timestamp ? new Date(item.timestamp).toLocaleString() : "unknown time";
+      head.appendChild(when);
+
+      const badges = document.createElement("div");
+      badges.className = "history-badges";
+
+      const platform = document.createElement("span");
+      platform.className = "section-badge";
+      platform.textContent = item.platform || "unknown";
+      badges.appendChild(platform);
+
+      const env = document.createElement("span");
+      env.className = "section-badge";
+      env.textContent = item.sandbox ? "sandbox" : "production";
+      badges.appendChild(env);
+
+      const pub = document.createElement("span");
+      pub.className = "section-badge";
+      pub.textContent = item.publish_requested ? "publish requested" : "draft";
+      badges.appendChild(pub);
+
+      head.appendChild(badges);
+      box.appendChild(head);
+
+      const kv = document.createElement("div");
+      kv.className = "kv";
+      kv.innerHTML = `
+        <div class="k">Crate ID</div><div>${item.crate_id || "—"}</div>
+        <div class="k">Record ID</div><div>${item.record_id || "—"}</div>
+        <div class="k">DOI</div><div>${item.doi || "—"}</div>
+        <div class="k">Published</div><div>${item.published === true ? "true" : item.published === false ? "false" : "—"}</div>
+        <div class="k">Message</div><div>${item.message || "—"}</div>
+      `;
+      box.appendChild(kv);
+
+      if (item.url) {
+        const actions = document.createElement("div");
+        actions.className = "status-actions";
+        const a = document.createElement("a");
+        a.className = "btn";
+        a.href = item.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = "Open record";
+        actions.appendChild(a);
+        box.appendChild(actions);
+      }
+
+      root.appendChild(box);
+    });
   }
 
   function renderNavigator(ui) {
@@ -856,9 +908,7 @@
   }
 
   function renderField(field) {
-    if (field.widget === "group" || field.value_type === "object") {
-      return renderGroupField(field);
-    }
+    if (field.widget === "group" || field.value_type === "object") return renderGroupField(field);
     return renderScalarField(field);
   }
 
@@ -914,9 +964,7 @@
       topRow.appendChild(addBtn);
       box.appendChild(topRow);
 
-      items.forEach((item, index) => {
-        box.appendChild(renderGroupItem(field, item || {}, index));
-      });
+      items.forEach((item, index) => box.appendChild(renderGroupItem(field, item || {}, index)));
 
       if (items.length === 0) {
         const empty = document.createElement("div");
@@ -969,19 +1017,13 @@
     (field.fields || []).forEach(sub => {
       const concrete = Object.assign({}, sub);
 
-      if (index !== null) {
-        concrete.path = (sub.path || "").replace("/*/", `/${index}/`).replace("/*", `/${index}`);
-      } else {
-        concrete.path = sub.path || "";
-      }
+      if (index !== null) concrete.path = (sub.path || "").replace("/*/", `/${index}/`).replace("/*", `/${index}`);
+      else concrete.path = sub.path || "";
 
       try {
         const key = (sub.path || "").split("/").pop();
-        if (key && item && typeof item === "object" && key in item) {
-          concrete.value = item[key];
-        } else {
-          concrete.value = (sub.cardinality === "many") ? [] : "";
-        }
+        if (key && item && typeof item === "object" && key in item) concrete.value = item[key];
+        else concrete.value = (sub.cardinality === "many") ? [] : "";
       } catch (_) {
         concrete.value = (sub.cardinality === "many") ? [] : "";
       }
@@ -1021,10 +1063,7 @@
     if (field.value_type === "text") {
       input = document.createElement("textarea");
       input.value = (field.value ?? "");
-      input.addEventListener("input", () => {
-        currentEdits[path] = input.value;
-        markDirty();
-      });
+      input.addEventListener("input", () => { currentEdits[path] = input.value; markDirty(); });
       wrap.appendChild(input);
       return wrap;
     }
@@ -1055,9 +1094,7 @@
         });
 
         const current = Array.isArray(field.value) ? field.value : [];
-        Array.from(input.options).forEach(opt => {
-          opt.selected = current.includes(opt.value);
-        });
+        Array.from(input.options).forEach(opt => { opt.selected = current.includes(opt.value); });
 
         input.addEventListener("change", () => {
           const vals = Array.from(input.selectedOptions).map(o => o.value);
@@ -1082,10 +1119,7 @@
         });
 
         input.value = (field.value ?? "");
-        input.addEventListener("change", () => {
-          currentEdits[path] = input.value;
-          markDirty();
-        });
+        input.addEventListener("change", () => { currentEdits[path] = input.value; markDirty(); });
 
         wrap.appendChild(input);
         return wrap;
@@ -1096,10 +1130,7 @@
       input = document.createElement("textarea");
       input.value = Array.isArray(field.value) ? field.value.join("\n") : "";
       input.addEventListener("input", () => {
-        currentEdits[path] = input.value
-          .split("\n")
-          .map(s => s.trim())
-          .filter(Boolean);
+        currentEdits[path] = input.value.split("\n").map(s => s.trim()).filter(Boolean);
         markDirty();
       });
       wrap.appendChild(input);
@@ -1109,11 +1140,7 @@
     input = document.createElement("input");
     input.type = "text";
     input.value = (field.value ?? "");
-    input.addEventListener("input", () => {
-      currentEdits[path] = input.value;
-      markDirty();
-    });
-
+    input.addEventListener("input", () => { currentEdits[path] = input.value; markDirty(); });
     wrap.appendChild(input);
     return wrap;
   }
@@ -1134,15 +1161,10 @@
     setSaveState("saving");
 
     const value = await fetchTemplateForPath(arrayPath);
-
     const out = await jfetch(API.applyArray(currentDraftId), {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        array_path: arrayPath,
-        action: "append",
-        value: value
-      })
+      body: JSON.stringify({ array_path: arrayPath, action: "append", value })
     });
 
     setLastResp(out);
@@ -1157,11 +1179,7 @@
     const out = await jfetch(API.applyArray(currentDraftId), {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        array_path: arrayPath,
-        action: "remove_index",
-        index: index
-      })
+      body: JSON.stringify({ array_path: arrayPath, action: "remove_index", index })
     });
 
     setLastResp(out);
@@ -1183,6 +1201,27 @@
     return currentDraftId;
   }
 
+  async function loadFormFromDraftId(draftId) {
+    currentDraftId = draftId;
+    setDraftPill();
+
+    const ui = await jfetch(API.formUI("?include_helptexts=true&include_vocabularies=true"), {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ draft_id: draftId })
+    });
+
+    renderForm(ui);
+    setLastResp(ui);
+    setSaveState("saved");
+    saveUiState();
+    await renderHistory();
+  }
+
+  async function loadDraftActivity(draftId) {
+    return await jfetch(API.draftActivity(draftId, 20));
+  }
+
   async function loadFormFromMetadata(metadataObj) {
     setSaveState("saving", "Loading...");
     const ui = await jfetch(API.formUI("?include_helptexts=true&include_vocabularies=true"), {
@@ -1195,6 +1234,8 @@
     setLastResp(ui);
     await ensureDraftExistsFromMetadata(metadataObj || {});
     setSaveState("saved");
+    saveUiState();
+    await renderHistory();
   }
 
   async function reloadFormFromDraft() {
@@ -1205,6 +1246,7 @@
       body: JSON.stringify({ draft_id: currentDraftId })
     });
     renderForm(ui);
+    await renderHistory();
   }
 
   function renderLatestBuild(buildOut) {
@@ -1245,6 +1287,59 @@
     }
 
     card.style.display = "block";
+    saveUiState();
+    renderHistory();
+  }
+
+  function restoreLatestBuildCardFromActivity(activity) {
+    const latest = activity?.latest_build;
+    if (!latest || !latest.crate_id) return;
+
+    const crateId = latest.crate_id;
+
+    latestBuild = {
+      build: {
+        crate_id: crateId,
+        validation: { ok: true, errors: [], warnings: [] },
+        crate_dir: "Restored from backend draft activity",
+        metadata_path: "Restored from backend draft activity"
+      }
+    };
+
+    const card = document.getElementById("latestBuildCard");
+    document.getElementById("latestCrateId").textContent = crateId;
+    document.getElementById("latestCrateValidation").textContent = "restored from backend";
+    document.getElementById("latestCrateDir").textContent = "Restored from backend draft activity";
+    document.getElementById("latestMetadataPath").textContent = "Restored from backend draft activity";
+
+    const dl = document.getElementById("downloadLatestBtn");
+    const validateBtn = document.getElementById("validateLatestCrateBtn");
+
+    dl.style.display = "inline-flex";
+    dl.href = API.downloadCrate(crateId);
+    dl.setAttribute("download", `${crateId}.zip`);
+
+    validateBtn.style.display = "inline-flex";
+    validateBtn.onclick = async () => {
+      try {
+        const out = await jfetch(API.validateCrate(crateId));
+        setLastResp(out);
+        const warnings = Array.isArray(out.warnings) ? out.warnings.length : 0;
+        showToast(warnings ? `Crate validated with ${warnings} warning(s)` : "Latest crate validation passed", warnings ? "warn" : "success");
+      } catch (e) {
+        setLastResp({ error: String(e) });
+        document.getElementById("debugPanel").open = true;
+      }
+    };
+
+    card.style.display = "block";
+  }
+
+  function resetDepositResultUI() {
+    document.getElementById("depositResultBox").style.display = "none";
+    document.getElementById("depositSuccessBox").style.display = "none";
+    document.getElementById("depositFailureBox").style.display = "none";
+    document.getElementById("depositOpenRecordBtn").style.display = "none";
   }
 
   function renderDepositResult(out) {
@@ -1255,6 +1350,9 @@
     const url = document.getElementById("depositUrl");
     const published = document.getElementById("depositPublished");
     const message = document.getElementById("depositMessage");
+    const openBtn = document.getElementById("depositOpenRecordBtn");
+    const successBox = document.getElementById("depositSuccessBox");
+    const failureBox = document.getElementById("depositFailureBox");
 
     box.style.display = "block";
     platform.textContent = out.platform ?? "—";
@@ -1271,44 +1369,86 @@
       a.rel = "noopener noreferrer";
       a.textContent = out.url;
       url.appendChild(a);
+
+      openBtn.style.display = "inline-flex";
+      openBtn.href = out.url;
     } else {
       url.textContent = "—";
+      openBtn.style.display = "none";
+      openBtn.removeAttribute("href");
+    }
+
+    if (out.ok) {
+      successBox.style.display = "block";
+      successBox.textContent = out.published ? "Deposition completed and published successfully." : "Deposition draft created successfully.";
+      failureBox.style.display = "none";
+    } else {
+      failureBox.style.display = "block";
+      failureBox.textContent = out.message ? `Deposition failed: ${out.message}` : "Deposition failed.";
+      successBox.style.display = "none";
     }
   }
 
+  function buildDepositConfirmationMessage(crateId, sandbox, publish) {
+    if (sandbox && !publish) {
+      return `Create a draft on Zenodo sandbox for crate ${crateId}?`;
+    }
+    if (sandbox && publish) {
+      return `Publish crate ${crateId} to Zenodo sandbox? This is intended for end-to-end testing.`;
+    }
+    if (!sandbox && !publish) {
+      return `Create a real draft on production Zenodo for crate ${crateId}? This will not publish it yet.`;
+    }
+    return `Publish crate ${crateId} directly to production Zenodo?\n\nThis may create a publicly visible record. Proceed only if the metadata and files are final.`;
+  }
+
   async function depositLatestToZenodo() {
-    const token = document.getElementById("zenodoTokenInput").value.trim();
-    const sandbox = document.getElementById("zenodoSandboxInput").checked;
-    const publish = document.getElementById("zenodoPublishInput").checked;
+    const tokenInput = document.getElementById("zenodoTokenInput");
+    const token = tokenInput.value.trim();
+    const { sandbox, publish } = getDepositMode();
     const crateId = latestBuild?.build?.crate_id;
+    const depositBtn = document.getElementById("depositZenodoBtn");
 
-    if (!crateId) {
-      throw new Error("No built crate available. Build a crate first.");
-    }
-    if (!token) {
-      throw new Error("Zenodo token is required.");
-    }
+    if (!crateId) throw new Error("No built crate available. Build a crate first.");
+    if (!token) throw new Error("Zenodo token is required.");
 
-    const out = await jfetch(API.depositZenodo(), {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        crate_id: crateId,
-        token: token,
-        sandbox: sandbox,
-        publish: publish
-      })
-    });
+    const confirmMessage = buildDepositConfirmationMessage(crateId, sandbox, publish);
+    const confirmed = window.confirm(confirmMessage);
+    if (!confirmed) return;
 
-    setLastResp(out);
-    renderDepositResult(out);
+    try {
+      isDepositing = true;
+      depositBtn.disabled = true;
+      depositBtn.textContent = sandbox ? (publish ? "Publishing to sandbox..." : "Creating sandbox draft...") : (publish ? "Publishing to production..." : "Creating production draft...");
+      resetDepositResultUI();
 
-    if (out.ok) {
-      showToast(publish ? "Deposited and published to Zenodo" : "Deposited draft to Zenodo", "success", 3200);
-      document.getElementById("zenodoTokenInput").value = "";
-    } else {
-      showToast("Zenodo deposition failed", "error", 3200);
-      document.getElementById("debugPanel").open = true;
+      const out = await jfetch(API.depositZenodo(), {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ crate_id: crateId, token, sandbox, publish })
+      });
+
+      setLastResp(out);
+      renderDepositResult(out);
+
+      if (out.ok) {
+        await renderHistory();
+        showToast(
+          publish
+            ? (sandbox ? "Published to Zenodo sandbox" : "Published to production Zenodo")
+            : (sandbox ? "Created sandbox draft" : "Created production draft"),
+          publish && !sandbox ? "warn" : "success",
+          3400
+        );
+      } else {
+        showToast("Zenodo deposition failed", "error", 3400);
+        document.getElementById("debugPanel").open = true;
+      }
+    } finally {
+      tokenInput.value = "";
+      isDepositing = false;
+      depositBtn.disabled = false;
+      updateDepositButtonLabel();
     }
   }
 
@@ -1451,10 +1591,7 @@
   async function applyAllSuggestions() {
     if (!currentSuggestions) throw new Error("No suggestions loaded");
 
-    const patches = Array.isArray(currentSuggestions.suggested_patches)
-      ? currentSuggestions.suggested_patches
-      : [];
-
+    const patches = Array.isArray(currentSuggestions.suggested_patches) ? currentSuggestions.suggested_patches : [];
     if (patches.length === 0) {
       setLastResp({ ok: true, note: "No suggested patches to apply." });
       return;
@@ -1466,7 +1603,6 @@
 
   async function applyEdits(isAutosave=false) {
     if (!currentDraftId) throw new Error("No draft_id");
-
     if (!hasPendingEdits()) {
       setSaveState("saved");
       return;
@@ -1476,12 +1612,10 @@
     isSaving = true;
     setSaveState("saving", isAutosave ? "Autosaving..." : "Saving...");
 
-    const payload = { edits: currentEdits };
-
     const out = await jfetch(API.applyEdits(currentDraftId), {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ edits: currentEdits })
     });
 
     setLastResp(out);
@@ -1510,9 +1644,7 @@
   async function validateAndBuild() {
     if (!currentDraftId) throw new Error("No draft_id");
 
-    if (hasPendingEdits()) {
-      await applyEdits(false);
-    }
+    if (hasPendingEdits()) await applyEdits(false);
 
     setSaveState("saving", "Validating...");
     const validationOut = await validateDraft();
@@ -1539,6 +1671,8 @@
   }
 
   document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value));
+  document.getElementById("zenodoSandboxInput").addEventListener("change", updateDepositModeNotice);
+  document.getElementById("zenodoPublishInput").addEventListener("change", updateDepositModeNotice);
 
   document.getElementById("expandAllBtn").addEventListener("click", () => {
     expandAllSections();
@@ -1550,15 +1684,25 @@
     showToast("Collapsed all sections", "info", 1500);
   });
 
+  document.getElementById("refreshHistoryBtn").addEventListener("click", async () => {
+    await renderHistory();
+    showToast("History refreshed", "info", 1200);
+  });
+
+  document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+    showToast("Server audit history is read-only in Step 8.10.2", "info", 1800);
+  });
+
   document.getElementById("startBlankBtn").addEventListener("click", async () => {
     try {
       currentDraftId = null;
       currentSuggestions = null;
       latestBuild = null;
+      clearUiState();
       collapsedSections.clear();
       document.getElementById("suggestionsCard").style.display = "none";
       document.getElementById("latestBuildCard").style.display = "none";
-      document.getElementById("depositResultBox").style.display = "none";
+      resetDepositResultUI();
       document.getElementById("zenodoTokenInput").value = "";
       setDraftPill();
       await loadFormFromMetadata({});
@@ -1571,9 +1715,8 @@
   });
 
   document.getElementById("saveBtn").addEventListener("click", async () => {
-    try {
-      await applyEdits(false);
-    } catch (e) {
+    try { await applyEdits(false); }
+    catch (e) {
       setLastResp({ error: String(e) });
       setSaveState("error");
       document.getElementById("debugPanel").open = true;
@@ -1581,9 +1724,8 @@
   });
 
   document.getElementById("suggestBtn").addEventListener("click", async () => {
-    try {
-      await suggestImprovements();
-    } catch (e) {
+    try { await suggestImprovements(); }
+    catch (e) {
       setLastResp({ error: String(e) });
       setSaveState("error");
       document.getElementById("debugPanel").open = true;
@@ -1591,9 +1733,8 @@
   });
 
   document.getElementById("applyAllSuggestionsBtn").addEventListener("click", async () => {
-    try {
-      await applyAllSuggestions();
-    } catch (e) {
+    try { await applyAllSuggestions(); }
+    catch (e) {
       setLastResp({ error: String(e) });
       setSaveState("error");
       document.getElementById("debugPanel").open = true;
@@ -1635,9 +1776,8 @@
   });
 
   document.getElementById("validateBuildBtn").addEventListener("click", async () => {
-    try {
-      await validateAndBuild();
-    } catch (e) {
+    try { await validateAndBuild(); }
+    catch (e) {
       setLastResp({ error: String(e) });
       setSaveState("error");
       document.getElementById("debugPanel").open = true;
@@ -1646,12 +1786,15 @@
   });
 
   document.getElementById("depositZenodoBtn").addEventListener("click", async () => {
-    try {
-      await depositLatestToZenodo();
-    } catch (e) {
+    try { await depositLatestToZenodo(); }
+    catch (e) {
       setLastResp({ error: String(e) });
       document.getElementById("debugPanel").open = true;
+      document.getElementById("depositFailureBox").style.display = "block";
+      document.getElementById("depositFailureBox").textContent = String(e);
       showToast(String(e), "error", 3200);
+      document.getElementById("zenodoTokenInput").value = "";
+      updateDepositButtonLabel();
     }
   });
 
@@ -1664,10 +1807,11 @@
       currentDraftId = null;
       currentSuggestions = null;
       latestBuild = null;
+      clearUiState();
       collapsedSections.clear();
       document.getElementById("suggestionsCard").style.display = "none";
       document.getElementById("latestBuildCard").style.display = "none";
-      document.getElementById("depositResultBox").style.display = "none";
+      resetDepositResultUI();
       document.getElementById("zenodoTokenInput").value = "";
       setDraftPill();
       await loadFormFromMetadata(obj);
@@ -1680,7 +1824,7 @@
   });
 
   window.addEventListener("beforeunload", (e) => {
-    if (hasPendingEdits() || isSaving) {
+    if (hasPendingEdits() || isSaving || isDepositing) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -1688,11 +1832,31 @@
 
   (async function boot() {
     applyThemeFromStorage();
-    setDraftPill();
     enableActions(false);
+    updateDepositModeNotice();
+    updateDepositButtonLabel();
     setSaveState("saving", "Loading...");
+
     try {
+      const state = loadUiState();
+
+      if (state.draftId) {
+        try {
+          await loadFormFromDraftId(state.draftId);
+          const activity = await loadDraftActivity(state.draftId);
+          restoreLatestBuildCardFromActivity(activity);
+          await renderHistory();
+          showToast("Restored previous draft from backend activity", "info");
+          return;
+        } catch (_) {
+          clearUiState();
+        }
+      }
+
+      currentDraftId = null;
+      setDraftPill();
       await loadFormFromMetadata({});
+      await renderHistory();
       showToast("PBPK editor ready", "info");
     } catch (e) {
       setLastResp({ error: String(e) });

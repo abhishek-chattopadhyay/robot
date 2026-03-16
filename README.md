@@ -358,18 +358,17 @@ in computational toxicology.
 <h2>Citation and Attribution</h2>
 
 <p>
-If you use ROBOT in research, please cite the repository.
+If you use ROBOT in your research, please cite this repository.
 </p>
 
 <p>
-A formal citation file will be added in future releases.
+GitHub provides a ready-to-use citation via the
+<strong>"Cite this repository"</strong> button.
 </p>
 
-<p>For now, please reference:</p>
-
-<pre><code>ROBOT — Research Object Builder for Open Toxicology
-GitHub repository
-</code></pre>
+<p>
+Citation metadata is defined in the <code>CITATION.cff</code> file.
+</p>
 
 <hr>
 

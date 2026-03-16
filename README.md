@@ -3,6 +3,14 @@
 <p><strong>Research Object Builder for Open Toxicology</strong></p>
 
 <p>
+<img src="https://img.shields.io/badge/python-3.11%2B-blue.svg">
+<img src="https://img.shields.io/badge/license-MIT-green.svg">
+<img src="https://img.shields.io/badge/status-prototype-orange">
+<img src="https://img.shields.io/badge/RO--Crate-supported-blueviolet">
+<img src="https://img.shields.io/badge/toxicology-FAIR-important">
+</p>
+
+<p>
 ROBOT is a web-based application for creating, validating, building, and depositing
 <strong>FAIR toxicology model metadata</strong> as <strong>RO-Crates</strong>.
 </p>

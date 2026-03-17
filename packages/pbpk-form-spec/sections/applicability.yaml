@@ -1,0 +1,28 @@
+id: model_applicability_and_limitations
+title: Model Applicability and Limitations
+description: Intended use, applicability domain, confidence, and known limitations.
+
+fields:
+  - id: intended_use
+    path: /model_applicability_and_limitations/intended_use
+    label: Intended use
+    value_type: text
+    required: true
+
+  - id: applicability_domain
+    path: /model_applicability_and_limitations/applicability_domain
+    label: Applicability domain
+    value_type: text
+    required: true
+
+  - id: confidence_statement
+    path: /model_applicability_and_limitations/confidence_statement
+    label: Confidence statement
+    value_type: text
+    required: true
+
+  - id: known_limitations
+    path: /model_applicability_and_limitations/known_limitations
+    label: Known limitations
+    value_type: text
+    required: true

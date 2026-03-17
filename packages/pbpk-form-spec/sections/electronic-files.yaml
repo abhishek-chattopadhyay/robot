@@ -1,0 +1,49 @@
+id: electronic_files_and_reproducibility
+title: Electronic Files and Reproducibility
+description: Digital artifacts and instructions needed to inspect or reproduce the model.
+
+fields:
+  - id: digital_artifacts
+    path: /electronic_files_and_reproducibility/digital_artifacts
+    label: Digital artifacts
+    value_type: object
+    required: true
+    cardinality: many
+    fields:
+      - id: artifact_name
+        path: /electronic_files_and_reproducibility/digital_artifacts/*/artifact_name
+        label: Artifact name
+        value_type: text
+        required: true
+
+      - id: artifact_type
+        path: /electronic_files_and_reproducibility/digital_artifacts/*/artifact_type
+        label: Artifact type
+        value_type: controlled_term
+        required: true
+        allowed_values:
+          - Model code
+          - Simulation script
+          - Parameter file
+          - Dataset
+          - Documentation
+          - Notebook
+          - Other
+
+      - id: artifact_format
+        path: /electronic_files_and_reproducibility/digital_artifacts/*/artifact_format
+        label: Artifact format
+        value_type: text
+        required: true
+
+      - id: artifact_location
+        path: /electronic_files_and_reproducibility/digital_artifacts/*/artifact_location
+        label: Artifact location
+        value_type: text
+        required: true
+
+  - id: reproducibility_instructions
+    path: /electronic_files_and_reproducibility/reproducibility_instructions
+    label: Reproducibility instructions
+    value_type: text
+    required: true

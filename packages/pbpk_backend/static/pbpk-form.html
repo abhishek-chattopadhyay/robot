@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>PBPK Metadata Form</title>
+  <title>ROBOT – PBPK Metadata Editor</title>
   <style>
     :root { color-scheme: light; }
     html { scroll-behavior: smooth; }
@@ -280,7 +280,7 @@
   <div class="wrap">
     <div class="topbar">
       <div class="left">
-        <div class="title">PBPK metadata</div>
+        <div class="title">ROBOT – PBPK Metadata Editor</div>
         <div id="draftPill" class="pill">draft: (not created)</div>
         <div id="saveStatePill" class="pill saved">Saved</div>
       </div>
@@ -1017,18 +1017,32 @@
     (field.fields || []).forEach(sub => {
       const concrete = Object.assign({}, sub);
 
-      if (index !== null) concrete.path = (sub.path || "").replace("/*/", `/${index}/`).replace("/*", `/${index}`);
-      else concrete.path = sub.path || "";
+      if (index !== null) {
+        concrete.path = (sub.path || "").replace("/*/", `/${index}/`).replace("/*", `/${index}`);
+      } else {
+        concrete.path = sub.path || "";
+      }
 
       try {
         const key = (sub.path || "").split("/").pop();
-        if (key && item && typeof item === "object" && key in item) concrete.value = item[key];
-        else concrete.value = (sub.cardinality === "many") ? [] : "";
+        if (key && item && typeof item === "object" && key in item) {
+          concrete.value = item[key];
+        } else {
+          if (concrete.value_type === "object") {
+            concrete.value = concrete.cardinality === "many" ? [] : {};
+          } else {
+            concrete.value = concrete.cardinality === "many" ? [] : "";
+          }
+        }
       } catch (_) {
-        concrete.value = (sub.cardinality === "many") ? [] : "";
+        if (concrete.value_type === "object") {
+          concrete.value = concrete.cardinality === "many" ? [] : {};
+        } else {
+          concrete.value = concrete.cardinality === "many" ? [] : "";
+        }
       }
 
-      itemBox.appendChild(renderScalarField(concrete));
+      itemBox.appendChild(renderField(concrete));
     });
 
     return itemBox;

@@ -2,7 +2,12 @@
 
 **Research Object Builder for Open Toxicology**
 
-![](https://img.shields.io/badge/python-3.11%2B-blue.svg) ![](https://img.shields.io/badge/license-MIT-green.svg) ![](https://img.shields.io/badge/status-prototype-orange) ![](https://img.shields.io/badge/RO--Crate-supported-blueviolet) ![](https://img.shields.io/badge/toxicology-FAIR-important)
+![](https://img.shields.io/badge/python-3.11%2B-blue.svg) 
+![](https://img.shields.io/badge/license-MIT-green.svg) 
+![](https://img.shields.io/badge/status-prototype-orange) 
+![](https://img.shields.io/badge/RO--Crate-supported-blueviolet) 
+![](https://img.shields.io/badge/toxicology-FAIR-important)
+<img src="https://github.com/abhishek-chattopadhyay/robot/actions/workflows/docker-build.yml/badge.svg" alt="Docker Build">
 
 ROBOT is a web-based application for creating, validating, building, and depositing **FAIR toxicology model metadata** as **RO-Crates**.
 

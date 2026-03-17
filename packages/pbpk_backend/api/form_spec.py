@@ -7,6 +7,8 @@ from fastapi import APIRouter, Body, HTTPException, Query
 from pbpk_backend.services.form_spec import (
     compile_pbpk_form_spec,
     compile_pbpk_form_registry,
+    compile_form_spec,
+    compile_form_registry,
 )
 from pbpk_backend.services.hydrate import (
     hydrate_pbpk_form,
@@ -42,6 +44,36 @@ def get_pbpk_form_registry(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"form-registry error: {e}")
+
+
+@router.get("/qaop")
+def get_qaop_form_spec(
+    include_helptexts: bool = Query(False, description="Include helptexts inline"),
+    include_vocabularies: bool = Query(False, description="Include vocabularies inline"),
+) -> Dict:
+    try:
+        return compile_form_spec(
+            model_type="qaop",
+            include_helptexts=include_helptexts,
+            include_vocabularies=include_vocabularies,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"qaop form-spec error: {e}")
+
+
+@router.get("/qaop/registry")
+def get_qaop_form_registry(
+    include_helptexts: bool = Query(False, description="Include helptexts inline"),
+    include_vocabularies: bool = Query(True, description="Include vocabularies and resolve refs"),
+) -> Dict:
+    try:
+        return compile_form_registry(
+            model_type="qaop",
+            include_helptexts=include_helptexts,
+            include_vocabularies=include_vocabularies,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"qaop form-registry error: {e}")
 
 
 @router.post("/pbpk/hydrate")

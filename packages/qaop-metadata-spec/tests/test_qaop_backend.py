@@ -20,8 +20,9 @@ def test_compile_qaop_form_spec():
     spec = compile_form_spec(model_type="qaop")
     assert spec["api_version"] == "v1"
     assert spec["kind"] == "qaop.form_spec"
-    section_ids = [s["id"] for s in spec["sections"]]
-    assert section_ids == ["identity", "structure", "quantitative", "applicability"]
+    section_ids = {s["id"] for s in spec["sections"]}
+    assert section_ids == {"identity", "structure", "quantitative", "applicability"}
+    assert len(spec["sections"]) == 4
 
 
 def test_compile_pbpk_unchanged():

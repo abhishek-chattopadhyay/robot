@@ -36,13 +36,17 @@ class FormSpecPaths:
     vocab_dir: Path
 
 
-def _paths() -> FormSpecPaths:
+def _paths(model_type: str = "pbpk") -> FormSpecPaths:
     rr = _repo_root()
-    form_spec_root = rr / "packages" / "pbpk-form-spec"
+    if model_type == "qaop":
+        form_spec_root = rr / "packages" / "qaop-form-spec"
+        vocab_dir = rr / "packages" / "qaop-metadata-spec" / "vocabularies"
+    else:
+        form_spec_root = rr / "packages" / "pbpk-form-spec"
+        vocab_dir = rr / "packages" / "pbpk-metadata-spec" / "vocabularies"
     sections_dir = form_spec_root / "sections"
     logic_dir = form_spec_root / "logic"
     helptexts_dir = form_spec_root / "helptexts"
-    vocab_dir = rr / "packages" / "pbpk-metadata-spec" / "vocabularies"
     return FormSpecPaths(
         form_spec_root=form_spec_root,
         sections_dir=sections_dir,
@@ -112,12 +116,14 @@ def _load_vocabularies(vocab_dir: Path) -> Dict[str, Any]:
     return out
 
 
-def compile_pbpk_form_spec(
+def compile_form_spec(
+    model_type: str = "pbpk",
     *,
     include_helptexts: bool = False,
     include_vocabularies: bool = False,
 ) -> Dict[str, Any]:
-    p = _paths()
+    """Generic form spec compilation with model-type dispatch."""
+    p = _paths(model_type=model_type)
 
     if not p.sections_dir.exists():
         raise FileNotFoundError(f"sections dir not found: {p.sections_dir}")
@@ -127,7 +133,7 @@ def compile_pbpk_form_spec(
 
     result: Dict[str, Any] = {
         "api_version": "v1",
-        "kind": "pbpk.form_spec",
+        "kind": f"{model_type}.form_spec",
         "source": {
             "form_spec_root": str(p.form_spec_root),
             "sections_dir": str(p.sections_dir),
@@ -146,6 +152,19 @@ def compile_pbpk_form_spec(
         result["vocabularies"] = _load_vocabularies(p.vocab_dir)
 
     return result
+
+
+def compile_pbpk_form_spec(
+    *,
+    include_helptexts: bool = False,
+    include_vocabularies: bool = False,
+) -> Dict[str, Any]:
+    """Backward-compatible PBPK form spec compilation."""
+    return compile_form_spec(
+        model_type="pbpk",
+        include_helptexts=include_helptexts,
+        include_vocabularies=include_vocabularies,
+    )
 
 
 # ----------------------------
@@ -216,6 +235,9 @@ def _flatten_fields(
             "allowed_values": node.get("allowed_values"),
             "vocabulary": node.get("vocabulary"),
             "ui": node.get("ui"),
+            "help": node.get("help"),
+            "show_when": node.get("show_when"),
+            "default": node.get("default"),
         }
 
         # Resolve vocab reference -> allowed_values (only if allowed_values not set)
@@ -283,19 +305,22 @@ def _flatten_fields(
             )
 
 
-def compile_pbpk_form_registry(
+def compile_form_registry(
+    model_type: str = "pbpk",
     *,
     include_helptexts: bool = False,
     include_vocabularies: bool = True,
 ) -> Dict[str, Any]:
     """
+    Generic form registry compilation with model-type dispatch.
+
     Returns form spec + a flattened registry for frontend.
 
     IMPORTANT: This function is defensive: it should not throw just because a YAML
     file is empty or slightly malformed. Any problems are surfaced in registry.issues.
     """
-    # If include_vocabularies is True, spec will attempt to load vocab files too.
-    spec = compile_pbpk_form_spec(
+    spec = compile_form_spec(
+        model_type=model_type,
         include_helptexts=include_helptexts,
         include_vocabularies=include_vocabularies,
     )
@@ -363,7 +388,7 @@ def compile_pbpk_form_registry(
 
     return {
         "api_version": "v1",
-        "kind": "pbpk.form_registry",
+        "kind": f"{model_type}.form_registry",
         "spec": spec,
         "registry": {
             "fields_by_path": fields_by_path,
@@ -372,3 +397,16 @@ def compile_pbpk_form_registry(
             "issues": issues,
         },
     }
+
+
+def compile_pbpk_form_registry(
+    *,
+    include_helptexts: bool = False,
+    include_vocabularies: bool = True,
+) -> Dict[str, Any]:
+    """Backward-compatible PBPK form registry compilation."""
+    return compile_form_registry(
+        model_type="pbpk",
+        include_helptexts=include_helptexts,
+        include_vocabularies=include_vocabularies,
+    )

@@ -14,16 +14,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install --no-cache-dir uv
 
-# Copy dependency metadata first for better layer caching
-COPY pyproject.toml* uv.lock* ./
+COPY pyproject.toml uv.lock ./
 
-# Install dependencies
-RUN sh -c 'if [ -f uv.lock ]; then uv sync --frozen --no-dev; else uv sync --no-dev; fi'
+RUN uv sync --frozen --no-dev
 
-# Copy application source
 COPY . .
 
-# Ensure runtime directories exist
 RUN mkdir -p /app/var/drafts /app/var/crates /app/var/logs
 
 EXPOSE 8000

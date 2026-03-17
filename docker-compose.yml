@@ -1,0 +1,15 @@
+services:
+  robot:
+    build: .
+    container_name: robot-app
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONPATH: /app/packages
+      PBPK_DATA_ROOT: /app/var
+    volumes:
+      - robot_data:/app/var
+    restart: unless-stopped
+
+volumes:
+  robot_data:

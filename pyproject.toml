@@ -1,10 +1,11 @@
 [project]
-name = "pbpk-rocrate-metadata"
+name = "robot"
 version = "0.1.0"
-description = "Add your description here"
+description = "research object builder for open toxicology"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "docker>=7.1.0",
     "fastapi>=0.128.5",
     "jsonschema>=4.26.0",
     "python-multipart>=0.0.22",

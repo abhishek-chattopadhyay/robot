@@ -58,6 +58,23 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; }
     .pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; color: #111827; background: #f3f4f6; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; max-height: 400px; overflow: auto; }
 
+    /* Collapsible nested sections */
+    details summary.collapsible-label {
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 13px;
+      padding: 8px 0;
+      user-select: none;
+      list-style: disclosure-closed;
+    }
+    details[open] summary.collapsible-label {
+      list-style: disclosure-open;
+      margin-bottom: 8px;
+    }
+    details summary.collapsible-label:hover {
+      color: #6d28d9;
+    }
+
     .toast { position: fixed; right: 12px; bottom: 12px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 13px; opacity: 0; transform: translateY(10px); transition: .2s; }
     .toast.show { opacity: 1; transform: translateY(0); }
   </style>

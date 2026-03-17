@@ -297,24 +297,42 @@ function renderField(field, dataObj, dataKey, onDataChange, parentData) {
 function renderNestedObject(field, dataObj, dataKey, onDataChange) {
   const wrap = document.createElement("div");
   wrap.className = "field";
-  wrap.appendChild(createLabel(field));
 
-  const help = createHelpText(field);
-  if (help) wrap.appendChild(help);
+  if (!dataObj[dataKey]) dataObj[dataKey] = {};
+  const objData = dataObj[dataKey];
 
   const inner = document.createElement("div");
   inner.className = "group";
   inner.style.marginTop = "8px";
-
-  if (!dataObj[dataKey]) dataObj[dataKey] = {};
-  const objData = dataObj[dataKey];
 
   for (const childField of (field.fields || [])) {
     const el = renderField(childField, objData, childField.id, onDataChange, objData);
     if (el) inner.appendChild(el);
   }
 
-  wrap.appendChild(inner);
+  if (field.collapsible) {
+    // Render as collapsible details/summary
+    const details = document.createElement("details");
+    if (!field.collapsed_default) details.open = true;
+
+    const summary = document.createElement("summary");
+    summary.className = "collapsible-label";
+    summary.textContent = field.label || field.id;
+    details.appendChild(summary);
+
+    const help = createHelpText(field);
+    if (help) details.appendChild(help);
+
+    details.appendChild(inner);
+    wrap.appendChild(details);
+  } else {
+    // Non-collapsible: label + help + inner div (original behavior)
+    wrap.appendChild(createLabel(field));
+    const help = createHelpText(field);
+    if (help) wrap.appendChild(help);
+    wrap.appendChild(inner);
+  }
+
   return wrap;
 }
 
@@ -377,8 +395,9 @@ function renderRepeatableGroup(field, dataObj, dataKey, onDataChange) {
           if (childField.id === "ke_id" || childField.id === "title") {
             refreshKEDropdowns();
           }
-          // Re-render KER group for show_when re-evaluation
-          if (dataKey === "key_event_relationships" && childField.id === "function_type") {
+          // Re-render KER group for show_when re-evaluation on any child change
+          // (function_type is now nested inside response_response_function)
+          if (dataKey === "key_event_relationships") {
             rerenderAll();
           }
         }, arr[i]);
@@ -415,7 +434,11 @@ function buildEmptyItem(fields) {
   const obj = {};
   for (const f of fields) {
     if (f.value_type === "object") {
-      obj[f.id] = f.cardinality === "many" ? [] : {};
+      if (f.cardinality === "many") {
+        obj[f.id] = [];
+      } else {
+        obj[f.id] = buildEmptyItem(f.fields || []);
+      }
     } else if (f.value_type === "number") {
       obj[f.id] = null;
     } else {

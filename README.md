@@ -3,7 +3,7 @@
 **Research Object Builder for Open Toxicology**
 
 <p>
-<img src="https://img.shields.io/badge/python-3.12%2B-blue.svg">
+<img src="https://img.shields.io/badge/python-3.11%2B-blue.svg">
 <img src="https://img.shields.io/badge/license-MIT-green.svg">
 <img src="https://img.shields.io/badge/status-prototype-orange">
 <img src="https://img.shields.io/badge/RO--Crate-supported-blueviolet">
@@ -165,7 +165,7 @@ The landing page provides:
 ### Requirements
 
 <ul>
-  <li>Python 3.12+</li>
+  <li>Python 3.11+</li>
   <li><code>uv</code> (recommended) or <code>pip</code></li>
   <li>Git</li>
 </ul>

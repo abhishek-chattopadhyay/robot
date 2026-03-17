@@ -168,6 +168,7 @@
         "ker_id": { "type": "integer" },
         "upstream_ke_id": { "type": "integer" },
         "downstream_ke_id": { "type": "integer" },
+        "relationship_description": { "type": "string" },
         "response_response_function": {
           "type": "object",
           "additionalProperties": false,

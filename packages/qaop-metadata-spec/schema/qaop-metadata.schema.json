@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/qaop-metadata.schema.json",
+  "title": "qAOP Metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["identity", "structure", "quantitative", "applicability"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "aop_wiki_id", "status"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "short_name": { "type": "string" },
+        "aop_wiki_id": { "type": "integer" },
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["full_name"],
+            "properties": {
+              "full_name": { "type": "string", "minLength": 1 },
+              "orcid": { "type": "string" },
+              "affiliation": { "type": "string" }
+            }
+          }
+        },
+        "description": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["under development", "open for comment", "under review", "endorsed", "approved"]
+        },
+        "version": { "type": "string" },
+        "license": { "type": "string" },
+        "publications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doi": { "type": "string" },
+              "pmid": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_events", "key_event_relationships"],
+      "properties": {
+        "key_events": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/key_event" },
+          "allOf": [
+            {
+              "contains": {
+                "properties": { "role": { "const": "mie" } },
+                "required": ["role"]
+              }
+            },
+            {
+              "contains": {
+                "properties": { "role": { "const": "ao" } },
+                "required": ["role"]
+              }
+            }
+          ]
+        },
+        "key_event_relationships": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/key_event_relationship" }
+        }
+      }
+    },
+    "quantitative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ke_thresholds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ke_id", "threshold_value", "threshold_unit", "threshold_basis"],
+            "properties": {
+              "ke_id": { "type": "integer" },
+              "threshold_value": { "type": "number" },
+              "threshold_unit": { "type": "string" },
+              "threshold_basis": {
+                "type": "string",
+                "enum": ["NOAEL", "BMDL", "EC10"]
+              },
+              "measurement_endpoint": { "type": "string" },
+              "measurement_unit": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "species": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["species_name"],
+            "properties": {
+              "species_name": { "type": "string" },
+              "ncbi_taxonomy_id": { "type": "integer" }
+            }
+          }
+        },
+        "chemical_stressors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "cas_number": { "type": "string" },
+              "stressor_type": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "key_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ke_id", "title", "biological_organization_level", "role"],
+      "properties": {
+        "ke_id": { "type": "integer" },
+        "title": { "type": "string", "minLength": 1 },
+        "biological_organization_level": {
+          "type": "string",
+          "enum": ["molecular", "cellular", "tissue", "organ", "individual", "population"]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["mie", "ke", "ao"]
+        }
+      }
+    },
+    "key_event_relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ker_id", "upstream_ke_id", "downstream_ke_id"],
+      "properties": {
+        "ker_id": { "type": "integer" },
+        "upstream_ke_id": { "type": "integer" },
+        "downstream_ke_id": { "type": "integer" },
+        "response_response_function": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "function_type": {
+              "type": "string",
+              "enum": ["linear", "log-linear", "Hill", "sigmoid", "threshold", "polynomial", "custom"]
+            },
+            "parameters": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/quantitative_parameter" }
+            },
+            "upstream_unit": { "type": "string" },
+            "downstream_unit": { "type": "string" },
+            "custom_expression": { "type": "string" }
+          }
+        },
+        "experimental_system": {
+          "type": "string",
+          "enum": ["in vivo", "in vitro", "in silico"]
+        },
+        "species": { "type": "string" },
+        "data_source": { "type": "string" }
+      }
+    },
+    "quantitative_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "unit"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "value": { "type": "number" },
+        "unit": { "type": "string", "minLength": 1 },
+        "confidence_interval_lower": { "type": "number" },
+        "confidence_interval_upper": { "type": "number" }
+      }
+    }
+  }
+}

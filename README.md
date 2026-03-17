@@ -2,12 +2,13 @@
 
 **Research Object Builder for Open Toxicology**
 
-![](https://img.shields.io/badge/python-3.11%2B-blue.svg) 
-![](https://img.shields.io/badge/license-MIT-green.svg) 
-![](https://img.shields.io/badge/status-prototype-orange) 
-![](https://img.shields.io/badge/RO--Crate-supported-blueviolet) 
-![](https://img.shields.io/badge/toxicology-FAIR-important)
-<img src="https://github.com/abhishek-chattopadhyay/robot/actions/workflows/docker-build.yml/badge.svg" alt="Docker Build">
+<p>
+<img src="https://img.shields.io/badge/python-3.12%2B-blue.svg">
+<img src="https://img.shields.io/badge/license-MIT-green.svg">
+<img src="https://img.shields.io/badge/status-prototype-orange">
+<img src="https://img.shields.io/badge/RO--Crate-supported-blueviolet">
+<img src="https://img.shields.io/badge/toxicology-FAIR-important">
+</p>
 
 ROBOT is a web application for preparing, validating, packaging, and depositing toxicology model metadata as FAIR Research Objects using **RO-Crate**.  
 The current implementation focuses on **PBPK (Physiologically Based Pharmacokinetic)** models, with a roadmap toward broader toxicology model types such as QSAR, qAOP, and NAM workflows.
@@ -163,9 +164,11 @@ The landing page provides:
 
 ### Requirements
 
-*   Python 3.11+
-*   `uv` (recommended) or `pip`
-*   Git
+<ul>
+  <li>Python 3.12+</li>
+  <li><code>uv</code> (recommended) or <code>pip</code></li>
+  <li>Git</li>
+</ul>
 
 ### Clone the Repository
 

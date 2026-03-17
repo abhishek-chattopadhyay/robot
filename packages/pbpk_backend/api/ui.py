@@ -17,9 +17,9 @@ def _repo_root() -> Path:
 @router.get("", response_class=HTMLResponse)
 @router.get("/", response_class=HTMLResponse)
 def ui_index() -> HTMLResponse:
-    """Dashboard with links to PBPK and qAOP editors."""
+    """Dashboard — serves the original static landing page."""
     root = _repo_root()
-    html_path = root / "packages" / "pbpk_backend" / "ui" / "index.html"
+    html_path = root / "packages" / "pbpk_backend" / "static" / "index.html"
     if not html_path.exists():
         raise HTTPException(status_code=404, detail=f"Dashboard not found: {html_path}")
     return HTMLResponse(html_path.read_text(encoding="utf-8"))
@@ -27,9 +27,9 @@ def ui_index() -> HTMLResponse:
 
 @router.get("/pbpk", response_class=HTMLResponse)
 def ui_pbpk() -> HTMLResponse:
-    """PBPK metadata editor."""
+    """PBPK metadata editor — serves from original static directory."""
     root = _repo_root()
-    html_path = root / "packages" / "pbpk_backend" / "ui" / "pbpk.html"
+    html_path = root / "packages" / "pbpk_backend" / "static" / "pbpk-form.html"
     if not html_path.exists():
         raise HTTPException(status_code=404, detail=f"PBPK UI not found: {html_path}")
     return HTMLResponse(html_path.read_text(encoding="utf-8"))

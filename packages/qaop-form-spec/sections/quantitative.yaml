@@ -1,0 +1,33 @@
+id: quantitative
+title: Quantitative Parameters
+description: Dose-response parameterization and thresholds (completed in Phase 3).
+fields:
+  - id: ke_thresholds
+    path: /quantitative/ke_thresholds
+    label: KE Thresholds
+    value_type: object
+    required: false
+    cardinality: many
+    help: "Point-of-departure thresholds per Key Event (detailed entry in Phase 3)"
+    fields:
+      - id: ke_id
+        path: /quantitative/ke_thresholds/*/ke_id
+        label: KE ID
+        value_type: number
+        required: true
+      - id: threshold_value
+        path: /quantitative/ke_thresholds/*/threshold_value
+        label: Threshold value
+        value_type: number
+        required: true
+      - id: threshold_unit
+        path: /quantitative/ke_thresholds/*/threshold_unit
+        label: Unit
+        value_type: string
+        required: true
+      - id: threshold_basis
+        path: /quantitative/ke_thresholds/*/threshold_basis
+        label: Basis
+        value_type: controlled_term
+        required: true
+        allowed_values: [NOAEL, BMDL, EC10]

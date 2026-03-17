@@ -151,7 +151,13 @@
         "role": {
           "type": "string",
           "enum": ["mie", "ke", "ao"]
-        }
+        },
+        "cell_type": { "type": "string" },
+        "organ": { "type": "string" },
+        "process_description": { "type": "string" },
+        "measurement_endpoint": { "type": "string" },
+        "measurement_unit": { "type": "string" },
+        "regulatory_relevance": { "type": "string" }
       }
     },
     "key_event_relationship": {

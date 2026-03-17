@@ -1,0 +1,216 @@
+id: structure
+title: AOP Structure
+description: Define the pathway structure - MIE, Key Events, KERs, and Adverse Outcome.
+fields:
+  - id: mie
+    path: /structure/_mie
+    label: Molecular Initiating Event (MIE)
+    value_type: object
+    required: true
+    cardinality: one
+    help: "The initial molecular-level event that triggers the AOP"
+    fields:
+      - id: ke_id
+        path: /structure/_mie/ke_id
+        label: AOP-wiki KE ID
+        value_type: number
+        required: true
+        help: "Key Event identifier from AOP-wiki"
+      - id: title
+        path: /structure/_mie/title
+        label: Title
+        value_type: string
+        required: true
+        help: "Descriptive title of the MIE"
+      - id: biological_organization_level
+        path: /structure/_mie/biological_organization_level
+        label: Biological organization level
+        value_type: controlled_term
+        required: true
+        allowed_values: [molecular, cellular, tissue, organ, individual, population]
+        help: "Level of biological organization at which this event occurs"
+      - id: cell_type
+        path: /structure/_mie/cell_type
+        label: Cell type
+        value_type: string
+        required: false
+        help: "Cell type or tissue where the MIE occurs"
+      - id: organ
+        path: /structure/_mie/organ
+        label: Organ
+        value_type: string
+        required: false
+        help: "Target organ for this event"
+      - id: process_description
+        path: /structure/_mie/process_description
+        label: Process description
+        value_type: text
+        required: false
+        help: "Description of the biological process"
+
+  - id: key_events
+    path: /structure/_key_events
+    label: Key Events (KEs)
+    value_type: object
+    required: false
+    cardinality: many
+    help: "Intermediate key events in the pathway"
+    fields:
+      - id: ke_id
+        path: /structure/_key_events/*/ke_id
+        label: AOP-wiki KE ID
+        value_type: number
+        required: true
+        help: "Key Event identifier from AOP-wiki"
+      - id: title
+        path: /structure/_key_events/*/title
+        label: Title
+        value_type: string
+        required: true
+        help: "Descriptive title of the Key Event"
+      - id: biological_organization_level
+        path: /structure/_key_events/*/biological_organization_level
+        label: Biological organization level
+        value_type: controlled_term
+        required: true
+        allowed_values: [molecular, cellular, tissue, organ, individual, population]
+        help: "Level of biological organization at which this event occurs"
+      - id: cell_type
+        path: /structure/_key_events/*/cell_type
+        label: Cell type
+        value_type: string
+        required: false
+        help: "Cell type or tissue where this KE occurs"
+      - id: organ
+        path: /structure/_key_events/*/organ
+        label: Organ
+        value_type: string
+        required: false
+        help: "Target organ for this event"
+      - id: process_description
+        path: /structure/_key_events/*/process_description
+        label: Process description
+        value_type: text
+        required: false
+        help: "Description of the biological process"
+      - id: measurement_endpoint
+        path: /structure/_key_events/*/measurement_endpoint
+        label: Measurement endpoint
+        value_type: string
+        required: false
+        help: "Measurable endpoint for this Key Event"
+      - id: measurement_unit
+        path: /structure/_key_events/*/measurement_unit
+        label: Measurement unit
+        value_type: string
+        required: false
+        help: "Unit of measurement for the endpoint"
+
+  - id: ao
+    path: /structure/_ao
+    label: Adverse Outcome (AO)
+    value_type: object
+    required: true
+    cardinality: one
+    help: "The adverse outcome at the organism or population level"
+    fields:
+      - id: ke_id
+        path: /structure/_ao/ke_id
+        label: AOP-wiki KE ID
+        value_type: number
+        required: true
+        help: "Key Event identifier from AOP-wiki"
+      - id: title
+        path: /structure/_ao/title
+        label: Title
+        value_type: string
+        required: true
+        help: "Descriptive title of the Adverse Outcome"
+      - id: biological_organization_level
+        path: /structure/_ao/biological_organization_level
+        label: Biological organization level
+        value_type: controlled_term
+        required: true
+        allowed_values: [molecular, cellular, tissue, organ, individual, population]
+        help: "Level of biological organization at which this outcome occurs"
+      - id: regulatory_relevance
+        path: /structure/_ao/regulatory_relevance
+        label: Regulatory relevance
+        value_type: string
+        required: false
+        help: "Relevance to regulatory decision-making"
+      - id: process_description
+        path: /structure/_ao/process_description
+        label: Process description
+        value_type: text
+        required: false
+        help: "Description of the adverse outcome process"
+      - id: measurement_endpoint
+        path: /structure/_ao/measurement_endpoint
+        label: Measurement endpoint
+        value_type: string
+        required: false
+        help: "Measurable endpoint for the Adverse Outcome"
+      - id: measurement_unit
+        path: /structure/_ao/measurement_unit
+        label: Measurement unit
+        value_type: string
+        required: false
+        help: "Unit of measurement for the endpoint"
+
+  - id: key_event_relationships
+    path: /structure/key_event_relationships
+    label: Key Event Relationships (KERs)
+    value_type: object
+    required: true
+    cardinality: many
+    help: "Relationships linking upstream KEs to downstream KEs"
+    fields:
+      - id: ker_id
+        path: /structure/key_event_relationships/*/ker_id
+        label: AOP-wiki KER ID
+        value_type: number
+        required: true
+        help: "Key Event Relationship identifier from AOP-wiki"
+      - id: upstream_ke_id
+        path: /structure/key_event_relationships/*/upstream_ke_id
+        label: Upstream KE
+        value_type: ke_reference
+        required: true
+        help: "Select the upstream Key Event"
+      - id: downstream_ke_id
+        path: /structure/key_event_relationships/*/downstream_ke_id
+        label: Downstream KE
+        value_type: ke_reference
+        required: true
+        help: "Select the downstream Key Event"
+      - id: relationship_description
+        path: /structure/key_event_relationships/*/relationship_description
+        label: Relationship description
+        value_type: text
+        required: false
+        help: "Description of how the upstream KE leads to the downstream KE"
+      - id: response_response_function
+        path: /structure/key_event_relationships/*/response_response_function
+        label: Response-response function
+        value_type: object
+        required: false
+        cardinality: one
+        help: "Mathematical relationship between upstream and downstream KE responses"
+        fields:
+          - id: function_type
+            path: /structure/key_event_relationships/*/response_response_function/function_type
+            label: Function type
+            value_type: controlled_term
+            required: false
+            allowed_values: [linear, log-linear, Hill, sigmoid, threshold, polynomial, custom]
+            help: "Type of response-response function"
+          - id: custom_expression
+            path: /structure/key_event_relationships/*/response_response_function/custom_expression
+            label: Custom expression
+            value_type: string
+            required: false
+            show_when:
+              field: function_type
+              equals: custom
+            help: "Mathematical expression for the custom response-response function"

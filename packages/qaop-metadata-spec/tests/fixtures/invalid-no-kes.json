@@ -1,0 +1,15 @@
+{
+  "identity": {
+    "title": "DNA adduct formation leading to kidney failure",
+    "aop_wiki_id": 472,
+    "status": "under development"
+  },
+  "structure": {
+    "key_events": [],
+    "key_event_relationships": [
+      { "ker_id": 1001, "upstream_ke_id": 1194, "downstream_ke_id": 1670 }
+    ]
+  },
+  "quantitative": {},
+  "applicability": {}
+}

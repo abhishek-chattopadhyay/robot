@@ -1,0 +1,17 @@
+{
+  "identity": {
+    "title": "DNA adduct formation leading to kidney failure",
+    "aop_wiki_id": 472,
+    "status": "under development"
+  },
+  "structure": {
+    "key_events": [
+      { "ke_id": 1194, "title": "DNA adduct formation", "biological_organization_level": "molecular", "role": "mie" },
+      { "ke_id": 1670, "title": "Proximal tubule cell injury", "biological_organization_level": "cellular", "role": "ke" },
+      { "ke_id": 2208, "title": "Kidney failure", "biological_organization_level": "organ", "role": "ao" }
+    ],
+    "key_event_relationships": []
+  },
+  "quantitative": {},
+  "applicability": {}
+}

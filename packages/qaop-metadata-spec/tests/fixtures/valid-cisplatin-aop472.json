@@ -51,14 +51,16 @@
           "downstream_unit": "percent_viability"
         },
         "experimental_system": "in vitro",
-        "species": "human"
+        "species": "human",
+        "data_source": "doi:10.1016/j.tox.2020.152483"
       },
       {
         "ker_id": 1002,
         "upstream_ke_id": 1670,
         "downstream_ke_id": 2208,
         "experimental_system": "in vivo",
-        "species": "rat"
+        "species": "rat",
+        "data_source": "pmid:32001234"
       }
     ]
   },

@@ -8,11 +8,14 @@ Tests cover:
 - FORM-05: Help texts on domain-specific fields
 - IDENT-01..07: Identity section field coverage
 - STRUC-01..05: Structure section field coverage
+- QUANT-01..07: Quantitative KER and KE threshold fields
+- APPL-01, APPL-04: Applicability species and chemical stressors
 """
 
 import json
 from pathlib import Path
 
+import jsonschema
 import pytest
 import yaml
 
@@ -319,3 +322,133 @@ def test_mie_ao_ke_roles(qaop_form_sections):
     assert mie["cardinality"] == "one"
     assert ao["cardinality"] == "one"
     assert ke["cardinality"] == "many"
+
+
+# --- QUANT-01..07: Quantitative KER and KE threshold fields ---
+
+
+def test_quantitative_ker_fields(qaop_form_sections):
+    """KER has response_response_function with parameters, units, and provenance fields."""
+    structure = qaop_form_sections["structure"]
+    ker = _find_field(structure["fields"], "key_event_relationships")
+    ker_child_ids = _field_ids(ker["fields"])
+
+    # QUANT-01: response_response_function with function_type and custom_expression
+    rrf = _find_field(ker["fields"], "response_response_function")
+    assert rrf is not None
+    rrf_child_ids = _field_ids(rrf["fields"])
+    assert "function_type" in rrf_child_ids
+    ft = _find_field(rrf["fields"], "function_type")
+    assert ft["value_type"] == "controlled_term"
+    assert len(ft["allowed_values"]) == 7
+    ce = _find_field(rrf["fields"], "custom_expression")
+    assert "show_when" in ce
+
+    # QUANT-02: parameters (cardinality many) with child fields
+    assert "parameters" in rrf_child_ids
+    params = _find_field(rrf["fields"], "parameters")
+    assert params["cardinality"] == "many"
+    param_child_ids = _field_ids(params["fields"])
+    for expected in ("name", "value", "unit",
+                     "confidence_interval_lower", "confidence_interval_upper"):
+        assert expected in param_child_ids, f"parameters missing child: {expected}"
+
+    # QUANT-03: upstream_unit and downstream_unit
+    assert "upstream_unit" in rrf_child_ids
+    assert "downstream_unit" in rrf_child_ids
+    up = _find_field(rrf["fields"], "upstream_unit")
+    down = _find_field(rrf["fields"], "downstream_unit")
+    assert up["value_type"] == "string"
+    assert down["value_type"] == "string"
+
+    # QUANT-06: experimental_system and species as KER-level fields
+    assert "experimental_system" in ker_child_ids
+    es = _find_field(ker["fields"], "experimental_system")
+    assert es["value_type"] == "controlled_term"
+    assert len(es["allowed_values"]) == 3
+    assert "species" in ker_child_ids
+    sp = _find_field(ker["fields"], "species")
+    assert sp["value_type"] == "string"
+
+    # QUANT-07: data_source as KER-level field
+    assert "data_source" in ker_child_ids
+    ds = _find_field(ker["fields"], "data_source")
+    assert ds["value_type"] == "string"
+
+    # Collapsible flag on response_response_function
+    assert rrf.get("collapsible") is True
+
+
+def test_quantitative_ke_fields(qaop_form_sections):
+    """KE thresholds and KE measurement fields are present."""
+    structure = qaop_form_sections["structure"]
+    ke = _find_field(structure["fields"], "key_events")
+    ke_child_ids = _field_ids(ke["fields"])
+
+    # QUANT-04: KE has measurement_endpoint and measurement_unit
+    assert "measurement_endpoint" in ke_child_ids
+    assert "measurement_unit" in ke_child_ids
+
+    # QUANT-05: quantitative section has ke_thresholds
+    quant = qaop_form_sections["quantitative"]
+    kt = _find_field(quant["fields"], "ke_thresholds")
+    assert kt is not None
+    assert kt["cardinality"] == "many"
+    kt_child_ids = _field_ids(kt["fields"])
+    for expected in ("ke_id", "threshold_value", "threshold_unit",
+                     "threshold_basis", "measurement_endpoint", "measurement_unit"):
+        assert expected in kt_child_ids, f"ke_thresholds missing: {expected}"
+
+    # ke_id should be ke_reference type
+    ke_id = _find_field(kt["fields"], "ke_id")
+    assert ke_id["value_type"] == "ke_reference"
+
+    # threshold_basis should be controlled_term with 3 values
+    tb = _find_field(kt["fields"], "threshold_basis")
+    assert tb["value_type"] == "controlled_term"
+    assert set(tb["allowed_values"]) == {"NOAEL", "BMDL", "EC10"}
+
+
+# --- APPL-01, APPL-04: Applicability fields ---
+
+
+def test_applicability_fields(qaop_form_sections):
+    """Applicability section has species and chemical stressors."""
+    appl = qaop_form_sections["applicability"]
+    top_ids = _field_ids(appl["fields"])
+
+    # APPL-01: species (cardinality many) with species_name and ncbi_taxonomy_id
+    assert "species" in top_ids
+    sp = _find_field(appl["fields"], "species")
+    assert sp["cardinality"] == "many"
+    sp_child_ids = _field_ids(sp["fields"])
+    assert "species_name" in sp_child_ids
+    assert "ncbi_taxonomy_id" in sp_child_ids
+
+    # APPL-04: chemical_stressors (cardinality many) with name, cas_number, stressor_type
+    assert "chemical_stressors" in top_ids
+    cs = _find_field(appl["fields"], "chemical_stressors")
+    assert cs["cardinality"] == "many"
+    cs_child_ids = _field_ids(cs["fields"])
+    assert "name" in cs_child_ids
+    assert "cas_number" in cs_child_ids
+    assert "stressor_type" in cs_child_ids
+
+
+# --- Fixture validation ---
+
+
+def test_cisplatin_fixture_validates(qaop_schema):
+    """Cisplatin fixture validates against the JSON Schema."""
+    fixture_path = Path(__file__).parent / "fixtures" / "valid-cisplatin-aop472.json"
+    fixture = json.loads(fixture_path.read_text())
+    jsonschema.validate(instance=fixture, schema=qaop_schema)
+
+
+def test_cisplatin_fixture_has_data_source():
+    """Cisplatin fixture KERs have data_source fields."""
+    fixture_path = Path(__file__).parent / "fixtures" / "valid-cisplatin-aop472.json"
+    fixture = json.loads(fixture_path.read_text())
+    kers = fixture["structure"]["key_event_relationships"]
+    for ker in kers:
+        assert "data_source" in ker, f"KER {ker['ker_id']} missing data_source"

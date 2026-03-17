@@ -186,14 +186,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Build and start ROBOT with Docker Compose: \`\`\`bash docker compose build docker compose up
-
 ### Run the Backend
 
 Start the server:
 
 ```
 PYTHONPATH=packages uvicorn pbpk_backend.app:app --reload
+```
+
+## Run with Docker
+
+Build and start ROBOT with Docker Compose:
+
+```
+docker compose build
+docker compose up
 ```
 
 The application will start at:

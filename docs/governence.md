@@ -1,99 +1,70 @@
-<h1>ROBOT Governance</h1>
+# ROBOT Governance
 
-<p>
-ROBOT is an open development project focused on enabling FAIR
-toxicology model sharing through structured metadata
-and RO-Crate packaging.
-</p>
+ROBOT is an open development project focused on enabling FAIR toxicology model sharing through structured metadata and RO-Crate packaging.
 
-<hr>
+- - -
 
-<h2>Project Principles</h2>
+## Project Principles
 
-<p>The development of ROBOT follows several guiding principles:</p>
+The development of ROBOT follows several guiding principles:
 
-<ul>
-<li>Open science</li>
-<li>Transparency</li>
-<li>Reproducibility</li>
-<li>Community collaboration</li>
-<li>FAIR data principles</li>
-</ul>
+*   Open science
+*   Transparency
+*   Reproducibility
+*   Community collaboration
+*   FAIR data principles
 
-<hr>
+- - -
 
-<h2>Development Model</h2>
+## Development Model
 
-<p>
-ROBOT development currently follows a lightweight
-maintainer-led model.
-</p>
+ROBOT development currently follows a lightweight maintainer-led model.
 
-<p>
 Contributions are encouraged through:
-</p>
 
-<ul>
-<li>pull requests</li>
-<li>issue reports</li>
-<li>feature suggestions</li>
-<li>documentation improvements</li>
-</ul>
+*   pull requests
+*   issue reports
+*   feature suggestions
+*   documentation improvements
 
-<hr>
+- - -
 
-<h2>Maintainers</h2>
+## Maintainers
 
-<p>
 The maintainers are responsible for:
-</p>
 
-<ul>
-<li>reviewing pull requests</li>
-<li>maintaining code quality</li>
-<li>guiding architectural decisions</li>
-<li>ensuring documentation consistency</li>
-</ul>
+*   reviewing pull requests
+*   maintaining code quality
+*   guiding architectural decisions
+*   ensuring documentation consistency
 
-<hr>
+- - -
 
-<h2>Contribution Process</h2>
+## Contribution Process
 
-<p>Typical contribution workflow:</p>
+Typical contribution workflow:
 
-<ol>
-<li>Fork the repository</li>
-<li>Create a feature branch</li>
-<li>Implement changes</li>
-<li>Submit a pull request</li>
-<li>Maintainer review</li>
-<li>Merge</li>
-</ol>
+1.  Fork the repository
+2.  Create a feature branch
+3.  Implement changes
+4.  Submit a pull request
+5.  Maintainer review
+6.  Merge
 
-<hr>
+- - -
 
-<h2>Decision Making</h2>
+## Decision Making
 
-<p>
 Architectural decisions should prioritize:
-</p>
 
-<ul>
-<li>simplicity</li>
-<li>long-term maintainability</li>
-<li>interoperability with open science infrastructure</li>
-</ul>
+*   simplicity
+*   long-term maintainability
+*   interoperability with open science infrastructure
 
-<hr>
+- - -
 
-<h2>Community Participation</h2>
+## Community Participation
 
-<p>
-ROBOT welcomes collaboration from researchers,
-software developers, and data stewards working in
-toxicology and related fields.
-</p>
+ROBOT welcomes collaboration from researchers, software developers, and data stewards working in toxicology and related fields.
 
-<p>
 Community feedback will guide future development priorities.
-</p>

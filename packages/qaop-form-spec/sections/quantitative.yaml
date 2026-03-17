@@ -1,6 +1,6 @@
 id: quantitative
 title: Quantitative Parameters
-description: Dose-response parameterization and thresholds (completed in Phase 3).
+description: Dose-response parameterization and thresholds.
 fields:
   - id: ke_thresholds
     path: /quantitative/ke_thresholds
@@ -8,26 +8,42 @@ fields:
     value_type: object
     required: false
     cardinality: many
-    help: "Point-of-departure thresholds per Key Event (detailed entry in Phase 3)"
+    help: "Point-of-departure thresholds per Key Event"
     fields:
       - id: ke_id
         path: /quantitative/ke_thresholds/*/ke_id
-        label: KE ID
-        value_type: number
+        label: Key Event
+        value_type: ke_reference
         required: true
+        help: "Select the Key Event this threshold applies to"
       - id: threshold_value
         path: /quantitative/ke_thresholds/*/threshold_value
         label: Threshold value
         value_type: number
         required: true
+        help: "Numeric threshold value"
       - id: threshold_unit
         path: /quantitative/ke_thresholds/*/threshold_unit
         label: Unit
         value_type: string
         required: true
+        help: "Unit for the threshold value"
       - id: threshold_basis
         path: /quantitative/ke_thresholds/*/threshold_basis
         label: Basis
         value_type: controlled_term
         required: true
         allowed_values: [NOAEL, BMDL, EC10]
+        help: "Statistical basis for the threshold"
+      - id: measurement_endpoint
+        path: /quantitative/ke_thresholds/*/measurement_endpoint
+        label: Measurement endpoint
+        value_type: string
+        required: false
+        help: "Measurable endpoint for the threshold"
+      - id: measurement_unit
+        path: /quantitative/ke_thresholds/*/measurement_unit
+        label: Measurement unit
+        value_type: string
+        required: false
+        help: "Unit of measurement for the endpoint"

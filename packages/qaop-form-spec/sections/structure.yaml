@@ -196,6 +196,8 @@ fields:
         value_type: object
         required: false
         cardinality: one
+        collapsible: true
+        collapsed_default: true
         help: "Mathematical relationship between upstream and downstream KE responses"
         fields:
           - id: function_type
@@ -214,3 +216,72 @@ fields:
               field: function_type
               equals: custom
             help: "Mathematical expression for the custom response-response function"
+          - id: parameters
+            path: /structure/key_event_relationships/*/response_response_function/parameters
+            label: Parameters
+            value_type: object
+            required: false
+            cardinality: many
+            help: "Mathematical parameters for the response-response function (e.g., EC50, Hill coefficient)"
+            fields:
+              - id: name
+                path: /structure/key_event_relationships/*/response_response_function/parameters/*/name
+                label: Parameter name
+                value_type: string
+                required: true
+                help: "Name of the parameter"
+              - id: value
+                path: /structure/key_event_relationships/*/response_response_function/parameters/*/value
+                label: Value
+                value_type: number
+                required: true
+                help: "Numeric value of the parameter"
+              - id: unit
+                path: /structure/key_event_relationships/*/response_response_function/parameters/*/unit
+                label: Unit
+                value_type: string
+                required: true
+                help: "Unit of measurement"
+              - id: confidence_interval_lower
+                path: /structure/key_event_relationships/*/response_response_function/parameters/*/confidence_interval_lower
+                label: CI lower bound
+                value_type: number
+                required: false
+                help: "Lower bound of the confidence interval"
+              - id: confidence_interval_upper
+                path: /structure/key_event_relationships/*/response_response_function/parameters/*/confidence_interval_upper
+                label: CI upper bound
+                value_type: number
+                required: false
+                help: "Upper bound of the confidence interval"
+          - id: upstream_unit
+            path: /structure/key_event_relationships/*/response_response_function/upstream_unit
+            label: Upstream unit
+            value_type: string
+            required: false
+            help: "Unit for the upstream KE measurement"
+          - id: downstream_unit
+            path: /structure/key_event_relationships/*/response_response_function/downstream_unit
+            label: Downstream unit
+            value_type: string
+            required: false
+            help: "Unit for the downstream KE measurement"
+      - id: experimental_system
+        path: /structure/key_event_relationships/*/experimental_system
+        label: Experimental system
+        value_type: controlled_term
+        required: false
+        allowed_values: ["in vivo", "in vitro", "in silico"]
+        help: "Type of experimental system used to establish this relationship"
+      - id: species
+        path: /structure/key_event_relationships/*/species
+        label: Species
+        value_type: string
+        required: false
+        help: "Species used in the experimental system"
+      - id: data_source
+        path: /structure/key_event_relationships/*/data_source
+        label: Data source
+        value_type: string
+        required: false
+        help: "Citation for the data source, e.g., DOI or PMID"

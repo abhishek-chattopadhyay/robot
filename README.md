@@ -206,7 +206,7 @@ docker compose up
 The application will start at:
 
 ```
-http://127.0.0.1:8000
+http://127.0.0.1:8000/ui
 ```
 
 ### Access the UI

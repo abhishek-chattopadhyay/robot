@@ -194,7 +194,7 @@ Start the server:
 PYTHONPATH=packages uvicorn pbpk_backend.app:app --reload
 ```
 
-## Run with Docker
+### Run with Docker
 
 Build and start ROBOT with Docker Compose:
 
@@ -210,12 +210,6 @@ http://127.0.0.1:8000
 ```
 
 ### Access the UI
-
-Landing page:
-
-```
-http://127.0.0.1:8000/ui
-```
 
 PBPK metadata editor:
 

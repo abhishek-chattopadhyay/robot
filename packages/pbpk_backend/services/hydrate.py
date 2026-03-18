@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
+from typing import Any, Dict, List
 
 from pbpk_backend.services.form_spec import compile_pbpk_form_registry
+from pbpk_backend.services.migrations import migrate_pbpk_metadata
 
 
 def _repo_root() -> Path:
@@ -95,14 +95,12 @@ def _load_draft_metadata(draft_id: str) -> Dict[str, Any]:
 
     candidates: List[Path] = []
 
-    # Common patterns
     for sr in search_roots:
         if sr.exists():
             candidates.extend(list(sr.glob(f"**/{draft_id}.json")))
             candidates.extend(list(sr.glob(f"**/{draft_id}/*.json")))
             candidates.extend(list(sr.glob(f"**/*{draft_id}*.json")))
 
-    # De-dup + stable order
     seen = set()
     uniq: List[Path] = []
     for p in sorted(candidates, key=lambda x: str(x)):
@@ -116,20 +114,22 @@ def _load_draft_metadata(draft_id: str) -> Dict[str, Any]:
         except Exception:
             continue
 
-        # Draft file could be the draft object itself, or nested.
         if isinstance(obj, dict):
             if obj.get("draft_id") == draft_id and isinstance(obj.get("metadata"), dict):
-                return obj["metadata"]
+                md, _ = migrate_pbpk_metadata(obj["metadata"])
+                return md
 
             md = obj.get("metadata")
             if isinstance(md, dict) and obj.get("draft_id") in (draft_id, None):
-                # accept metadata payload if it's obviously a draft container
-                return md
+                md2, _ = migrate_pbpk_metadata(md)
+                return md2
 
     raise FileNotFoundError(f"Draft not found: {draft_id} (searched under {root})")
 
 
 def hydrate_pbpk_form(*, metadata: Dict[str, Any], include_helptexts: bool = False) -> Dict[str, Any]:
+    metadata, _ = migrate_pbpk_metadata(metadata)
+
     reg = compile_pbpk_form_registry(include_helptexts=include_helptexts, include_vocabularies=True)
     fields_by_path: Dict[str, Dict[str, Any]] = reg["registry"]["fields_by_path"]
 
@@ -142,9 +142,6 @@ def hydrate_pbpk_form(*, metadata: Dict[str, Any], include_helptexts: bool = Fal
         cardinality = fdef.get("cardinality", "one")
         required = bool(fdef.get("required", False))
 
-        # Output rules:
-        # - If wildcard OR cardinality=many => output list-like value
-        # - Else output scalar
         if has_wildcard or cardinality == "many":
             value_out: Any = _unwrap_single_list(values)
             missing = required and _is_empty_value(value_out)

@@ -8,10 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from pbpk_backend.services.audit import AuditContext, audit_crate_event
 from pbpk_backend.services.orchestrator import OrchestratorConfig, build_crate, validate_metadata
 from pbpk_backend.services.jsonpatch import apply_patch, PatchError
-from pbpk_backend.services.migrations import migrate_pbpk_metadata
 
 
 def _utc_now_iso() -> str:
@@ -56,19 +54,13 @@ def _init_audit(draft_id: str) -> Dict[str, Any]:
     }
 
 
-def _append_audit(
-    audit: Dict[str, Any],
-    action: str,
-    details: Optional[Dict[str, Any]] = None,
-    *,
-    actor: Optional[str] = None,
-) -> Dict[str, Any]:
+def _append_audit(audit: Dict[str, Any], action: str, details: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     audit["updated_at"] = _utc_now_iso()
     ev = {
         "timestamp": _utc_now_iso(),
         "action": action,
         "details": details or {},
-        "actor": actor or "anonymous",
+        "actor": "anonymous",
     }
     events = audit.get("events")
     if not isinstance(events, list):
@@ -86,14 +78,14 @@ def _envelope(
     status: str,
     validation: Optional[Dict[str, Any]],
     audit: Dict[str, Any],
-    owner_orcid: Optional[str],
+    model_type: str = "pbpk",
 ) -> Dict[str, Any]:
     return {
         "api_version": "v1",
-        "kind": "pbpk.metadata.draft",
+        "kind": f"{model_type}.metadata.draft",
         "draft_id": draft_id,
         "upload_id": upload_id,
-        "owner_orcid": owner_orcid,
+        "model_type": model_type,
         "status": status,
         "metadata": metadata,
         "validation": validation,
@@ -105,69 +97,21 @@ def _envelope(
     }
 
 
-def _normalize_metadata(metadata: Dict[str, Any]) -> Tuple[Dict[str, Any], bool]:
+def create_draft(cfg: OrchestratorConfig, *, metadata: Dict[str, Any], upload_id: Optional[str] = None, model_type: str = "pbpk") -> Dict[str, Any]:
     if not isinstance(metadata, dict):
         raise ValueError("metadata must be an object")
-    return migrate_pbpk_metadata(metadata)
-
-
-def _normalize_draft_obj(draft_obj: Dict[str, Any]) -> Tuple[Dict[str, Any], bool]:
-    metadata = draft_obj.get("metadata", {})
-    if not isinstance(metadata, dict):
-        raise ValueError("draft metadata is not an object")
-
-    new_metadata, changed = _normalize_metadata(metadata)
-    if changed:
-        draft_obj["metadata"] = new_metadata
-        draft_obj["validation"] = None
-        if draft_obj.get("status") == "validated":
-            draft_obj["status"] = "draft"
-    return draft_obj, changed
-
-
-def get_draft_owner(cfg: OrchestratorConfig, *, draft_id: str) -> Optional[str]:
-    p = _paths(cfg, draft_id)
-    if not p.draft_json.exists():
-        raise FileNotFoundError(draft_id)
-
-    draft_obj = _read_json(p.draft_json)
-    owner = draft_obj.get("owner_orcid")
-    return owner if isinstance(owner, str) and owner else None
-
-
-def require_draft_owner(cfg: OrchestratorConfig, *, draft_id: str, owner_orcid: str) -> None:
-    owner = get_draft_owner(cfg, draft_id=draft_id)
-    if owner is None:
-        raise PermissionError("Draft has no owner")
-    if owner != owner_orcid:
-        raise PermissionError("You do not have access to this draft")
-
-
-def create_draft(
-    cfg: OrchestratorConfig,
-    *,
-    metadata: Dict[str, Any],
-    upload_id: Optional[str] = None,
-    owner_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
-    metadata, _ = _normalize_metadata(metadata)
 
     draft_id = _new_id("draft")
     p = _paths(cfg, draft_id)
     p.draft_dir.mkdir(parents=True, exist_ok=True)
 
     audit = _init_audit(draft_id)
-    audit = _append_audit(
-        audit,
-        "create_draft",
-        {"upload_id": upload_id},
-        actor=owner_orcid,
-    )
+    audit = _append_audit(audit, "create_draft", {"upload_id": upload_id, "model_type": model_type})
 
     draft_obj = {
         "draft_id": draft_id,
         "upload_id": upload_id,
-        "owner_orcid": owner_orcid,
+        "model_type": model_type,
         "status": "draft",
         "metadata": metadata,
         "validation": None,
@@ -180,10 +124,10 @@ def create_draft(
         draft_id=draft_id,
         metadata=metadata,
         upload_id=upload_id,
-        owner_orcid=owner_orcid,
         status="draft",
         validation=None,
         audit=audit,
+        model_type=model_type,
     )
 
 
@@ -194,57 +138,40 @@ def get_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
 
     draft_obj = _read_json(p.draft_json)
     audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-
-    draft_obj, changed = _normalize_draft_obj(draft_obj)
-    if changed:
-        audit = _append_audit(
-            audit,
-            "migrate_draft_metadata",
-            {},
-            actor=draft_obj.get("owner_orcid"),
-        )
-        _write_json(p.draft_json, draft_obj)
-        _write_json(p.audit_json, audit)
+    model_type = draft_obj.get("model_type", "pbpk")
 
     return _envelope(
         draft_id=draft_id,
         metadata=draft_obj.get("metadata", {}),
         upload_id=draft_obj.get("upload_id"),
-        owner_orcid=draft_obj.get("owner_orcid"),
         status=draft_obj.get("status", "draft"),
         validation=draft_obj.get("validation"),
         audit=audit,
+        model_type=model_type,
     )
 
 
-def replace_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    metadata: Dict[str, Any],
-    upload_id: Optional[str] = None,
-    actor_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
-    metadata, _ = _normalize_metadata(metadata)
+def replace_draft(cfg: OrchestratorConfig, *, draft_id: str, metadata: Dict[str, Any], upload_id: Optional[str] = None) -> Dict[str, Any]:
+    if not isinstance(metadata, dict):
+        raise ValueError("metadata must be an object")
 
     p = _paths(cfg, draft_id)
     if not p.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     draft_obj = _read_json(p.draft_json)
+    model_type = draft_obj.get("model_type", "pbpk")
     draft_obj["metadata"] = metadata
     if upload_id is not None:
         draft_obj["upload_id"] = upload_id
-    draft_obj["status"] = "draft"
+    if draft_obj.get("status") == "archived":
+        draft_obj["status"] = "draft"
+    else:
+        draft_obj["status"] = "draft"
     draft_obj["validation"] = None
 
     audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-    audit = _append_audit(
-        audit,
-        "replace_draft",
-        {"upload_id": draft_obj.get("upload_id")},
-        actor=actor_orcid or draft_obj.get("owner_orcid"),
-    )
+    audit = _append_audit(audit, "replace_draft", {"upload_id": draft_obj.get("upload_id")})
 
     _write_json(p.draft_json, draft_obj)
     _write_json(p.audit_json, audit)
@@ -253,49 +180,30 @@ def replace_draft(
         draft_id=draft_id,
         metadata=metadata,
         upload_id=draft_obj.get("upload_id"),
-        owner_orcid=draft_obj.get("owner_orcid"),
-        status="draft",
+        status=draft_obj["status"],
         validation=None,
         audit=audit,
+        model_type=model_type,
     )
 
 
-def validate_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    actor_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
+def validate_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
     p = _paths(cfg, draft_id)
     if not p.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     draft_obj = _read_json(p.draft_json)
-    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-
-    draft_obj, changed = _normalize_draft_obj(draft_obj)
     metadata = draft_obj.get("metadata", {})
+    model_type = draft_obj.get("model_type", "pbpk")
     if not isinstance(metadata, dict):
         raise ValueError("draft metadata is not an object")
 
-    if changed:
-        audit = _append_audit(
-            audit,
-            "migrate_draft_metadata",
-            {},
-            actor=actor_orcid or draft_obj.get("owner_orcid"),
-        )
-
-    validation = validate_metadata(cfg, metadata)
+    validation = validate_metadata(cfg, metadata, model_type=model_type)
     draft_obj["validation"] = validation
     draft_obj["status"] = "validated" if validation.get("ok") else "draft"
 
-    audit = _append_audit(
-        audit,
-        "validate_draft",
-        {"ok": bool(validation.get("ok"))},
-        actor=actor_orcid or draft_obj.get("owner_orcid"),
-    )
+    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
+    audit = _append_audit(audit, "validate_draft", {"ok": bool(validation.get("ok"))})
 
     _write_json(p.draft_json, draft_obj)
     _write_json(p.audit_json, audit)
@@ -304,42 +212,28 @@ def validate_draft(
         draft_id=draft_id,
         metadata=metadata,
         upload_id=draft_obj.get("upload_id"),
-        owner_orcid=draft_obj.get("owner_orcid"),
         status=draft_obj["status"],
         validation=validation,
         audit=audit,
+        model_type=model_type,
     )
 
 
-def build_from_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    actor_orcid: Optional[str] = None,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def build_from_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """
+    Returns (envelope, build_result)
+    """
     p = _paths(cfg, draft_id)
     if not p.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     draft_obj = _read_json(p.draft_json)
-    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-
-    draft_obj, changed = _normalize_draft_obj(draft_obj)
     metadata = draft_obj.get("metadata", {})
     upload_id = draft_obj.get("upload_id")
+    model_type = draft_obj.get("model_type", "pbpk")
 
     if not isinstance(metadata, dict):
         raise ValueError("draft metadata is not an object")
-
-    owner_orcid = actor_orcid or draft_obj.get("owner_orcid")
-
-    if changed:
-        audit = _append_audit(
-            audit,
-            "migrate_draft_metadata",
-            {},
-            actor=owner_orcid,
-        )
 
     source_dir = None
     if upload_id:
@@ -347,99 +241,53 @@ def build_from_draft(
         if not source_dir.exists():
             raise FileNotFoundError(f"upload_id not found: {upload_id}")
 
-    build_result = build_crate(cfg, metadata, source_files_dir=source_dir)
+    build_result = build_crate(cfg, metadata, model_type=model_type, source_files_dir=source_dir)
 
     draft_obj["status"] = "built"
+    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
     audit = _append_audit(
         audit,
         "build_from_draft",
         {"crate_id": build_result.get("crate_id"), "upload_id": upload_id},
-        actor=owner_orcid,
     )
 
     _write_json(p.draft_json, draft_obj)
     _write_json(p.audit_json, audit)
 
-    # CRITICAL FIX: assign crate ownership here
-    crate_id = build_result.get("crate_id")
-    if crate_id:
-        audit_crate_event(
-            AuditContext(cfg.data_root),
-            crate_id=crate_id,
-            action="build_crate_from_draft",
-            details={
-                "draft_id": draft_id,
-                "upload_id": upload_id,
-                "crate_dir": build_result.get("crate_dir"),
-                "metadata_path": build_result.get("metadata_path"),
-                "validation_ok": (build_result.get("validation") or {}).get("ok"),
-            },
-            actor=owner_orcid or "anonymous",
-        )
-
     envelope = _envelope(
         draft_id=draft_id,
         metadata=metadata,
         upload_id=upload_id,
-        owner_orcid=draft_obj.get("owner_orcid"),
         status="built",
         validation=draft_obj.get("validation"),
         audit=audit,
+        model_type=model_type,
     )
     return envelope, build_result
 
 
-def patch_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    patch_ops: list[dict[str, Any]],
-    actor_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
+def patch_draft(cfg: OrchestratorConfig, *, draft_id: str, patch_ops: list[dict[str, Any]]) -> Dict[str, Any]:
     p = _paths(cfg, draft_id)
     if not p.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     draft_obj = _read_json(p.draft_json)
-    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-
-    draft_obj, changed_before = _normalize_draft_obj(draft_obj)
     metadata = draft_obj.get("metadata", {})
+    model_type = draft_obj.get("model_type", "pbpk")
     if not isinstance(metadata, dict):
         raise ValueError("draft metadata is not an object")
-
-    if changed_before:
-        audit = _append_audit(
-            audit,
-            "migrate_draft_metadata",
-            {},
-            actor=actor_orcid or draft_obj.get("owner_orcid"),
-        )
 
     try:
         new_metadata = apply_patch(metadata, patch_ops)
     except PatchError as e:
         raise ValueError(str(e))
 
-    new_metadata, changed_after = _normalize_metadata(new_metadata)
-
     draft_obj["metadata"] = new_metadata
     draft_obj["status"] = "draft"
     draft_obj["validation"] = None
 
-    audit = _append_audit(
-        audit,
-        "patch_draft",
-        {"ops": patch_ops},
-        actor=actor_orcid or draft_obj.get("owner_orcid"),
-    )
-    if changed_after:
-        audit = _append_audit(
-            audit,
-            "migrate_draft_metadata",
-            {"after_patch": True},
-            actor=actor_orcid or draft_obj.get("owner_orcid"),
-        )
+    audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
+    audit = _append_audit(audit, "patch_draft", {"ops": patch_ops})
 
     _write_json(p.draft_json, draft_obj)
     _write_json(p.audit_json, audit)
@@ -448,33 +296,24 @@ def patch_draft(
         draft_id=draft_id,
         metadata=new_metadata,
         upload_id=draft_obj.get("upload_id"),
-        owner_orcid=draft_obj.get("owner_orcid"),
         status="draft",
         validation=None,
         audit=audit,
+        model_type=model_type,
     )
 
 
-def archive_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    actor_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
+def archive_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
     p = _paths(cfg, draft_id)
     if not p.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     draft_obj = _read_json(p.draft_json)
+    model_type = draft_obj.get("model_type", "pbpk")
     draft_obj["status"] = "archived"
 
     audit = _read_json(p.audit_json) if p.audit_json.exists() else _init_audit(draft_id)
-    audit = _append_audit(
-        audit,
-        "archive_draft",
-        {},
-        actor=actor_orcid or draft_obj.get("owner_orcid"),
-    )
+    audit = _append_audit(audit, "archive_draft", {})
 
     _write_json(p.draft_json, draft_obj)
     _write_json(p.audit_json, audit)
@@ -483,18 +322,14 @@ def archive_draft(
         draft_id=draft_id,
         metadata=draft_obj.get("metadata", {}),
         upload_id=draft_obj.get("upload_id"),
-        owner_orcid=draft_obj.get("owner_orcid"),
         status="archived",
         validation=draft_obj.get("validation"),
         audit=audit,
+        model_type=model_type,
     )
 
 
-def delete_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-) -> Dict[str, Any]:
+def delete_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
     p = _paths(cfg, draft_id)
     if not p.draft_dir.exists():
         raise FileNotFoundError(draft_id)
@@ -511,20 +346,15 @@ def delete_draft(
     return result
 
 
-def duplicate_draft(
-    cfg: OrchestratorConfig,
-    *,
-    draft_id: str,
-    owner_orcid: Optional[str] = None,
-) -> Dict[str, Any]:
+def duplicate_draft(cfg: OrchestratorConfig, *, draft_id: str) -> Dict[str, Any]:
     src = _paths(cfg, draft_id)
     if not src.draft_json.exists():
         raise FileNotFoundError(draft_id)
 
     src_draft_obj = _read_json(src.draft_json)
-    src_draft_obj, _ = _normalize_draft_obj(src_draft_obj)
     metadata = src_draft_obj.get("metadata", {})
     upload_id = src_draft_obj.get("upload_id")
+    model_type = src_draft_obj.get("model_type", "pbpk")
 
     if not isinstance(metadata, dict):
         raise ValueError("draft metadata is not an object")
@@ -538,13 +368,12 @@ def duplicate_draft(
         new_audit,
         "duplicate_from_draft",
         {"source_draft_id": draft_id, "upload_id": upload_id},
-        actor=owner_orcid,
     )
 
     new_draft_obj = {
         "draft_id": new_draft_id,
         "upload_id": upload_id,
-        "owner_orcid": owner_orcid,
+        "model_type": model_type,
         "status": "draft",
         "metadata": metadata,
         "validation": None,
@@ -557,8 +386,8 @@ def duplicate_draft(
         draft_id=new_draft_id,
         metadata=metadata,
         upload_id=upload_id,
-        owner_orcid=owner_orcid,
         status="draft",
         validation=None,
         audit=new_audit,
+        model_type=model_type,
     )

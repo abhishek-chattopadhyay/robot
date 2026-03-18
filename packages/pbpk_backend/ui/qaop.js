@@ -4,6 +4,8 @@
    - Cross-entity KE reference dropdowns for KER fields
    - show_when conditional visibility
    - Help text rendering
+   - Save Draft / Validate / Build RO-Crate workflow
+   - Draft loading via ?draft= URL parameter
 */
 
 // ---------------------------------------------------------------------------
@@ -11,6 +13,7 @@
 // ---------------------------------------------------------------------------
 
 let formSpec = null;   // compiled form spec from backend
+let currentDraftId = null;  // draft ID for save/load/build
 let formData = {
   identity: {},
   structure: {
@@ -583,6 +586,7 @@ function renderForm() {
 
 rerenderAll = function() {
   renderForm();
+  renderButtonBar();
 };
 
 // ---------------------------------------------------------------------------
@@ -601,6 +605,363 @@ function showJson() {
 }
 
 // ---------------------------------------------------------------------------
+// Collect metadata (transform virtual paths back to schema structure)
+// ---------------------------------------------------------------------------
+
+function collectMetadata() {
+  const mie = { ...formData.structure._mie };
+  const ao = { ...formData.structure._ao };
+  const kes = (formData.structure._key_events || []).map(ke => ({ ...ke }));
+
+  // Combine all KEs into a single array with roles preserved
+  const key_events = [mie, ...kes, ao];
+
+  return {
+    identity: { ...formData.identity },
+    structure: {
+      key_events,
+      key_event_relationships: (formData.structure.key_event_relationships || []).map(ker => ({ ...ker }))
+    },
+    quantitative: { ...formData.quantitative },
+    applicability: { ...formData.applicability }
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Save Draft
+// ---------------------------------------------------------------------------
+
+async function saveDraft() {
+  setStatus("Saving draft...");
+  const metadata = collectMetadata();
+
+  try {
+    let result;
+    if (currentDraftId) {
+      // Update existing draft
+      const resp = await fetch("/v1/drafts/" + encodeURIComponent(currentDraftId), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata })
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error("Save failed: " + txt);
+      }
+      result = await resp.json();
+    } else {
+      // Create new draft
+      const resp = await fetch("/v1/drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata, model_type: "qaop" })
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error("Save failed: " + txt);
+      }
+      result = await resp.json();
+      currentDraftId = result.draft_id;
+      // Update URL without reload
+      history.replaceState(null, "", "/ui/qaop?draft=" + encodeURIComponent(currentDraftId));
+    }
+    setStatus("Ready");
+    toast("Draft saved");
+    return result;
+  } catch (e) {
+    setStatus("Error: " + e.message);
+    toast("Save failed");
+    throw e;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Validate Metadata
+// ---------------------------------------------------------------------------
+
+async function validateMetadata() {
+  setStatus("Validating...");
+  const metadata = collectMetadata();
+
+  try {
+    const resp = await fetch("/v1/metadata/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ metadata, model_type: "qaop" })
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error("Validation request failed: " + txt);
+    }
+    const result = await resp.json();
+
+    // Render validation results
+    renderValidationResults(result);
+    setStatus("Ready");
+    return result;
+  } catch (e) {
+    setStatus("Error: " + e.message);
+    toast("Validation failed");
+    throw e;
+  }
+}
+
+function renderValidationResults(result) {
+  let container = $("validationResults");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "validationResults";
+    const formRoot = $("formRoot");
+    formRoot.parentNode.insertBefore(container, formRoot.nextSibling);
+  }
+  container.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const h2 = document.createElement("h2");
+  h2.textContent = "Validation Results";
+  card.appendChild(h2);
+
+  const body = document.createElement("div");
+  body.style.padding = "0 14px 14px";
+
+  const validation = result.validation || result;
+  const isOk = validation.ok || validation.valid;
+  const errors = validation.errors || [];
+  const warnings = validation.warnings || [];
+
+  if (isOk && errors.length === 0) {
+    const msg = document.createElement("div");
+    msg.style.cssText = "color: #059669; font-weight: 700; padding: 10px 0;";
+    msg.textContent = "Valid -- no errors found" + (warnings.length ? " (" + warnings.length + " warning" + (warnings.length > 1 ? "s" : "") + ")" : "");
+    body.appendChild(msg);
+    toast("Validation passed");
+  } else {
+    const msg = document.createElement("div");
+    msg.style.cssText = "color: #dc2626; font-weight: 700; padding: 10px 0;";
+    msg.textContent = errors.length + " error" + (errors.length !== 1 ? "s" : "") + (warnings.length ? ", " + warnings.length + " warning" + (warnings.length !== 1 ? "s" : "") : "");
+    body.appendChild(msg);
+    toast("Validation found errors");
+
+    for (const err of errors) {
+      const row = document.createElement("div");
+      row.style.cssText = "color: #dc2626; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #fee2e2;";
+      const path = err.path || err.json_path || "";
+      row.textContent = (path ? path + ": " : "") + (err.message || JSON.stringify(err));
+      body.appendChild(row);
+    }
+  }
+
+  if (warnings.length > 0) {
+    for (const w of warnings) {
+      const row = document.createElement("div");
+      row.style.cssText = "color: #d97706; font-size: 13px; padding: 4px 0;";
+      const path = w.path || w.json_path || "";
+      row.textContent = (path ? path + ": " : "") + (w.message || JSON.stringify(w));
+      body.appendChild(row);
+    }
+  }
+
+  card.appendChild(body);
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Build RO-Crate
+// ---------------------------------------------------------------------------
+
+async function buildRoCrate() {
+  // Ensure draft is saved first
+  if (!currentDraftId) {
+    await saveDraft();
+  }
+
+  setStatus("Building RO-Crate...");
+  try {
+    const resp = await fetch("/v1/drafts/" + encodeURIComponent(currentDraftId) + "/build", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      // Try to parse validation errors
+      try {
+        const errData = JSON.parse(txt);
+        if (errData.validation) {
+          renderValidationResults(errData);
+          setStatus("Build failed: validation errors");
+          toast("Build failed: validation errors");
+          return;
+        }
+      } catch (_) {}
+      throw new Error("Build failed: " + txt);
+    }
+    const result = await resp.json();
+
+    const crateId = result.build?.crate_id || result.crate_id;
+    if (crateId) {
+      toast("RO-Crate built: " + crateId);
+      // Navigate to crate download/view
+      window.location.href = "/v1/rocrate/" + encodeURIComponent(crateId) + "/download";
+    } else {
+      toast("Build complete");
+    }
+    setStatus("Ready");
+    return result;
+  } catch (e) {
+    setStatus("Error: " + e.message);
+    toast("Build failed");
+    throw e;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Load Draft
+// ---------------------------------------------------------------------------
+
+async function loadDraft(draftId) {
+  setStatus("Loading draft...");
+  try {
+    const resp = await fetch("/v1/form-spec/qaop/hydrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ draft_id: draftId })
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error("Failed to load draft: " + txt);
+    }
+    const result = await resp.json();
+
+    // Populate formData from hydrated sections
+    // The hydrate endpoint returns fields grouped by section with values
+    populateFormDataFromHydrated(result);
+
+    currentDraftId = draftId;
+    renderForm();
+    setStatus("Ready");
+    toast("Draft loaded");
+  } catch (e) {
+    setStatus("Error: " + e.message);
+    toast("Failed to load draft");
+    throw e;
+  }
+}
+
+function populateFormDataFromHydrated(hydrated) {
+  // The hydrate response has sections with fields that include current_value
+  const sections = hydrated.sections || [];
+  for (const section of sections) {
+    if (section.id === "structure") {
+      populateStructureFromHydrated(section);
+    } else {
+      if (!formData[section.id]) formData[section.id] = {};
+      populateSectionFromHydrated(section.fields || [], formData[section.id]);
+    }
+  }
+}
+
+function populateSectionFromHydrated(fields, target) {
+  for (const field of fields) {
+    if (field.value_type === "object" && field.fields) {
+      if (field.cardinality === "many") {
+        // Array of objects
+        const items = field.current_value;
+        if (Array.isArray(items)) {
+          target[field.id] = items;
+        }
+      } else {
+        if (!target[field.id]) target[field.id] = {};
+        if (field.current_value && typeof field.current_value === "object") {
+          Object.assign(target[field.id], field.current_value);
+        } else {
+          populateSectionFromHydrated(field.fields, target[field.id]);
+        }
+      }
+    } else if (field.current_value !== undefined && field.current_value !== null) {
+      target[field.id] = field.current_value;
+    }
+  }
+}
+
+function populateStructureFromHydrated(section) {
+  for (const field of (section.fields || [])) {
+    const dataKey = field.id === "mie" ? "_mie"
+                  : field.id === "key_events" ? "_key_events"
+                  : field.id === "ao" ? "_ao"
+                  : field.id;
+
+    if (field.cardinality === "many") {
+      // Repeatable groups: KEs, KERs
+      const items = field.current_value;
+      if (Array.isArray(items)) {
+        formData.structure[dataKey] = items;
+      }
+    } else if (field.value_type === "object") {
+      // Single objects: MIE, AO
+      if (field.current_value && typeof field.current_value === "object") {
+        formData.structure[dataKey] = { ...formData.structure[dataKey], ...field.current_value };
+      } else if (field.fields) {
+        if (!formData.structure[dataKey]) formData.structure[dataKey] = {};
+        populateSectionFromHydrated(field.fields, formData.structure[dataKey]);
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Button bar rendering
+// ---------------------------------------------------------------------------
+
+function renderButtonBar() {
+  let bar = $("actionBar");
+  if (bar) bar.remove();
+
+  bar = document.createElement("div");
+  bar.id = "actionBar";
+  bar.className = "card";
+  bar.style.cssText = "display: flex; gap: 10px; padding: 14px; align-items: center; flex-wrap: wrap;";
+
+  const savBtn = document.createElement("button");
+  savBtn.className = "smallbtn";
+  savBtn.style.cssText = "background: #10b981; color: #071018; padding: 10px 16px; font-size: 14px;";
+  savBtn.textContent = "Save Draft";
+  savBtn.addEventListener("click", () => {
+    saveDraft().catch(e => console.error(e));
+  });
+  bar.appendChild(savBtn);
+
+  const valBtn = document.createElement("button");
+  valBtn.className = "smallbtn";
+  valBtn.style.cssText = "background: #3b82f6; color: #fff; padding: 10px 16px; font-size: 14px;";
+  valBtn.textContent = "Validate";
+  valBtn.addEventListener("click", () => {
+    validateMetadata().catch(e => console.error(e));
+  });
+  bar.appendChild(valBtn);
+
+  const buildBtn = document.createElement("button");
+  buildBtn.className = "smallbtn";
+  buildBtn.style.cssText = "background: #111827; color: #fff; padding: 10px 16px; font-size: 14px;";
+  buildBtn.textContent = "Build RO-Crate";
+  buildBtn.addEventListener("click", () => {
+    buildRoCrate().catch(e => console.error(e));
+  });
+  bar.appendChild(buildBtn);
+
+  if (currentDraftId) {
+    const idLabel = document.createElement("span");
+    idLabel.style.cssText = "margin-left: auto; font-size: 12px; color: #6b7280;";
+    idLabel.textContent = "Draft: " + currentDraftId;
+    bar.appendChild(idLabel);
+  }
+
+  const formRoot = $("formRoot");
+  formRoot.parentNode.insertBefore(bar, formRoot.nextSibling);
+}
+
+// ---------------------------------------------------------------------------
 // Load form spec and initialize
 // ---------------------------------------------------------------------------
 
@@ -614,9 +975,20 @@ async function init() {
   try {
     setStatus("Loading form spec...");
     formSpec = await loadFormSpec();
-    renderForm();
+
+    // Check for draft parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const draftParam = params.get("draft");
+
+    if (draftParam) {
+      await loadDraft(draftParam);
+    } else {
+      renderForm();
+    }
+
+    renderButtonBar();
     setStatus("Ready");
-    toast("qAOP form loaded");
+    if (!draftParam) toast("qAOP form loaded");
   } catch (e) {
     setStatus("Error: " + e.message);
     $("formRoot").textContent = "Failed to load form spec. Ensure the server is running and /v1/form-spec/qaop is available.";

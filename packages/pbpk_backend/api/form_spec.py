@@ -13,6 +13,8 @@ from pbpk_backend.services.form_spec import (
 from pbpk_backend.services.hydrate import (
     hydrate_pbpk_form,
     hydrate_pbpk_form_from_draft,
+    hydrate_qaop_form,
+    hydrate_qaop_form_from_draft,
 )
 
 router = APIRouter(prefix="/v1/form-spec", tags=["form-spec"])
@@ -102,3 +104,31 @@ def post_pbpk_hydrate(body: Dict = Body(...)) -> Dict:
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"hydrate error: {e}")
+
+
+@router.post("/qaop/hydrate")
+def post_qaop_hydrate(body: Dict = Body(...)) -> Dict:
+    """
+    Accepts either:
+      - {"metadata": {...}}  OR raw metadata payload
+      - {"draft_id": "draft_..."}
+    Returns a flat list of fields with extracted values and missing flags.
+    """
+    try:
+        include_helptexts = bool(body.get("include_helptexts", False))
+
+        if "draft_id" in body:
+            draft_id = body["draft_id"]
+            if not isinstance(draft_id, str) or not draft_id:
+                raise ValueError("draft_id must be a non-empty string")
+            return hydrate_qaop_form_from_draft(draft_id=draft_id, include_helptexts=include_helptexts)
+
+        md = body.get("metadata")
+        if md is None:
+            md = body  # allow raw metadata
+        if not isinstance(md, dict):
+            raise ValueError("metadata must be a JSON object")
+        return hydrate_qaop_form(metadata=md, include_helptexts=include_helptexts)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"qaop hydrate error: {e}")

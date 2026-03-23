@@ -13,8 +13,9 @@ from jsonschema import Draft202012Validator
 # Local (same folder) lint rules for soft warnings (domain payload)
 from lint_rules import lint as lint_domain
 
-# RO-Crate validator (graph-aware)
+# RO-Crate validators
 from rocrate_lint import validate_rocrate
+from rocrate_validation.validator import validate_rocrate_base
 
 
 ROOT = Path(__file__).resolve().parents[1]  # packages/
@@ -105,29 +106,37 @@ def run_rocrate_validation(input_path: Path, crate_dir: Optional[Path]) -> int:
     except Exception as e:
         return die(str(e), 2)
 
-    issues = validate_rocrate(rocrate, crate_dir=crate_dir)
+    # Base RO-Crate 1.1 spec check (requires crate directory)
+    base_errors: List[Any] = []
+    if crate_dir is not None:
+        raw_base_errors, _ = validate_rocrate_base(crate_dir)
+        base_errors = raw_base_errors
 
-    errors = [x for x in issues if x.level == "ERROR"]
-    warns = [x for x in issues if x.level == "WARNING"]
+    # PBPK domain-specific checks
+    domain_issues = validate_rocrate(rocrate)
+    domain_errors = [x for x in domain_issues if x.level == "ERROR"]
+    warns = [x for x in domain_issues if x.level == "WARNING"]
 
-    if errors:
-        print("PBPK RO-Crate validation FAILED\n")
-        for i, e in enumerate(errors, start=1):
-            print(f"{i}. [{e.code}] {e.node_id}: {e.message}")
+    if base_errors or domain_errors:
+        print("RO-Crate validation FAILED\n")
+        for i, e in enumerate(base_errors, start=1):
+            print(f"{i}. [SPEC] {e['code']}: {e['message']}")
+        offset = len(base_errors)
+        for i, e in enumerate(domain_errors, start=offset + 1):
+            print(f"{i}. [PBPK] {e.code} {e.node_id}: {e.message}")
         if warns:
-            print("\nSoft warnings")
+            print("\nWarnings")
             for i, w in enumerate(warns, start=1):
                 print(f"{i}. [{w.code}] {w.node_id}: {w.message}")
         return 1
 
     if warns:
-        print("PBPK RO-Crate validation PASSED (with warnings)\n")
-        print("Soft warnings")
+        print("RO-Crate validation PASSED (with warnings)\n")
         for i, w in enumerate(warns, start=1):
             print(f"{i}. [{w.code}] {w.node_id}: {w.message}")
         return 0
 
-    print("PBPK RO-Crate validation PASSED")
+    print("RO-Crate validation PASSED")
     return 0
 
 
@@ -157,7 +166,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--crate-dir",
         type=str,
         default=None,
-        help="(rocrate mode) Path to crate directory to check that hasPart file references exist on disk.",
+        help="(rocrate mode) Path to the crate directory. Required to run the base RO-Crate 1.1 spec check.",
     )
 
     args = parser.parse_args(argv)

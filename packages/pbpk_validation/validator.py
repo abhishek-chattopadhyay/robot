@@ -44,15 +44,17 @@ def validate_pbpk_metadata(
     return errors, warnings
 
 
-def validate_pbpk_rocrate(
+def validate_rocrate_domain(
     rocrate: Dict[str, Any],
     *,
     crate_dir: Optional[Path] = None,
 ) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """
-    Returns (errors, warnings)
+    PBPK domain-specific RO-Crate checks.
+    Implements the DomainValidator protocol from rocrate_validation.interface.
+    Returns (errors, warnings).
     """
-    issues = validate_rocrate(rocrate, crate_dir=crate_dir)
+    issues = validate_rocrate(rocrate)
     errors = [{"code": i.code, "node_id": i.node_id, "message": i.message} for i in issues if i.level == "ERROR"]
     warns = [{"code": i.code, "node_id": i.node_id, "message": i.message} for i in issues if i.level == "WARNING"]
     return errors, warns

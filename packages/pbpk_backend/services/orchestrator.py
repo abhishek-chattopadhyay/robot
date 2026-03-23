@@ -10,7 +10,9 @@ from typing import Any, Dict, Optional
 
 from pbpk_backend.rocrate_builder import build_rocrate_from_pbpk_metadata
 from pbpk_deposition.base import get_depositor
-from pbpk_validation.validator import validate_pbpk_metadata, validate_pbpk_rocrate
+from rocrate_validation.validator import validate_rocrate_base
+from pbpk_validation.validator import validate_pbpk_metadata
+from pbpk_validation.validator import validate_rocrate_domain as validate_pbpk_domain
 import pbpk_deposition.zenodo  # noqa: F401
 
 @dataclass
@@ -54,7 +56,10 @@ def build_crate(
     )
 
     rocrate_obj = json.loads((crate_dir / "ro-crate-metadata.json").read_text(encoding="utf-8"))
-    c_errors, c_warnings = validate_pbpk_rocrate(rocrate_obj, crate_dir=crate_dir)
+    base_errors, base_warns = validate_rocrate_base(crate_dir)
+    domain_errors, domain_warns = validate_pbpk_domain(rocrate_obj, crate_dir=crate_dir)
+    c_errors = base_errors + domain_errors
+    c_warnings = base_warns + domain_warns
 
     return {
         "crate_id": crate_id,
@@ -75,7 +80,10 @@ def validate_crate(cfg: OrchestratorConfig, crate_id: str) -> Dict[str, Any]:
         }
 
     rocrate_obj = json.loads(meta_path.read_text(encoding="utf-8"))
-    errors, warnings = validate_pbpk_rocrate(rocrate_obj, crate_dir=crate_dir)
+    base_errors, base_warns = validate_rocrate_base(crate_dir)
+    domain_errors, domain_warns = validate_pbpk_domain(rocrate_obj, crate_dir=crate_dir)
+    errors = base_errors + domain_errors
+    warnings = base_warns + domain_warns
     return {"ok": len(errors) == 0, "errors": errors, "warnings": warnings}
 
 

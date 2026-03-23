@@ -11,5 +11,7 @@ dependencies = [
     "python-multipart>=0.0.22",
     "pyyaml>=6.0.3",
     "toml-to-requirements>=0.3.0",
+    "roc-validator>=0.8.1",
+    "rocrate>=0.14.2",
     "uvicorn>=0.40.0",
 ]

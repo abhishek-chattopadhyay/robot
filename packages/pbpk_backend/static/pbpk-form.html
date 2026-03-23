@@ -123,7 +123,8 @@
       font-size: 13px; line-height: 1.45;
     }
     .kv .k { opacity: 0.72; }
-    .status-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .status-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .validate-layer-opt { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; cursor: pointer; }
 
     .warning-box, .success-box, .danger-box, .info-box {
       border-radius: 12px; padding: 10px 12px; margin-top: 10px; font-size: 13px; line-height: 1.45;
@@ -339,6 +340,8 @@
         </div>
         <div class="status-actions">
           <a id="downloadLatestBtn" class="btn" href="#" style="display:none;">Download latest crate</a>
+          <label class="validate-layer-opt"><input type="checkbox" id="layerBase" checked> Base RO-Crate spec</label>
+          <label class="validate-layer-opt"><input type="checkbox" id="layerDomain" checked> PBPK requirements</label>
           <button id="validateLatestCrateBtn" class="btn" type="button" style="display:none;">Validate latest crate</button>
         </div>
       </div>
@@ -1285,11 +1288,21 @@
 
       validateBtn.style.display = "inline-flex";
       validateBtn.onclick = async () => {
+        const selected = [];
+        if (document.getElementById("layerBase").checked)   selected.push("layers=base");
+        if (document.getElementById("layerDomain").checked) selected.push("layers=domain");
+        if (!selected.length) {
+          showToast("Select at least one validation layer.", "warn");
+          return;
+        }
+        const qs = "?" + selected.join("&");
         try {
-          const out = await jfetch(API.validateCrate(build.crate_id));
+          const out = await jfetch(API.validateCrate(build.crate_id) + qs);
           setLastResp(out);
           const warnings = Array.isArray(out.warnings) ? out.warnings.length : 0;
-          showToast(warnings ? `Crate validated with ${warnings} warning(s)` : "Latest crate validation passed", warnings ? "warn" : "success");
+          const errors = Array.isArray(out.errors) ? out.errors.length : 0;
+          if (errors) showToast(`Validation failed with ${errors} error(s)`, "error", 3200);
+          else showToast(warnings ? `Crate validated with ${warnings} warning(s)` : "Crate validation passed", warnings ? "warn" : "success");
         } catch (e) {
           setLastResp({ error: String(e) });
           document.getElementById("debugPanel").open = true;

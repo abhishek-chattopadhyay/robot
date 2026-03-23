@@ -9,7 +9,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, Body, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Body, HTTPException, Query, UploadFile, File, Form
 from fastapi.responses import FileResponse
 
 from pbpk_backend.services.audit import (
@@ -408,9 +408,12 @@ def api_get_crate(crate_id: str) -> Dict[str, Any]:
     }
 
 @router.get("/rocrate/{crate_id}/validate")
-def api_validate_rocrate(crate_id: str) -> Dict[str, Any]:
+def api_validate_rocrate(
+    crate_id: str,
+    layers: list[str] = Query(default=["base", "domain"]),
+) -> Dict[str, Any]:
     cfg = _cfg()
-    return validate_crate(cfg, crate_id)
+    return validate_crate(cfg, crate_id, layers=set(layers))
 
 
 @router.get("/rocrate/{crate_id}/download")

@@ -69,7 +69,12 @@ def build_crate(
     }
 
 
-def validate_crate(cfg: OrchestratorConfig, crate_id: str) -> Dict[str, Any]:
+def validate_crate(
+    cfg: OrchestratorConfig,
+    crate_id: str,
+    *,
+    layers: set = frozenset({"base", "domain"}),
+) -> Dict[str, Any]:
     crate_dir = (cfg.data_root / "crates" / crate_id).resolve()
     meta_path = crate_dir / "ro-crate-metadata.json"
     if not meta_path.exists():
@@ -79,11 +84,20 @@ def validate_crate(cfg: OrchestratorConfig, crate_id: str) -> Dict[str, Any]:
             "warnings": [],
         }
 
-    rocrate_obj = json.loads(meta_path.read_text(encoding="utf-8"))
-    base_errors, base_warns = validate_rocrate_base(crate_dir)
-    domain_errors, domain_warns = validate_pbpk_domain(rocrate_obj, crate_dir=crate_dir)
-    errors = base_errors + domain_errors
-    warnings = base_warns + domain_warns
+    errors: list = []
+    warnings: list = []
+
+    if "base" in layers:
+        base_errors, base_warns = validate_rocrate_base(crate_dir)
+        errors += base_errors
+        warnings += base_warns
+
+    if "domain" in layers:
+        rocrate_obj = json.loads(meta_path.read_text(encoding="utf-8"))
+        domain_errors, domain_warns = validate_pbpk_domain(rocrate_obj, crate_dir=crate_dir)
+        errors += domain_errors
+        warnings += domain_warns
+
     return {"ok": len(errors) == 0, "errors": errors, "warnings": warnings}
 
 

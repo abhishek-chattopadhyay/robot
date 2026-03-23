@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
+from pbpk_backend.api.auth import get_current_user
+from pbpk_backend.models.user import User
 from pbpk_backend.services.orchestrator import OrchestratorConfig
 from pbpk_backend.services.deposit_history import list_deposit_history
 
@@ -31,12 +33,14 @@ def api_deposit_history(
     crate_id: Optional[str] = Query(default=None),
     platform: Optional[str] = Query(default=None),
     limit: int = Query(default=20, ge=1, le=200),
+    user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     cfg = _cfg()
     items = list_deposit_history(
         data_root=cfg.data_root,
         crate_id=crate_id,
         platform=platform,
+        owner_orcid=user.orcid,
         limit=limit,
     )
     return {

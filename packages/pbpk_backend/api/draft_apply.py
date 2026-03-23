@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 
+from pbpk_backend.api.auth import get_current_user
+from pbpk_backend.models.user import User
 from pbpk_backend.services.orchestrator import OrchestratorConfig
 from pbpk_backend.services.draft_apply import (
     apply_patch_to_draft,
@@ -13,12 +15,13 @@ from pbpk_backend.services.draft_apply import (
     apply_array_op_to_draft,
     DraftApplyError,
 )
+from pbpk_backend.services.drafts import require_draft_owner
 
 router = APIRouter(prefix="/v1/drafts", tags=["draft-apply"])
 
 
 def _cfg() -> OrchestratorConfig:
-    repo_root = Path(__file__).resolve().parents[3]  # .../packages/pbpk_backend/api -> repo root
+    repo_root = Path(__file__).resolve().parents[3]
     data_root = Path(os.environ.get("PBPK_DATA_ROOT", str(repo_root / "var"))).resolve()
 
     schema_path = repo_root / "packages" / "pbpk_validation" / "schemas" / "pbpk-metadata.schema.json"
@@ -31,13 +34,24 @@ def _cfg() -> OrchestratorConfig:
     )
 
 
+def _assert_owner(cfg: OrchestratorConfig, draft_id: str, user: User) -> None:
+    try:
+        require_draft_owner(cfg, draft_id=draft_id, owner_orcid=user.orcid)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="You do not have access to this draft")
+
+
 @router.post("/{draft_id}/apply")
-def api_apply_patch(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Body: {"patch": [ {op,path,value?}, ... ]}
-    Returns: updated draft envelope
-    """
+def api_apply_patch(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     patch = body.get("patch")
     if not isinstance(patch, list):
         raise HTTPException(status_code=400, detail="patch must be a list of operations")
@@ -51,13 +65,14 @@ def api_apply_patch(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
 
 
 @router.post("/{draft_id}/apply-edits")
-def api_apply_edits(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Body: {"edits": {"/path": value, ...}}
-    Convention: value=null => remove (if exists)
-    Returns: {"patch":[...], "draft":<envelope>, ...}
-    """
+def api_apply_edits(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     edits = body.get("edits")
     if not isinstance(edits, dict):
         raise HTTPException(status_code=400, detail="edits must be a JSON object")
@@ -71,18 +86,14 @@ def api_apply_edits(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
 
 
 @router.post("/{draft_id}/apply-array")
-def api_apply_array(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Body:
-      {
-        "array_path": "/.../array",.
-        "action": "append|insert|remove_index|replace_index",
-        "value": {...},   # required for append/insert/replace_index
-        "index": 0        # required for insert/remove_index/replace_index
-      }
-    Returns: {"patch":[...], "draft":<envelope>, ...}
-    """
+def api_apply_array(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     array_path: Optional[str] = body.get("array_path")
     action: Optional[str] = body.get("action")
     value = body.get("value")

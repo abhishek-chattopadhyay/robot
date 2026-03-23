@@ -52,19 +52,21 @@ def _candidate_files(data_root: Path) -> List[Path]:
 
 def _normalize_event(obj: Dict[str, Any]) -> Dict[str, Any]:
     result = obj.get("result") if isinstance(obj.get("result"), dict) else {}
-    request_details = obj.get("request_details") if isinstance(obj.get("request_details"), dict) else {}
+    request_obj = obj.get("request") if isinstance(obj.get("request"), dict) else {}
     details = obj.get("details") if isinstance(obj.get("details"), dict) else {}
 
     crate_id = obj.get("crate_id") or details.get("crate_id")
     platform = obj.get("platform") or details.get("platform")
     timestamp = obj.get("timestamp") or obj.get("created_at") or obj.get("time")
+    actor = obj.get("actor")
 
     out = {
         "timestamp": timestamp,
         "crate_id": crate_id,
         "platform": platform,
-        "sandbox": request_details.get("sandbox"),
-        "publish_requested": request_details.get("publish"),
+        "actor": actor,
+        "sandbox": request_obj.get("sandbox"),
+        "publish_requested": request_obj.get("publish"),
         "ok": result.get("ok") if isinstance(result, dict) else obj.get("ok"),
         "record_id": result.get("record_id") if isinstance(result, dict) else obj.get("record_id"),
         "doi": result.get("doi") if isinstance(result, dict) else obj.get("doi"),
@@ -81,6 +83,7 @@ def list_deposit_history(
     data_root: Path,
     crate_id: Optional[str] = None,
     platform: Optional[str] = None,
+    owner_orcid: Optional[str] = None,
     limit: int = 20,
 ) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
@@ -92,6 +95,8 @@ def list_deposit_history(
             if crate_id and item.get("crate_id") != crate_id:
                 continue
             if platform and item.get("platform") != platform:
+                continue
+            if owner_orcid and item.get("actor") != owner_orcid:
                 continue
 
             rows.append(item)

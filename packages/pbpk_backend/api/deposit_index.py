@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
+from pbpk_backend.api.auth import get_current_user
+from pbpk_backend.models.user import User
 from pbpk_backend.services.orchestrator import OrchestratorConfig
 from pbpk_backend.services.deposit_index import list_recent_deposits
 
@@ -29,9 +31,14 @@ def _cfg() -> OrchestratorConfig:
 @router.get("")
 def api_list_deposits(
     limit: int = Query(default=20, ge=1, le=200),
+    user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     cfg = _cfg()
-    items = list_recent_deposits(data_root=cfg.data_root, limit=limit)
+    items = list_recent_deposits(
+        data_root=cfg.data_root,
+        limit=limit,
+        owner_orcid=user.orcid,
+    )
     return {
         "api_version": "v1",
         "kind": "pbpk.deposit_index",

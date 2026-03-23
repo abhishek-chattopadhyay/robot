@@ -12,6 +12,7 @@
 
     .topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .title { font-size: 18px; font-weight: 650; }
 
     .pill {
@@ -283,9 +284,11 @@
         <div class="title">ROBOT – PBPK Metadata Editor</div>
         <div id="draftPill" class="pill">draft: (not created)</div>
         <div id="saveStatePill" class="pill saved">Saved</div>
+        <div id="userBadge" class="pill">Checking session...</div>
       </div>
 
-      <div class="row">
+      <div class="right">
+        <button id="logoutBtn" class="btn danger" type="button">Logout</button>
         <select id="themeSelect" class="btn" style="padding: 9px 10px;">
           <option value="light">Light</option>
           <option value="dark">Dark</option>
@@ -439,7 +442,9 @@
     depositHistory: (crateId, limit=20) =>
       `/v1/deposits/history?crate_id=${encodeURIComponent(crateId)}&limit=${encodeURIComponent(limit)}`,
     draftActivity: (draftId, limit=20) =>
-      `/v1/drafts/${encodeURIComponent(draftId)}/activity?limit=${encodeURIComponent(limit)}`
+      `/v1/drafts/${encodeURIComponent(draftId)}/activity?limit=${encodeURIComponent(limit)}`,
+    me: () => `/v1/auth/me`,
+    logout: () => `/v1/auth/logout`
   };
 
   const UI_STATE_KEYS = {
@@ -457,6 +462,7 @@
   let autosaveDelayMs = 900;
   let isSaving = false;
   let isDepositing = false;
+  let sessionExpiredHandled = false;
 
   const collapsedSections = new Set();
 
@@ -510,8 +516,24 @@
     return Object.keys(currentEdits).length > 0;
   }
 
+  async function handleSessionExpired() {
+    if (sessionExpiredHandled) return;
+    sessionExpiredHandled = true;
+    try {
+      await fetch(API.logout(), { method: "POST" });
+    } catch (_) {}
+    alert("Your session has expired. Please sign in again.");
+    window.location.href = "/ui";
+  }
+
   async function jfetch(url, options={}) {
     const resp = await fetch(url, options);
+
+    if (resp.status === 401) {
+      await handleSessionExpired();
+      throw new Error("Authentication required");
+    }
+
     const ct = resp.headers.get("content-type") || "";
     let payload = null;
     if (ct.includes("application/json")) payload = await resp.json();
@@ -522,6 +544,22 @@
       throw new Error(msg);
     }
     return payload;
+  }
+
+  async function loadCurrentUser() {
+    const badge = document.getElementById("userBadge");
+    try {
+      const out = await jfetch(API.me());
+      if (out && out.authenticated) {
+        const orcid = out.orcid || "unknown ORCID";
+        const name = out.name ? `${out.name} · ` : "";
+        badge.textContent = `${name}${orcid}`;
+      } else {
+        await handleSessionExpired();
+      }
+    } catch (_) {
+      await handleSessionExpired();
+    }
   }
 
   function applyTheme(theme) {
@@ -1688,6 +1726,15 @@
   document.getElementById("zenodoSandboxInput").addEventListener("change", updateDepositModeNotice);
   document.getElementById("zenodoPublishInput").addEventListener("change", updateDepositModeNotice);
 
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      await jfetch(API.logout(), { method: "POST" });
+    } catch (_) {
+    } finally {
+      window.location.href = "/ui";
+    }
+  });
+
   document.getElementById("expandAllBtn").addEventListener("click", () => {
     expandAllSections();
     showToast("Expanded all sections", "info", 1500);
@@ -1704,7 +1751,7 @@
   });
 
   document.getElementById("clearHistoryBtn").addEventListener("click", () => {
-    showToast("Server audit history is read-only in Step 8.10.2", "info", 1800);
+    showToast("Server audit history is read-only in this version", "info", 1800);
   });
 
   document.getElementById("startBlankBtn").addEventListener("click", async () => {
@@ -1852,6 +1899,8 @@
     setSaveState("saving", "Loading...");
 
     try {
+      await loadCurrentUser();
+
       const state = loadUiState();
 
       if (state.draftId) {

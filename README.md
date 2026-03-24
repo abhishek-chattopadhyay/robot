@@ -9,7 +9,8 @@
 ![](https://img.shields.io/badge/toxicology-FAIR-important)
 <img src="https://github.com/abhishek-chattopadhyay/robot/actions/workflows/docker-build.yml/badge.svg" alt="Docker Build">
 
-ROBOT is a web-based application for creating, validating, building, and depositing **FAIR toxicology model metadata** as **RO-Crates**.
+ROBOT is a web application for preparing, validating, packaging, and depositing toxicology model metadata as FAIR Research Objects using **RO-Crate**.  
+The current implementation focuses on **PBPK (Physiologically Based Pharmacokinetic)** models, with a roadmap toward broader toxicology model types such as QSAR, qAOP, and NAM workflows.
 
 The system currently focuses on **PBPK models** and provides a practical workflow for:
 

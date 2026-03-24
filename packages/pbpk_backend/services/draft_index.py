@@ -21,6 +21,7 @@ def list_drafts_with_activity(
     data_root: Path,
     limit: int = 20,
     include_archived: bool = False,
+    owner_orcid: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     drafts_root = (data_root / "drafts").resolve()
     if not drafts_root.exists():
@@ -45,6 +46,10 @@ def list_drafts_with_activity(
         status = draft_obj.get("status")
         upload_id = draft_obj.get("upload_id")
         metadata = draft_obj.get("metadata") or {}
+        draft_owner = draft_obj.get("owner_orcid")
+
+        if owner_orcid and draft_owner != owner_orcid:
+            continue
 
         if status == "archived" and not include_archived:
             continue
@@ -81,6 +86,7 @@ def list_drafts_with_activity(
         items.append(
             {
                 "draft_id": draft_id,
+                "owner_orcid": draft_owner,
                 "status": status,
                 "upload_id": upload_id,
                 "model_name": model_name,

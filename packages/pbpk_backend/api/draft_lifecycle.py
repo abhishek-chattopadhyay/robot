@@ -4,10 +4,12 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from pbpk_backend.api.auth import get_current_user
+from pbpk_backend.models.user import User
 from pbpk_backend.services.orchestrator import OrchestratorConfig
-from pbpk_backend.services.drafts import archive_draft, delete_draft, duplicate_draft
+from pbpk_backend.services.drafts import archive_draft, delete_draft, duplicate_draft, require_draft_owner
 
 router = APIRouter(prefix="/v1/drafts", tags=["draft-lifecycle"])
 
@@ -26,34 +28,46 @@ def _cfg() -> OrchestratorConfig:
     )
 
 
-@router.post("/{draft_id}/archive")
-def api_archive_draft(draft_id: str) -> Dict[str, Any]:
-    cfg = _cfg()
+def _assert_owner(cfg: OrchestratorConfig, draft_id: str, user: User) -> None:
     try:
-      return archive_draft(cfg, draft_id=draft_id)
+        require_draft_owner(cfg, draft_id=draft_id, owner_orcid=user.orcid)
     except FileNotFoundError:
-      raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="You do not have access to this draft")
+
+
+@router.post("/{draft_id}/archive")
+def api_archive_draft(draft_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+    try:
+        return archive_draft(cfg, draft_id=draft_id, actor_orcid=user.orcid)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except ValueError as e:
-      raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/{draft_id}/duplicate")
-def api_duplicate_draft(draft_id: str) -> Dict[str, Any]:
+def api_duplicate_draft(draft_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
     try:
-      return duplicate_draft(cfg, draft_id=draft_id)
+        return duplicate_draft(cfg, draft_id=draft_id, owner_orcid=user.orcid)
     except FileNotFoundError:
-      raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except ValueError as e:
-      raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.delete("/{draft_id}")
-def api_delete_draft(draft_id: str) -> Dict[str, Any]:
+def api_delete_draft(draft_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
     try:
-      return delete_draft(cfg, draft_id=draft_id)
+        return delete_draft(cfg, draft_id=draft_id)
     except FileNotFoundError:
-      raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except ValueError as e:
-      raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))

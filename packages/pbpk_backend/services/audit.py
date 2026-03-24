@@ -22,13 +22,6 @@ def _append_jsonl(path: Path, obj: Dict[str, Any]) -> None:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
-def _safe_str(x: Any) -> str:
-    try:
-        return str(x)
-    except Exception:
-        return "<unstringifiable>"
-
-
 @dataclass
 class AuditContext:
     data_root: Path
@@ -53,7 +46,6 @@ def audit_upload_event(
         "details": details or {},
     }
 
-    # For uploads, keep a single JSON audit file with a list of events
     if audit_path.exists():
         try:
             existing = json.loads(audit_path.read_text(encoding="utf-8"))
@@ -68,8 +60,12 @@ def audit_upload_event(
     if not isinstance(events, list):
         events = []
     events.append(record)
+
     existing["upload_id"] = upload_id
     existing["events"] = events
+    existing["updated_at"] = record["timestamp"]
+    if "created_at" not in existing:
+        existing["created_at"] = record["timestamp"]
 
     _write_json(audit_path, existing)
 
@@ -107,8 +103,15 @@ def audit_crate_event(
     if not isinstance(events, list):
         events = []
     events.append(record)
+
     existing["crate_id"] = crate_id
     existing["events"] = events
+    existing["updated_at"] = record["timestamp"]
+    if "created_at" not in existing:
+        existing["created_at"] = record["timestamp"]
+
+    if actor and actor != "anonymous":
+        existing["owner_orcid"] = actor
 
     _write_json(audit_path, existing)
 
@@ -122,9 +125,6 @@ def audit_deposit_event_jsonl(
     result: Dict[str, Any],
     request_details: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """
-    Append-only JSONL for deposit events (good for analytics).
-    """
     crate_dir = (ctx.data_root / "crates" / crate_id).resolve()
     path = crate_dir / "deposit-events.jsonl"
 
@@ -137,7 +137,6 @@ def audit_deposit_event_jsonl(
         "result": result,
     }
 
-    # Never write tokens if someone accidentally passes them
     if "token" in record["request"]:
         record["request"]["token"] = "<redacted>"
 

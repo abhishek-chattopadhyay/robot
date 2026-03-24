@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 
+from pbpk_backend.api.auth import get_current_user
+from pbpk_backend.models.user import User
 from pbpk_backend.services.orchestrator import OrchestratorConfig
 from pbpk_backend.services import drafts as draft_svc
 from pbpk_backend.services.draft_apply import (
@@ -18,10 +20,9 @@ router = APIRouter(prefix="/v1/drafts", tags=["drafts"])
 
 
 def _cfg() -> OrchestratorConfig:
-    repo_root = Path(__file__).resolve().parents[3]  # .../packages/pbpk_backend/api -> repo root
+    repo_root = Path(__file__).resolve().parents[3]
     data_root = Path(os.environ.get("PBPK_DATA_ROOT", str(repo_root / "var"))).resolve()
 
-    # keep consistent with your other routers / validation plumbing
     schema_path = repo_root / "packages" / "pbpk_validation" / "schemas" / "pbpk-metadata.schema.json"
     template_path = repo_root / "packages" / "pbpk-metadata-spec" / "jsonld" / "pbpk-core-template.jsonld"
 
@@ -32,13 +33,20 @@ def _cfg() -> OrchestratorConfig:
     )
 
 
+def _assert_owner(cfg: OrchestratorConfig, draft_id: str, user: User) -> None:
+    try:
+        draft_svc.require_draft_owner(cfg, draft_id=draft_id, owner_orcid=user.orcid)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="You do not have access to this draft")
+
+
 @router.post("")
-def api_create_draft(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Accepts either:
-      - raw PBPK metadata payload, OR
-      - {"metadata": <payload>, "upload_id": "..."}.
-    """
+def api_create_draft(
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
 
     if "metadata" in body:
@@ -52,14 +60,24 @@ def api_create_draft(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="metadata must be a JSON object")
 
     try:
-        return draft_svc.create_draft(cfg, metadata=metadata, upload_id=upload_id)
+        return draft_svc.create_draft(
+            cfg,
+            metadata=metadata,
+            upload_id=upload_id,
+            owner_orcid=user.orcid,
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/{draft_id}")
-def api_get_draft(draft_id: str) -> Dict[str, Any]:
+def api_get_draft(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     try:
         return draft_svc.get_draft(cfg, draft_id=draft_id)
     except FileNotFoundError:
@@ -69,14 +87,13 @@ def api_get_draft(draft_id: str) -> Dict[str, Any]:
 
 
 @router.put("/{draft_id}")
-def api_replace_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Replace metadata for an existing draft.
-    Accepts either:
-      - raw PBPK metadata payload, OR
-      - {"metadata": <payload>, "upload_id": "..."}.
-    """
+def api_replace_draft(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
 
     if "metadata" in body:
         metadata = body.get("metadata")
@@ -89,7 +106,13 @@ def api_replace_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[s
         raise HTTPException(status_code=400, detail="metadata must be a JSON object")
 
     try:
-        return draft_svc.replace_draft(cfg, draft_id=draft_id, metadata=metadata, upload_id=upload_id)
+        return draft_svc.replace_draft(
+            cfg,
+            draft_id=draft_id,
+            metadata=metadata,
+            upload_id=upload_id,
+            actor_orcid=user.orcid,
+        )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -97,20 +120,20 @@ def api_replace_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[s
 
 
 @router.patch("/{draft_id}")
-def api_patch_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Apply JSON Patch ops directly (existing behavior used by your CLI tests).
-    Body:
-      {"patch": [ ... ] }
-    """
+def api_patch_draft(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
-    patch = body.get("patch")
+    _assert_owner(cfg, draft_id, user)
 
+    patch = body.get("patch")
     if not isinstance(patch, list):
         raise HTTPException(status_code=400, detail="patch must be a list of operations")
 
     try:
-        return draft_svc.patch_draft(cfg, draft_id=draft_id, patch_ops=patch)
+        return draft_svc.patch_draft(cfg, draft_id=draft_id, patch_ops=patch, actor_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -118,10 +141,15 @@ def api_patch_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
 
 
 @router.post("/{draft_id}/validate")
-def api_validate_draft(draft_id: str) -> Dict[str, Any]:
+def api_validate_draft(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     try:
-        return draft_svc.validate_draft(cfg, draft_id=draft_id)
+        return draft_svc.validate_draft(cfg, draft_id=draft_id, actor_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -129,31 +157,32 @@ def api_validate_draft(draft_id: str) -> Dict[str, Any]:
 
 
 @router.post("/{draft_id}/build")
-def api_build_from_draft(draft_id: str) -> Dict[str, Any]:
+def api_build_from_draft(
+    draft_id: str,
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     try:
-        envelope, build_result = draft_svc.build_from_draft(cfg, draft_id=draft_id)
+        envelope, build_result = draft_svc.build_from_draft(cfg, draft_id=draft_id, actor_orcid=user.orcid)
         return {"ok": True, "draft": envelope, "build": build_result}
     except FileNotFoundError as e:
-        # could be missing draft or missing upload folder
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# ----------------------------
-# Step 7.7 single-call endpoints
-# ----------------------------
-
 @router.post("/{draft_id}/apply")
-def api_apply_patch(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    One-call apply:
-      {"patch": [ ... ] }
-    """
+def api_apply_patch(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
-    patch = body.get("patch")
+    _assert_owner(cfg, draft_id, user)
 
+    patch = body.get("patch")
     if not isinstance(patch, list):
         raise HTTPException(status_code=400, detail="patch must be a list of operations")
 
@@ -166,16 +195,15 @@ def api_apply_patch(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
 
 
 @router.post("/{draft_id}/apply-edits")
-def api_apply_edits(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    One-call save for scalar edits:
-      {"edits": {"/path": value, ...}}
-    Returns:
-      {"draft": <envelope>, "patch": [...]}
-    """
+def api_apply_edits(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
-    edits = body.get("edits")
+    _assert_owner(cfg, draft_id, user)
 
+    edits = body.get("edits")
     if not isinstance(edits, dict):
         raise HTTPException(status_code=400, detail="edits must be a JSON object")
 
@@ -188,19 +216,14 @@ def api_apply_edits(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
 
 
 @router.post("/{draft_id}/apply-array")
-def api_apply_array(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    One-call save for arrays:
-      {
-        "array_path": "/model_evaluation_and_validation/evaluation_activities",
-        "action": "append" | "insert" | "remove_index" | "replace_index",
-        "value": {...},      # required for append/insert/replace_index
-        "index": 0           # required for insert/remove_index/replace_index
-      }
-    Returns:
-      {"draft": <envelope>, "patch": [...]}
-    """
+def api_apply_array(
+    draft_id: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg = _cfg()
+    _assert_owner(cfg, draft_id, user)
+
     array_path: Optional[str] = body.get("array_path")
     action: Optional[str] = body.get("action")
     value = body.get("value", None)
@@ -210,8 +233,6 @@ def api_apply_array(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str
         raise HTTPException(status_code=400, detail="array_path must be a JSON pointer starting with '/'")
     if not isinstance(action, str) or not action:
         raise HTTPException(status_code=400, detail="action is required")
-
-    # index is optional depending on action, but if provided must be int
     if index is not None and not isinstance(index, int):
         raise HTTPException(status_code=400, detail="index must be an integer")
 

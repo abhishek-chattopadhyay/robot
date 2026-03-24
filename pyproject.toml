@@ -13,3 +13,9 @@ dependencies = [
     "toml-to-requirements>=0.3.0",
     "uvicorn>=0.40.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "httpx>=0.28.1",
+]

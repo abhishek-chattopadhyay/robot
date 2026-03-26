@@ -850,64 +850,84 @@ async function loadDraft(draftId) {
 }
 
 function populateFormDataFromHydrated(hydrated) {
-  // The hydrate response has sections with fields that include current_value
-  const sections = hydrated.sections || [];
-  for (const section of sections) {
-    if (section.id === "structure") {
-      populateStructureFromHydrated(section);
-    } else {
-      if (!formData[section.id]) formData[section.id] = {};
-      populateSectionFromHydrated(section.fields || [], formData[section.id]);
-    }
-  }
-}
+  // The hydrate API returns a flat list of fields with section_id and value.
+  // Group by section_id, then set values into formData using JSON pointer paths.
+  const fields = hydrated.fields || [];
 
-function populateSectionFromHydrated(fields, target) {
   for (const field of fields) {
-    if (field.value_type === "object" && field.fields) {
-      if (field.cardinality === "many") {
-        // Array of objects
-        const items = field.current_value;
-        if (Array.isArray(items)) {
-          target[field.id] = items;
-        }
-      } else {
-        if (!target[field.id]) target[field.id] = {};
-        if (field.current_value && typeof field.current_value === "object") {
-          Object.assign(target[field.id], field.current_value);
-        } else {
-          populateSectionFromHydrated(field.fields, target[field.id]);
-        }
-      }
-    } else if (field.current_value !== undefined && field.current_value !== null) {
-      target[field.id] = field.current_value;
+    const val = field.value;
+    if (val === undefined || val === null) continue;
+
+    const sectionId = field.section_id;
+    const path = field.path; // e.g. "/identity/title" or "/structure/_mie/ke_id"
+
+    if (!sectionId || !path) continue;
+
+    // Parse path parts after section: "/identity/title" -> ["title"]
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length < 2) continue;
+    // parts[0] = section name, rest = nested path
+    const pathParts = parts.slice(1);
+
+    if (sectionId === "structure") {
+      populateStructureField(pathParts, val, field);
+    } else {
+      if (!formData[sectionId]) formData[sectionId] = {};
+      setNestedValue(formData[sectionId], pathParts, val);
     }
   }
 }
 
-function populateStructureFromHydrated(section) {
-  for (const field of (section.fields || [])) {
-    const dataKey = field.id === "mie" ? "_mie"
-                  : field.id === "key_events" ? "_key_events"
-                  : field.id === "ao" ? "_ao"
-                  : field.id;
-
-    if (field.cardinality === "many") {
-      // Repeatable groups: KEs, KERs
-      const items = field.current_value;
-      if (Array.isArray(items)) {
-        formData.structure[dataKey] = items;
-      }
-    } else if (field.value_type === "object") {
-      // Single objects: MIE, AO
-      if (field.current_value && typeof field.current_value === "object") {
-        formData.structure[dataKey] = { ...formData.structure[dataKey], ...field.current_value };
-      } else if (field.fields) {
-        if (!formData.structure[dataKey]) formData.structure[dataKey] = {};
-        populateSectionFromHydrated(field.fields, formData.structure[dataKey]);
-      }
-    }
+function setNestedValue(target, parts, value) {
+  // Set a value at a nested path, skipping wildcard segments
+  // For simple paths like ["title"] just set target.title = value
+  // For nested like ["dose_response", "type"] set target.dose_response.type = value
+  if (parts.length === 0) return;
+  if (parts.length === 1) {
+    target[parts[0]] = value;
+    return;
   }
+  // Skip paths with wildcards — those are handled as array values on parent
+  if (parts.includes("*")) return;
+  let cur = target;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (!cur[parts[i]] || typeof cur[parts[i]] !== "object") cur[parts[i]] = {};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length - 1]] = value;
+}
+
+function populateStructureField(pathParts, value, field) {
+  // pathParts after "structure": e.g. ["_mie", "ke_id"] or ["_key_events"] or ["key_event_relationships"]
+  if (pathParts.length === 0) return;
+
+  const topKey = pathParts[0];
+  const dataKey = topKey === "mie" ? "_mie"
+                : topKey === "key_events" ? "_key_events"
+                : topKey === "ao" ? "_ao"
+                : topKey;
+
+  if (pathParts.length === 1) {
+    // Top-level structure field (e.g. _key_events array, key_event_relationships array)
+    if (Array.isArray(value)) {
+      formData.structure[dataKey] = value;
+    } else if (value && typeof value === "object") {
+      formData.structure[dataKey] = { ...formData.structure[dataKey], ...value };
+    } else {
+      formData.structure[dataKey] = value;
+    }
+    return;
+  }
+
+  // Nested field within a structure object (e.g. _mie/ke_id)
+  // Skip wildcard paths — parent array was already set
+  if (pathParts.includes("*")) return;
+
+  const subParts = pathParts.slice(1);
+  if (!formData.structure[dataKey] || typeof formData.structure[dataKey] !== "object") {
+    formData.structure[dataKey] = {};
+  }
+  setNestedValue(formData.structure[dataKey], subParts, value);
 }
 
 // ---------------------------------------------------------------------------

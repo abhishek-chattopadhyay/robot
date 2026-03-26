@@ -12,7 +12,7 @@ from pbpk_backend.api import templates as templates_api
 from pbpk_backend.api import form_ui as form_ui_api
 from pbpk_backend.api import drafts as drafts_api
 from pbpk_backend.api import draft_apply
-from pbpk_backend.api import ui_static
+from pbpk_backend.api import ui as ui_mod
 from pbpk_backend.api.deposit_history import router as deposit_history_router
 from pbpk_backend.api.draft_activity import router as draft_activity_router
 from pbpk_backend.api.draft_index import router as draft_index_router
@@ -34,7 +34,7 @@ app.include_router(templates_api.router)
 app.include_router(form_ui_api.router)
 app.include_router(drafts_api.router)
 app.include_router(draft_apply.router)
-app.include_router(ui_static.router)
+app.include_router(ui_mod.router)
 app.include_router(deposit_history_router)
 app.include_router(draft_activity_router)
 app.include_router(draft_index_router)

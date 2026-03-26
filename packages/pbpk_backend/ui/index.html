@@ -19,11 +19,17 @@
     input[type="text"] { width: 100%; padding: 8px; }
     .section { border: 1px solid #ddd; padding: 12px; border-radius: 10px; margin: 12px 0; }
     .section h3 { margin: 0 0 8px 0; }
+    .nav-links { margin-bottom: 12px; font-size: 14px; }
+    .nav-links a { color: #2563eb; text-decoration: none; margin-right: 16px; }
+    .nav-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <h1>PBPK Metadata UI <span class="pill">v1</span></h1>
   <p class="muted">Thin UI that calls your existing API: drafts → form-ui → apply-edits/array → validate → build → download.</p>
+  <div class="nav-links">
+    <a href="/ui/qaop">qAOP Editor →</a>
+  </div>
 
   <div class="section">
     <h3>1) Load metadata JSON</h3>

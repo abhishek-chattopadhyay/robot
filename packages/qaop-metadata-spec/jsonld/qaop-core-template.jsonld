@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    "qaop-context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": { "@id": "https://w3id.org/ro/crate/1.1" },
+      "about": { "@id": "./" }
+    },
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "qAOP RO-Crate",
+      "description": "RO-Crate containing a quantitative Adverse Outcome Pathway model and associated metadata.",
+      "license": "CC-BY-4.0",
+      "creator": [],
+      "hasPart": [
+        { "@id": "#qaop-model" }
+      ]
+    },
+    {
+      "@id": "#qaop-model",
+      "@type": "AdverseOutcomePathway",
+      "name": null,
+      "description": null,
+      "aopWikiId": null,
+      "hasMolecularInitiatingEvent": [],
+      "hasKeyEvent": [],
+      "hasAdverseOutcome": [],
+      "hasKeyEventRelationship": []
+    }
+  ]
+}

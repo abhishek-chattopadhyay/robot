@@ -1,0 +1,113 @@
+id: identity
+title: AOP Identity
+description: Identify the qAOP, its provenance, authorship, and references.
+fields:
+  - id: title
+    path: /identity/title
+    label: AOP title
+    value_type: string
+    required: true
+    cardinality: one
+    help: "Full descriptive title of the Adverse Outcome Pathway (e.g., 'DNA adduct formation leading to kidney failure')"
+
+  - id: short_name
+    path: /identity/short_name
+    label: Short name
+    value_type: string
+    required: false
+    cardinality: one
+    help: "Brief identifier for the qAOP"
+
+  - id: aop_wiki_id
+    path: /identity/aop_wiki_id
+    label: AOP-wiki ID
+    value_type: number
+    required: true
+    cardinality: one
+    help: "Numeric AOP identifier from AOP-wiki (e.g., 472)"
+
+  - id: description
+    path: /identity/description
+    label: Description
+    value_type: text
+    required: false
+    cardinality: one
+    help: "Abstract or summary of the AOP"
+
+  - id: status
+    path: /identity/status
+    label: Status
+    value_type: controlled_term
+    required: true
+    cardinality: one
+    allowed_values:
+      - under development
+      - open for comment
+      - under review
+      - endorsed
+      - approved
+    help: "Current development/review status of the AOP"
+
+  - id: version
+    path: /identity/version
+    label: Version
+    value_type: string
+    required: false
+    cardinality: one
+    help: "Version string for this qAOP entry"
+
+  - id: license
+    path: /identity/license
+    label: License
+    value_type: string
+    required: false
+    cardinality: one
+    help: "SPDX license identifier (e.g., CC-BY-4.0)"
+
+  - id: authors
+    path: /identity/authors
+    label: Authors
+    value_type: object
+    required: false
+    cardinality: many
+    help: "Authors with ORCID identifiers"
+    fields:
+      - id: full_name
+        path: /identity/authors/*/full_name
+        label: Full name
+        value_type: string
+        required: true
+        help: "Author full name"
+      - id: orcid
+        path: /identity/authors/*/orcid
+        label: ORCID
+        value_type: string
+        required: false
+        help: "ORCID (e.g., 0000-0002-1825-0097)"
+      - id: affiliation
+        path: /identity/authors/*/affiliation
+        label: Affiliation
+        value_type: string
+        required: false
+        help: "Institutional affiliation"
+
+  - id: publications
+    path: /identity/publications
+    label: Publications
+    value_type: object
+    required: false
+    cardinality: many
+    help: "Associated publications by DOI or PMID"
+    fields:
+      - id: doi
+        path: /identity/publications/*/doi
+        label: DOI
+        value_type: string
+        required: false
+        help: "Digital Object Identifier"
+      - id: pmid
+        path: /identity/publications/*/pmid
+        label: PMID
+        value_type: string
+        required: false
+        help: "PubMed identifier"

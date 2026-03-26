@@ -1,0 +1,38 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    {
+      "@vocab": "https://schema.org/",
+      "aopo": "http://aopkb.org/aop_ontology#",
+      "qaop": "https://example.org/qaop#",
+
+      "AdverseOutcomePathway": "aopo:AdverseOutcomePathway",
+      "KeyEvent": "aopo:KeyEvent",
+      "KeyEventRelationship": "aopo:KeyEventRelationship",
+      "MolecularInitiatingEvent": "aopo:MolecularInitiatingEvent",
+      "AdverseOutcome": "aopo:AdverseOutcome",
+
+      "hasKeyEvent": "aopo:has_key_event",
+      "hasMolecularInitiatingEvent": "aopo:has_molecular_initiating_event",
+      "hasAdverseOutcome": "aopo:has_adverse_outcome",
+      "hasKeyEventRelationship": "aopo:has_key_event_relationship",
+      "hasUpstreamKeyEvent": "aopo:has_upstream_key_event",
+      "hasDownstreamKeyEvent": "aopo:has_downstream_key_event",
+
+      "biologicalOrganizationLevel": "qaop:biologicalOrganizationLevel",
+      "functionType": "qaop:functionType",
+      "responseResponseFunction": "qaop:responseResponseFunction",
+      "experimentalSystem": "qaop:experimentalSystem",
+      "aopWikiId": "qaop:aopWikiId",
+      "keId": "qaop:keId",
+      "kerId": "qaop:kerId",
+      "upstreamKeId": "qaop:upstreamKeId",
+      "downstreamKeId": "qaop:downstreamKeId",
+      "thresholdValue": "qaop:thresholdValue",
+      "thresholdBasis": "qaop:thresholdBasis",
+      "customExpression": "qaop:customExpression",
+      "confidenceIntervalLower": "qaop:confidenceIntervalLower",
+      "confidenceIntervalUpper": "qaop:confidenceIntervalUpper"
+    }
+  ]
+}

@@ -97,6 +97,24 @@ def _envelope(
     }
 
 
+def get_draft_owner(cfg: OrchestratorConfig, *, draft_id: str) -> Optional[str]:
+    p = _paths(cfg, draft_id)
+    if not p.draft_json.exists():
+        raise FileNotFoundError(draft_id)
+
+    draft_obj = _read_json(p.draft_json)
+    owner = draft_obj.get("owner_orcid")
+    return owner if isinstance(owner, str) and owner else None
+
+
+def require_draft_owner(cfg: OrchestratorConfig, *, draft_id: str, owner_orcid: str) -> None:
+    owner = get_draft_owner(cfg, draft_id=draft_id)
+    if owner is None:
+        raise PermissionError("Draft has no owner")
+    if owner != owner_orcid:
+        raise PermissionError("You do not have access to this draft")
+
+
 def create_draft(cfg: OrchestratorConfig, *, metadata: Dict[str, Any], upload_id: Optional[str] = None, model_type: str = "pbpk") -> Dict[str, Any]:
     if not isinstance(metadata, dict):
         raise ValueError("metadata must be an object")

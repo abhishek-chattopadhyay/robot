@@ -175,7 +175,7 @@
           "properties": {
             "function_type": {
               "type": "string",
-              "enum": ["linear", "log-linear", "Hill", "sigmoid", "threshold", "polynomial", "custom"]
+              "enum": ["", "linear", "log-linear", "Hill", "sigmoid", "threshold", "polynomial", "custom"]
             },
             "parameters": {
               "type": "array",
@@ -188,7 +188,7 @@
         },
         "experimental_system": {
           "type": "string",
-          "enum": ["in vivo", "in vitro", "in silico"]
+          "enum": ["", "in vivo", "in vitro", "in silico"]
         },
         "species": { "type": "string" },
         "data_source": { "type": "string" }

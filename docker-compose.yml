@@ -6,7 +6,28 @@ services:
       - "8000:8000"
     environment:
       PYTHONPATH: /app/packages
+
+      # Runtime storage
       PBPK_DATA_ROOT: /app/var
+      PBPK_DB_PATH: /app/var/pbpk.db
+
+      # Auth
+      ROBOT_ENFORCE_AUTH: "${ROBOT_ENFORCE_AUTH}"
+      PBPK_SESSION_COOKIE: "${PBPK_SESSION_COOKIE}"
+
+      # ORCID OAuth
+      ORCID_CLIENT_ID: "${ORCID_CLIENT_ID}"
+      ORCID_CLIENT_SECRET: "${ORCID_CLIENT_SECRET}"
+      ORCID_REDIRECT_URI: "${ORCID_REDIRECT_URI}"
+      ORCID_BASE_URL: "${ORCID_BASE_URL}"
+      ORCID_USE_SANDBOX: "${ORCID_USE_SANDBOX}"
+      ORCID_SCOPE: "${ORCID_SCOPE}"
+
+      # Cookie security
+      PBPK_COOKIE_SECURE: "${PBPK_COOKIE_SECURE}"
+      PBPK_COOKIE_SAMESITE: "${PBPK_COOKIE_SAMESITE}"
+      PBPK_COOKIE_DOMAIN: "${PBPK_COOKIE_DOMAIN}"
+
     volumes:
       - robot_data:/app/var
     restart: unless-stopped

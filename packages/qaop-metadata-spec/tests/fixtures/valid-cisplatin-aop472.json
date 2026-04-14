@@ -1,0 +1,92 @@
+{
+  "identity": {
+    "title": "DNA adduct formation leading to kidney failure",
+    "aop_wiki_id": 472,
+    "status": "under development",
+    "authors": [
+      {
+        "full_name": "Test Author",
+        "orcid": "0000-0000-0000-0001",
+        "affiliation": "Utrecht University"
+      }
+    ],
+    "description": "Cisplatin forms DNA adducts in renal proximal tubule cells, triggering a cascade of key events leading to nephrotoxicity and kidney failure.",
+    "version": "1.0",
+    "license": "CC-BY-4.0"
+  },
+  "structure": {
+    "key_events": [
+      {
+        "ke_id": 1194,
+        "title": "DNA adduct formation",
+        "biological_organization_level": "molecular",
+        "role": "mie"
+      },
+      {
+        "ke_id": 1670,
+        "title": "Proximal tubule cell injury",
+        "biological_organization_level": "cellular",
+        "role": "ke"
+      },
+      {
+        "ke_id": 2208,
+        "title": "Kidney failure",
+        "biological_organization_level": "organ",
+        "role": "ao"
+      }
+    ],
+    "key_event_relationships": [
+      {
+        "ker_id": 1001,
+        "upstream_ke_id": 1194,
+        "downstream_ke_id": 1670,
+        "response_response_function": {
+          "function_type": "Hill",
+          "parameters": [
+            { "name": "EC50", "value": 5.2, "unit": "uM" },
+            { "name": "Hill_coefficient", "value": 1.8, "unit": "dimensionless" },
+            { "name": "Emax", "value": 100.0, "unit": "percent" }
+          ],
+          "upstream_unit": "uM",
+          "downstream_unit": "percent_viability"
+        },
+        "experimental_system": "in vitro",
+        "species": "human",
+        "data_source": "doi:10.1016/j.tox.2020.152483"
+      },
+      {
+        "ker_id": 1002,
+        "upstream_ke_id": 1670,
+        "downstream_ke_id": 2208,
+        "experimental_system": "in vivo",
+        "species": "rat",
+        "data_source": "pmid:32001234"
+      }
+    ]
+  },
+  "quantitative": {
+    "ke_thresholds": [
+      {
+        "ke_id": 1670,
+        "threshold_value": 10.0,
+        "threshold_unit": "uM",
+        "threshold_basis": "EC10",
+        "measurement_endpoint": "cell viability",
+        "measurement_unit": "percent"
+      }
+    ]
+  },
+  "applicability": {
+    "species": [
+      { "species_name": "human", "ncbi_taxonomy_id": 9606 },
+      { "species_name": "rat", "ncbi_taxonomy_id": 10116 }
+    ],
+    "chemical_stressors": [
+      {
+        "name": "cisplatin",
+        "cas_number": "15663-27-1",
+        "stressor_type": "alkylating agent"
+      }
+    ]
+  }
+}

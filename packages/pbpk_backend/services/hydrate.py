@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from pbpk_backend.services.form_spec import compile_pbpk_form_registry
-from pbpk_backend.services.migrations import migrate_pbpk_metadata
+
+from pbpk_backend.services.form_spec import compile_pbpk_form_registry, compile_form_registry
 
 
 def _repo_root() -> Path:
@@ -95,12 +95,14 @@ def _load_draft_metadata(draft_id: str) -> Dict[str, Any]:
 
     candidates: List[Path] = []
 
+    # Common patterns
     for sr in search_roots:
         if sr.exists():
             candidates.extend(list(sr.glob(f"**/{draft_id}.json")))
             candidates.extend(list(sr.glob(f"**/{draft_id}/*.json")))
             candidates.extend(list(sr.glob(f"**/*{draft_id}*.json")))
 
+    # De-dup + stable order
     seen = set()
     uniq: List[Path] = []
     for p in sorted(candidates, key=lambda x: str(x)):
@@ -114,22 +116,20 @@ def _load_draft_metadata(draft_id: str) -> Dict[str, Any]:
         except Exception:
             continue
 
+        # Draft file could be the draft object itself, or nested.
         if isinstance(obj, dict):
             if obj.get("draft_id") == draft_id and isinstance(obj.get("metadata"), dict):
-                md, _ = migrate_pbpk_metadata(obj["metadata"])
-                return md
+                return obj["metadata"]
 
             md = obj.get("metadata")
             if isinstance(md, dict) and obj.get("draft_id") in (draft_id, None):
-                md2, _ = migrate_pbpk_metadata(md)
-                return md2
+                # accept metadata payload if it's obviously a draft container
+                return md
 
     raise FileNotFoundError(f"Draft not found: {draft_id} (searched under {root})")
 
 
 def hydrate_pbpk_form(*, metadata: Dict[str, Any], include_helptexts: bool = False) -> Dict[str, Any]:
-    metadata, _ = migrate_pbpk_metadata(metadata)
-
     reg = compile_pbpk_form_registry(include_helptexts=include_helptexts, include_vocabularies=True)
     fields_by_path: Dict[str, Dict[str, Any]] = reg["registry"]["fields_by_path"]
 
@@ -142,6 +142,9 @@ def hydrate_pbpk_form(*, metadata: Dict[str, Any], include_helptexts: bool = Fal
         cardinality = fdef.get("cardinality", "one")
         required = bool(fdef.get("required", False))
 
+        # Output rules:
+        # - If wildcard OR cardinality=many => output list-like value
+        # - Else output scalar
         if has_wildcard or cardinality == "many":
             value_out: Any = _unwrap_single_list(values)
             missing = required and _is_empty_value(value_out)
@@ -180,5 +183,106 @@ def hydrate_pbpk_form(*, metadata: Dict[str, Any], include_helptexts: bool = Fal
 def hydrate_pbpk_form_from_draft(*, draft_id: str, include_helptexts: bool = False) -> Dict[str, Any]:
     md = _load_draft_metadata(draft_id)
     out = hydrate_pbpk_form(metadata=md, include_helptexts=include_helptexts)
+    out["draft_id"] = draft_id
+    return out
+
+
+def _restructure_qaop_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Pre-process qAOP metadata so that virtual paths (_mie, _key_events, _ao)
+    can be resolved by the standard _extract_values walker.
+
+    The form spec uses:
+      /structure/_mie/...         -> the KE with role="mie"
+      /structure/_key_events/*/.. -> KEs with role="key_event"
+      /structure/_ao/...          -> the KE with role="ao"
+
+    But actual metadata stores everything in structure.key_events[] with a role field.
+    This function splits key_events by role into _mie, _key_events, _ao.
+    """
+    out = {}
+    for k, v in metadata.items():
+        if k == "structure" and isinstance(v, dict):
+            s = dict(v)
+            key_events = s.get("key_events", [])
+
+            mie = None
+            ao = None
+            kes: List[Dict[str, Any]] = []
+
+            for ke in key_events:
+                if not isinstance(ke, dict):
+                    continue
+                role = ke.get("role", "key_event")
+                if role == "mie":
+                    mie = ke
+                elif role == "ao":
+                    ao = ke
+                else:
+                    kes.append(ke)
+
+            s["_mie"] = mie or {}
+            s["_key_events"] = kes
+            s["_ao"] = ao or {}
+            out["structure"] = s
+        else:
+            out[k] = v
+    return out
+
+
+def hydrate_qaop_form(*, metadata: Dict[str, Any], include_helptexts: bool = False) -> Dict[str, Any]:
+    reg = compile_form_registry(model_type="qaop", include_helptexts=include_helptexts, include_vocabularies=True)
+    fields_by_path: Dict[str, Dict[str, Any]] = reg["registry"]["fields_by_path"]
+
+    # Restructure metadata so virtual paths resolve
+    rmd = _restructure_qaop_metadata(metadata)
+
+    hydrated: List[Dict[str, Any]] = []
+
+    for path, fdef in fields_by_path.items():
+        values = _extract_values(rmd, path)
+
+        has_wildcard = "/*/" in path or path.endswith("/*")
+        cardinality = fdef.get("cardinality", "one")
+        required = bool(fdef.get("required", False))
+
+        if has_wildcard or cardinality == "many":
+            value_out: Any = _unwrap_single_list(values)
+            missing = required and _is_empty_value(value_out)
+        else:
+            value_out = values[0] if values else None
+            missing = required and _is_empty_value(value_out)
+
+        hydrated.append(
+            {
+                "key": fdef.get("key"),
+                "path": path,
+                "section_id": fdef.get("section_id"),
+                "id": fdef.get("id"),
+                "label": fdef.get("label"),
+                "description": fdef.get("description"),
+                "value_type": fdef.get("value_type"),
+                "required": required,
+                "cardinality": cardinality,
+                "allowed_values": fdef.get("allowed_values"),
+                "vocabulary": fdef.get("vocabulary"),
+                "value": value_out,
+                "missing": bool(missing),
+            }
+        )
+
+    hydrated.sort(key=lambda x: (str(x.get("section_id") or ""), str(x.get("path") or "")))
+
+    return {
+        "api_version": "v1",
+        "kind": "qaop.form_hydration",
+        "fields": hydrated,
+        "registry_issues": reg["registry"].get("issues", []),
+    }
+
+
+def hydrate_qaop_form_from_draft(*, draft_id: str, include_helptexts: bool = False) -> Dict[str, Any]:
+    md = _load_draft_metadata(draft_id)
+    out = hydrate_qaop_form(metadata=md, include_helptexts=include_helptexts)
     out["draft_id"] = draft_id
     return out

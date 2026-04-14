@@ -4,7 +4,6 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>ROBOT</title>
-
   <style>
     :root {
       --bg: #03122c;
@@ -62,20 +61,6 @@
       line-height: 1.55;
       color: var(--muted);
       margin: 0;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-      align-items: center;
-    }
-
-    .hero-user {
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--soft);
     }
 
     .api-pill {
@@ -151,17 +136,6 @@
     }
 
     .btn-primary:hover { background: rgba(16,185,129,0.30); }
-
-    .btn-inline {
-      width: auto;
-      min-width: 0;
-      white-space: nowrap;
-    }
-
-    .btn-danger {
-      color: var(--danger);
-      border-color: rgba(254,202,202,0.35);
-    }
 
     .note {
       margin-top: 14px;
@@ -268,13 +242,6 @@
       margin: 12px 0 8px;
     }
 
-    .filters-3 {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 10px;
-      margin: 12px 0 8px;
-    }
-
     .filter-input, .filter-select {
       width: 100%;
       border: 1px solid var(--border);
@@ -295,19 +262,19 @@
       margin: 4px 0 14px;
     }
 
-    .draft-list, .deposit-list, .crate-list {
+    .draft-list, .deposit-list {
       display: grid;
       gap: 12px;
     }
 
-    .draft-card, .deposit-card, .crate-card {
+    .draft-card, .deposit-card {
       border: 1px solid rgba(255,255,255,0.14);
       background: var(--panel-2);
       border-radius: 16px;
       padding: 14px;
     }
 
-    .draft-head, .deposit-head, .crate-head {
+    .draft-head, .deposit-head {
       display: flex;
       justify-content: space-between;
       gap: 14px;
@@ -315,13 +282,13 @@
       flex-wrap: wrap;
     }
 
-    .draft-title, .deposit-title, .crate-title {
+    .draft-title, .deposit-title {
       font-size: 16px;
       font-weight: 800;
       margin: 0;
     }
 
-    .draft-sub, .deposit-sub, .crate-sub {
+    .draft-sub, .deposit-sub {
       margin-top: 4px;
       color: var(--soft);
       font-size: 13px;
@@ -358,7 +325,7 @@
       font-size: 12px;
     }
 
-    .draft-actions, .deposit-actions, .crate-actions {
+    .draft-actions, .deposit-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -373,35 +340,31 @@
     .loading, .empty { color: var(--soft); }
     .error { color: #fecaca; }
 
-    .auth-gate {
-      margin-top: 24px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
+    .type-badge {
+      display: inline-block;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-right: 6px;
+      vertical-align: middle;
     }
-
-    .auth-gate-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0 0 8px;
+    .type-badge.pbpk {
+      background: rgba(16,185,129,0.18);
+      color: #10b981;
+      border: 1px solid rgba(16,185,129,0.35);
     }
-
-    .auth-gate-text {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.5;
-      margin: 0 0 14px;
+    .type-badge.qaop {
+      background: rgba(139,92,246,0.18);
+      color: #a78bfa;
+      border: 1px solid rgba(139,92,246,0.35);
     }
-
-    .hidden { display: none !important; }
 
     @media (max-width: 980px) {
       .model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero { flex-direction: column; }
-      .filters, .filters-4, .filters-3 { grid-template-columns: 1fr; }
+      .filters, .filters-4 { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -416,171 +379,128 @@
       <div class="hero-left">
         <h1 class="title">ROBOT</h1>
         <p class="subtitle">
-          Research Object Builder for Open Toxicology
+          Reaseach Object Builder for Open Toxicology
         </p>
-
-        <div class="hero-actions" id="heroActions"></div>
-
-        <div id="userInfo" class="hero-user">Checking sign-in status...</div>
       </div>
       <div class="api-pill">API: /v1</div>
     </div>
 
-    <div id="authGate" class="auth-gate hidden">
-      <div class="auth-gate-title">Sign in to continue</div>
-      <p class="auth-gate-text">
-        Please sign in with your ORCID account to access model editors, drafts, crates, and deposits.
-      </p>
-      <a href="/v1/auth/login?redirect_to=/ui" class="btn-inline btn">Login with ORCID</a>
+    <div class="section-title">Model types</div>
+    <div class="model-grid">
+      <div class="model-card">
+        <div class="model-name">PBPK</div>
+        <div class="model-desc">Physiologically Based Pharmacokinetic models.</div>
+        <a class="btn-link btn-primary" href="/ui/pbpk">Open PBPK editor</a>
+      </div>
+
+      <div class="model-card">
+        <div class="model-name">QSAR</div>
+        <div class="model-desc">Quantitative Structure–Activity Relationship models.</div>
+        <button class="btn" type="button" disabled>Coming soon</button>
+      </div>
+
+      <div class="model-card">
+        <div class="model-name">qAOP</div>
+        <div class="model-desc">Quantitative Adverse Outcome Pathway models.</div>
+        <a href="/ui/qaop" class="btn-link btn-primary" style="text-decoration:none;text-align:center;">Open qAOP editor</a>
+      </div>
+
+      <div class="model-card">
+        <div class="model-name">NAM</div>
+        <div class="model-desc">New Approach Methodologies and hybrid workflows.</div>
+        <button class="btn" type="button" disabled>Coming soon</button>
+      </div>
     </div>
 
-    <div id="appContent" class="hidden">
-      <div class="section-title">Model types</div>
-      <div class="model-grid">
-        <div class="model-card">
-          <div class="model-name">PBPK</div>
-          <div class="model-desc">Physiologically Based Pharmacokinetic models.</div>
-          <a class="btn-link btn-primary" href="/ui/pbpk">Open PBPK editor</a>
+    <div class="note">
+      PBPK and qAOP are active. Others will come soon.
+    </div>
+
+    <div class="collapse-card">
+      <button id="recentDraftsToggle" class="collapse-head" type="button">
+        <span>Recent Drafts</span>
+        <span id="recentDraftsToggleLabel" class="collapse-meta">Show</span>
+      </button>
+
+      <div id="recentDraftsBody" class="collapse-body">
+        <div class="toolbar">
+          <div class="toolbar-left">Resume, validate, build, archive, duplicate, or delete a recent draft.</div>
+          <div class="toolbar-right">
+            <a href="/ui/pbpk" class="action-btn" style="text-decoration:none;">New PBPK</a>
+            <a href="/ui/qaop" class="action-btn" style="text-decoration:none;">New qAOP</a>
+            <button id="refreshBtn" class="action-btn" type="button">Refresh drafts</button>
+          </div>
         </div>
 
-        <div class="model-card">
-          <div class="model-name">QSAR</div>
-          <div class="model-desc">Quantitative Structure–Activity Relationship models.</div>
-          <button class="btn" type="button" disabled>Coming soon</button>
+        <div class="filters" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
+          <input id="draftSearchInput" class="filter-input" type="text" placeholder="Search by model name, draft ID, crate ID..." />
+          <select id="draftTypeFilter" class="filter-select">
+            <option value="all">All types</option>
+            <option value="pbpk">PBPK</option>
+            <option value="qaop">qAOP</option>
+          </select>
+          <select id="draftStatusFilter" class="filter-select">
+            <option value="all">All statuses</option>
+            <option value="draft">draft</option>
+            <option value="validated">validated</option>
+            <option value="built">built</option>
+            <option value="archived">archived</option>
+          </select>
+          <select id="draftArchivedFilter" class="filter-select">
+            <option value="hide">Hide archived</option>
+            <option value="show">Show archived</option>
+          </select>
+          <select id="draftSortSelect" class="filter-select">
+            <option value="updated_desc">Updated: newest first</option>
+            <option value="updated_asc">Updated: oldest first</option>
+            <option value="created_desc">Created: newest first</option>
+            <option value="created_asc">Created: oldest first</option>
+            <option value="name_asc">Name: A → Z</option>
+            <option value="name_desc">Name: Z → A</option>
+          </select>
         </div>
 
-        <div class="model-card">
-          <div class="model-name">qAOP</div>
-          <div class="model-desc">Quantitative Adverse Outcome Pathway models.</div>
-          <button class="btn" type="button" disabled>Coming soon</button>
-        </div>
-
-        <div class="model-card">
-          <div class="model-name">NAM</div>
-          <div class="model-desc">New Approach Methodologies and hybrid workflows.</div>
-          <button class="btn" type="button" disabled>Coming soon</button>
-        </div>
+        <div id="draftSummary" class="summary-line"></div>
+        <div id="draftRoot"><div class="loading">Open this section to load recent drafts.</div></div>
       </div>
+    </div>
 
-      <div class="note">
-        PBPK is active now. Others will come soon.
-      </div>
+    <div class="collapse-card">
+      <button id="recentDepositsToggle" class="collapse-head" type="button">
+        <span>Recent Deposits</span>
+        <span id="recentDepositsToggleLabel" class="collapse-meta">Show</span>
+      </button>
 
-      <div class="collapse-card">
-        <button id="recentDraftsToggle" class="collapse-head" type="button">
-          <span>Recent Drafts</span>
-          <span id="recentDraftsToggleLabel" class="collapse-meta">Show</span>
-        </button>
-
-        <div id="recentDraftsBody" class="collapse-body">
-          <div class="toolbar">
-            <div class="toolbar-left">Resume, validate, build, archive, duplicate, or delete a recent draft.</div>
-            <div class="toolbar-right">
-              <button id="refreshBtn" class="action-btn" type="button">Refresh drafts</button>
-            </div>
+      <div id="recentDepositsBody" class="collapse-body">
+        <div class="toolbar">
+          <div class="toolbar-left">View recently deposited records and open them directly.</div>
+          <div class="toolbar-right">
+            <button id="refreshDepositsBtn" class="action-btn" type="button">Refresh deposits</button>
           </div>
-
-          <div class="filters">
-            <input id="draftSearchInput" class="filter-input" type="text" placeholder="Search by model name, draft ID, crate ID..." />
-            <select id="draftStatusFilter" class="filter-select">
-              <option value="all">All statuses</option>
-              <option value="draft">draft</option>
-              <option value="validated">validated</option>
-              <option value="built">built</option>
-              <option value="archived">archived</option>
-            </select>
-            <select id="draftArchivedFilter" class="filter-select">
-              <option value="hide">Hide archived</option>
-              <option value="show">Show archived</option>
-            </select>
-            <select id="draftSortSelect" class="filter-select">
-              <option value="updated_desc">Updated: newest first</option>
-              <option value="updated_asc">Updated: oldest first</option>
-              <option value="created_desc">Created: newest first</option>
-              <option value="created_asc">Created: oldest first</option>
-              <option value="name_asc">Name: A → Z</option>
-              <option value="name_desc">Name: Z → A</option>
-            </select>
-          </div>
-
-          <div id="draftSummary" class="summary-line"></div>
-          <div id="draftRoot"><div class="loading">Open this section to load recent drafts.</div></div>
         </div>
-      </div>
 
-      <div class="collapse-card">
-        <button id="recentCratesToggle" class="collapse-head" type="button">
-          <span>Recent Crates</span>
-          <span id="recentCratesToggleLabel" class="collapse-meta">Show</span>
-        </button>
-
-        <div id="recentCratesBody" class="collapse-body">
-          <div class="toolbar">
-            <div class="toolbar-left">Inspect, validate, and download your recently built RO-Crates.</div>
-            <div class="toolbar-right">
-              <button id="refreshCratesBtn" class="action-btn" type="button">Refresh crates</button>
-            </div>
-          </div>
-
-          <div class="filters-3">
-            <input id="crateSearchInput" class="filter-input" type="text" placeholder="Search by crate ID or owner..." />
-            <select id="crateHasMetadataFilter" class="filter-select">
-              <option value="all">All crate states</option>
-              <option value="with_metadata">With metadata</option>
-              <option value="without_metadata">Without metadata</option>
-            </select>
-            <select id="crateSortSelect" class="filter-select">
-              <option value="updated_desc">Updated: newest first</option>
-              <option value="updated_asc">Updated: oldest first</option>
-              <option value="created_desc">Created: newest first</option>
-              <option value="created_asc">Created: oldest first</option>
-              <option value="crate_asc">Crate ID: A → Z</option>
-              <option value="crate_desc">Crate ID: Z → A</option>
-            </select>
-          </div>
-
-          <div id="crateSummary" class="summary-line"></div>
-          <div id="crateRoot"><div class="loading">Open this section to load recent crates.</div></div>
+        <div class="filters-4">
+          <input id="depositSearchInput" class="filter-input" type="text" placeholder="Search by DOI, record ID, crate ID, platform..." />
+          <select id="depositEnvFilter" class="filter-select">
+            <option value="all">All environments</option>
+            <option value="sandbox">sandbox</option>
+            <option value="production">production</option>
+          </select>
+          <select id="depositPublishFilter" class="filter-select">
+            <option value="all">All publish states</option>
+            <option value="published">published</option>
+            <option value="draft">draft</option>
+          </select>
+          <select id="depositSortSelect" class="filter-select">
+            <option value="timestamp_desc">Newest first</option>
+            <option value="timestamp_asc">Oldest first</option>
+            <option value="platform_asc">Platform: A → Z</option>
+            <option value="platform_desc">Platform: Z → A</option>
+          </select>
         </div>
-      </div>
 
-      <div class="collapse-card">
-        <button id="recentDepositsToggle" class="collapse-head" type="button">
-          <span>Recent Deposits</span>
-          <span id="recentDepositsToggleLabel" class="collapse-meta">Show</span>
-        </button>
-
-        <div id="recentDepositsBody" class="collapse-body">
-          <div class="toolbar">
-            <div class="toolbar-left">View recently deposited records and open them directly.</div>
-            <div class="toolbar-right">
-              <button id="refreshDepositsBtn" class="action-btn" type="button">Refresh deposits</button>
-            </div>
-          </div>
-
-          <div class="filters-4">
-            <input id="depositSearchInput" class="filter-input" type="text" placeholder="Search by DOI, record ID, crate ID, platform..." />
-            <select id="depositEnvFilter" class="filter-select">
-              <option value="all">All environments</option>
-              <option value="sandbox">sandbox</option>
-              <option value="production">production</option>
-            </select>
-            <select id="depositPublishFilter" class="filter-select">
-              <option value="all">All publish states</option>
-              <option value="published">published</option>
-              <option value="draft">draft</option>
-            </select>
-            <select id="depositSortSelect" class="filter-select">
-              <option value="timestamp_desc">Newest first</option>
-              <option value="timestamp_asc">Oldest first</option>
-              <option value="platform_asc">Platform: A → Z</option>
-              <option value="platform_desc">Platform: Z → A</option>
-            </select>
-          </div>
-
-          <div id="depositSummary" class="summary-line"></div>
-          <div id="depositRoot"><div class="loading">Open this section to load recent deposits.</div></div>
-        </div>
+        <div id="depositSummary" class="summary-line"></div>
+        <div id="depositRoot"><div class="loading">Open this section to load recent deposits.</div></div>
       </div>
     </div>
   </div>
@@ -594,12 +514,7 @@
     archiveDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/archive`,
     duplicateDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}/duplicate`,
     deleteDraft: (draftId) => `/v1/drafts/${encodeURIComponent(draftId)}`,
-    crates: (limit=50) => `/v1/crates?limit=${encodeURIComponent(limit)}`,
-    validateCrate: (crateId) => `/v1/rocrate/${encodeURIComponent(crateId)}/validate`,
-    downloadCrate: (crateId) => `/v1/rocrate/${encodeURIComponent(crateId)}/download`,
-    deposits: (limit=50) => `/v1/deposits?limit=${encodeURIComponent(limit)}`,
-    me: () => `/v1/auth/me`,
-    logout: () => `/v1/auth/logout`
+    deposits: (limit=50) => `/v1/deposits?limit=${encodeURIComponent(limit)}`
   };
 
   const UI_STATE_KEYS = {
@@ -607,12 +522,9 @@
   };
 
   let draftsLoaded = false;
-  let cratesLoaded = false;
   let depositsLoaded = false;
   let allDrafts = [];
-  let allCrates = [];
   let allDeposits = [];
-  let isAuthenticated = false;
 
   async function jfetch(url, options={}) {
     const resp = await fetch(url, options);
@@ -626,62 +538,6 @@
       throw new Error(msg);
     }
     return payload;
-  }
-
-  function renderHeroActions(authenticated) {
-    const heroActions = document.getElementById("heroActions");
-    heroActions.innerHTML = "";
-
-    if (!authenticated) return;
-
-    const logoutBtn = document.createElement("button");
-    logoutBtn.className = "btn-inline btn btn-danger";
-    logoutBtn.type = "button";
-    logoutBtn.textContent = "Logout";
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        await jfetch(API.logout(), { method: "POST" });
-      } catch (_) {
-      } finally {
-        window.location.href = "/ui";
-      }
-    });
-
-    heroActions.appendChild(logoutBtn);
-  }
-
-  function setAuthUi(authenticated, user=null) {
-    isAuthenticated = authenticated;
-
-    const userInfo = document.getElementById("userInfo");
-    const authGate = document.getElementById("authGate");
-    const appContent = document.getElementById("appContent");
-
-    renderHeroActions(authenticated);
-
-    if (authenticated) {
-      authGate.classList.add("hidden");
-      appContent.classList.remove("hidden");
-
-      const orcid = user?.orcid || "unknown ORCID";
-      const name = user?.name ? `${user.name} · ` : "";
-      userInfo.textContent = `Signed in as ${name}${orcid}`;
-    } else {
-      authGate.classList.remove("hidden");
-      appContent.classList.add("hidden");
-      userInfo.textContent = "Not signed in";
-    }
-  }
-
-  async function loadUserInfo() {
-    try {
-      const out = await jfetch(API.me());
-
-      if (out && out.authenticated) setAuthUi(true, out);
-      else setAuthUi(false, null);
-    } catch (_) {
-      setAuthUi(false, null);
-    }
   }
 
   function setLastDraftId(draftId) {
@@ -719,7 +575,6 @@
     const out = await jfetch(API.buildDraft(draftId), { method: "POST" });
     setLastDraftId(draftId);
     await loadDrafts();
-    await loadCrates();
     return out;
   }
 
@@ -744,10 +599,14 @@
   function applyDraftFilters(items) {
     const q = lc(document.getElementById("draftSearchInput").value.trim());
     const status = document.getElementById("draftStatusFilter").value;
+    const typeFilter = document.getElementById("draftTypeFilter").value;
     const sort = document.getElementById("draftSortSelect").value;
 
     let out = items.filter((item) => {
       if (status !== "all" && String(item.status || "") !== status) return false;
+
+      const itemType = item.model_type || "pbpk";
+      if (typeFilter !== "all" && itemType !== typeFilter) return false;
 
       if (!q) return true;
 
@@ -756,6 +615,7 @@
         item.model_version,
         item.draft_id,
         item.status,
+        itemType,
         item.latest_build?.crate_id
       ].map(lc).join(" ");
 
@@ -770,41 +630,6 @@
         case "created_desc": return cmpTime(b.created_at, a.created_at);
         case "name_asc": return cmpText(a.model_name || "Untitled", b.model_name || "Untitled");
         case "name_desc": return cmpText(b.model_name || "Untitled", a.model_name || "Untitled");
-        default: return cmpTime(b.updated_at, a.updated_at);
-      }
-    });
-
-    return out;
-  }
-
-  function applyCrateFilters(items) {
-    const q = lc(document.getElementById("crateSearchInput").value.trim());
-    const metadataState = document.getElementById("crateHasMetadataFilter").value;
-    const sort = document.getElementById("crateSortSelect").value;
-
-    let out = items.filter((item) => {
-      if (metadataState === "with_metadata" && !item.has_rocrate_metadata) return false;
-      if (metadataState === "without_metadata" && item.has_rocrate_metadata) return false;
-
-      if (!q) return true;
-
-      const hay = [
-        item.crate_id,
-        item.owner_orcid,
-        item.crate_dir
-      ].map(lc).join(" ");
-
-      return hay.includes(q);
-    });
-
-    out.sort((a, b) => {
-      switch (sort) {
-        case "updated_asc": return cmpTime(a.updated_at, b.updated_at);
-        case "updated_desc": return cmpTime(b.updated_at, a.updated_at);
-        case "created_asc": return cmpTime(a.created_at, b.created_at);
-        case "created_desc": return cmpTime(b.created_at, a.created_at);
-        case "crate_asc": return cmpText(a.crate_id || "", b.crate_id || "");
-        case "crate_desc": return cmpText(b.crate_id || "", a.crate_id || "");
         default: return cmpTime(b.updated_at, a.updated_at);
       }
     });
@@ -879,10 +704,18 @@
       const head = document.createElement("div");
       head.className = "draft-head";
 
+      const itemType = item.model_type || "pbpk";
+      const typeBadge = itemType === "qaop" ? "qAOP" : "PBPK";
+
       const left = document.createElement("div");
       const title = document.createElement("div");
       title.className = "draft-title";
-      title.textContent = item.model_name || "Untitled PBPK draft";
+
+      const badge = document.createElement("span");
+      badge.className = "type-badge " + itemType;
+      badge.textContent = typeBadge;
+      title.appendChild(badge);
+      title.appendChild(document.createTextNode(item.model_name || "Untitled"));
 
       const sub = document.createElement("div");
       sub.className = "draft-sub";
@@ -923,9 +756,12 @@
       const actions = document.createElement("div");
       actions.className = "draft-actions";
 
+      const editorUrl = itemType === "qaop"
+        ? `/ui/qaop?draft=${encodeURIComponent(item.draft_id)}`
+        : "/ui/pbpk";
       const openBtn = document.createElement("a");
       openBtn.className = "action-btn";
-      openBtn.href = "/ui/pbpk";
+      openBtn.href = editorUrl;
       openBtn.textContent = "Open in editor";
       openBtn.addEventListener("click", () => setLastDraftId(item.draft_id));
       actions.appendChild(openBtn);
@@ -1040,105 +876,6 @@
     root.appendChild(list);
   }
 
-  function renderCrates(items) {
-    const root = document.getElementById("crateRoot");
-    const summary = document.getElementById("crateSummary");
-    root.innerHTML = "";
-
-    summary.textContent = `Showing ${items.length} of ${allCrates.length} crates`;
-
-    if (!Array.isArray(items) || items.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "empty";
-      empty.textContent = "No crates match the current filters.";
-      root.appendChild(empty);
-      return;
-    }
-
-    const list = document.createElement("div");
-    list.className = "crate-list";
-
-    items.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "crate-card";
-
-      const head = document.createElement("div");
-      head.className = "crate-head";
-
-      const left = document.createElement("div");
-      const title = document.createElement("div");
-      title.className = "crate-title";
-      title.textContent = item.crate_id || "Unknown crate";
-
-      const sub = document.createElement("div");
-      sub.className = "crate-sub";
-      sub.textContent = item.owner_orcid ? `Owner: ${item.owner_orcid}` : "No owner";
-      left.appendChild(title);
-      left.appendChild(sub);
-
-      const right = document.createElement("div");
-      right.className = "pill-row";
-
-      const metadataPill = document.createElement("span");
-      metadataPill.className = "pill";
-      metadataPill.textContent = item.has_rocrate_metadata ? "metadata present" : "no metadata";
-      right.appendChild(metadataPill);
-
-      const depositPill = document.createElement("span");
-      depositPill.className = "pill";
-      depositPill.textContent = `${item.deposit_events_count || 0} deposits`;
-      right.appendChild(depositPill);
-
-      head.appendChild(left);
-      head.appendChild(right);
-      card.appendChild(head);
-
-      const kv = document.createElement("div");
-      kv.className = "kv";
-      kv.innerHTML = `
-        <div class="k">Created</div><div>${fmtTs(item.created_at)}</div>
-        <div class="k">Updated</div><div>${fmtTs(item.updated_at)}</div>
-        <div class="k">Events</div><div>${item.events ?? "—"}</div>
-        <div class="k">Crate dir</div><div class="mono">${item.crate_dir || "—"}</div>
-      `;
-      card.appendChild(kv);
-
-      const actions = document.createElement("div");
-      actions.className = "crate-actions";
-
-      const validateBtn = document.createElement("button");
-      validateBtn.className = "action-btn";
-      validateBtn.type = "button";
-      validateBtn.textContent = "Validate";
-      validateBtn.addEventListener("click", async () => {
-        validateBtn.disabled = true;
-        const old = validateBtn.textContent;
-        validateBtn.textContent = "Validating...";
-        try {
-          const out = await jfetch(API.validateCrate(item.crate_id));
-          alert(JSON.stringify(out, null, 2));
-        } catch (e) {
-          alert(String(e));
-        } finally {
-          validateBtn.disabled = false;
-          validateBtn.textContent = old;
-        }
-      });
-      actions.appendChild(validateBtn);
-
-      const downloadBtn = document.createElement("a");
-      downloadBtn.className = "action-btn";
-      downloadBtn.href = API.downloadCrate(item.crate_id);
-      downloadBtn.textContent = "Download";
-      actions.appendChild(downloadBtn);
-
-      card.appendChild(actions);
-      list.appendChild(card);
-    });
-
-    root.appendChild(list);
-  }
-
   function renderDeposits(items) {
     const root = document.getElementById("depositRoot");
     const summary = document.getElementById("depositSummary");
@@ -1227,17 +964,11 @@
     renderDrafts(applyDraftFilters(allDrafts));
   }
 
-  function rerenderCrates() {
-    renderCrates(applyCrateFilters(allCrates));
-  }
-
   function rerenderDeposits() {
     renderDeposits(applyDepositFilters(allDeposits));
   }
 
   async function loadDrafts() {
-    if (!isAuthenticated) return;
-
     const root = document.getElementById("draftRoot");
     const summary = document.getElementById("draftSummary");
     const includeArchived = document.getElementById("draftArchivedFilter").value === "show";
@@ -1254,26 +985,7 @@
     }
   }
 
-  async function loadCrates() {
-    if (!isAuthenticated) return;
-
-    const root = document.getElementById("crateRoot");
-    const summary = document.getElementById("crateSummary");
-    root.innerHTML = `<div class="loading">Loading crates...</div>`;
-    summary.textContent = "";
-    try {
-      const out = await jfetch(API.crates(50));
-      allCrates = out.crates || [];
-      rerenderCrates();
-      cratesLoaded = true;
-    } catch (e) {
-      root.innerHTML = `<div class="error">Could not load crates: ${String(e)}</div>`;
-    }
-  }
-
   async function loadDeposits() {
-    if (!isAuthenticated) return;
-
     const root = document.getElementById("depositRoot");
     const summary = document.getElementById("depositSummary");
     root.innerHTML = `<div class="loading">Loading deposits...</div>`;
@@ -1293,8 +1005,6 @@
   const draftsBody = document.getElementById("recentDraftsBody");
 
   draftsToggleBtn.addEventListener("click", async () => {
-    if (!isAuthenticated) return;
-
     const isOpen = draftsBody.classList.contains("open");
     if (isOpen) {
       draftsBody.classList.remove("open");
@@ -1305,27 +1015,9 @@
     draftsBody.classList.add("open");
     draftsToggleLabel.textContent = "Hide";
 
-    if (!draftsLoaded) await loadDrafts();
-  });
-
-  const cratesToggleBtn = document.getElementById("recentCratesToggle");
-  const cratesToggleLabel = document.getElementById("recentCratesToggleLabel");
-  const cratesBody = document.getElementById("recentCratesBody");
-
-  cratesToggleBtn.addEventListener("click", async () => {
-    if (!isAuthenticated) return;
-
-    const isOpen = cratesBody.classList.contains("open");
-    if (isOpen) {
-      cratesBody.classList.remove("open");
-      cratesToggleLabel.textContent = "Show";
-      return;
+    if (!draftsLoaded) {
+      await loadDrafts();
     }
-
-    cratesBody.classList.add("open");
-    cratesToggleLabel.textContent = "Hide";
-
-    if (!cratesLoaded) await loadCrates();
   });
 
   const depositsToggleBtn = document.getElementById("recentDepositsToggle");
@@ -1333,8 +1025,6 @@
   const depositsBody = document.getElementById("recentDepositsBody");
 
   depositsToggleBtn.addEventListener("click", async () => {
-    if (!isAuthenticated) return;
-
     const isOpen = depositsBody.classList.contains("open");
     if (isOpen) {
       depositsBody.classList.remove("open");
@@ -1345,15 +1035,13 @@
     depositsBody.classList.add("open");
     depositsToggleLabel.textContent = "Hide";
 
-    if (!depositsLoaded) await loadDeposits();
+    if (!depositsLoaded) {
+      await loadDeposits();
+    }
   });
 
   document.getElementById("refreshBtn").addEventListener("click", async () => {
     await loadDrafts();
-  });
-
-  document.getElementById("refreshCratesBtn").addEventListener("click", async () => {
-    await loadCrates();
   });
 
   document.getElementById("refreshDepositsBtn").addEventListener("click", async () => {
@@ -1361,22 +1049,17 @@
   });
 
   document.getElementById("draftSearchInput").addEventListener("input", rerenderDrafts);
+  document.getElementById("draftTypeFilter").addEventListener("change", rerenderDrafts);
   document.getElementById("draftStatusFilter").addEventListener("change", rerenderDrafts);
   document.getElementById("draftSortSelect").addEventListener("change", rerenderDrafts);
   document.getElementById("draftArchivedFilter").addEventListener("change", async () => {
     await loadDrafts();
   });
 
-  document.getElementById("crateSearchInput").addEventListener("input", rerenderCrates);
-  document.getElementById("crateHasMetadataFilter").addEventListener("change", rerenderCrates);
-  document.getElementById("crateSortSelect").addEventListener("change", rerenderCrates);
-
   document.getElementById("depositSearchInput").addEventListener("input", rerenderDeposits);
   document.getElementById("depositEnvFilter").addEventListener("change", rerenderDeposits);
   document.getElementById("depositPublishFilter").addEventListener("change", rerenderDeposits);
   document.getElementById("depositSortSelect").addEventListener("change", rerenderDeposits);
-
-  loadUserInfo();
 </script>
 </body>
 </html>

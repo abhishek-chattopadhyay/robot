@@ -20,6 +20,9 @@ def _widget_for_field(f: Dict[str, Any]) -> str:
             return "multiselect" if card == "many" else "select"
         return "input"
 
+    if vt == "ke_reference":
+        return "ke_select"
+
     if vt == "uri":
         return "multi_url" if card == "many" else "url"
 

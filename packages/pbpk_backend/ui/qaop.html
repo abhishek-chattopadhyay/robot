@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>qAOP Editor - ROBOT</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; }
+    body { margin: 0; background: #f6f7f9; color: #111; }
+    header { background: #111827; color: #fff; padding: 14px 18px; position: sticky; top: 0; z-index: 10; }
+    header .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+    header a { color: #93c5fd; text-decoration: none; font-size: 13px; }
+    header a:hover { text-decoration: underline; }
+    header button { border: 0; border-radius: 10px; padding: 9px 12px; cursor: pointer; font-weight: 600; }
+    header button.primary { background: #10b981; color: #071018; }
+    header button.secondary { background: #374151; color: #fff; }
+    .status { margin-left: auto; font-size: 12px; opacity: .9; color: #fff; }
+    main { max-width: 1100px; margin: 16px auto; padding: 0 14px 60px; }
+
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.05); margin: 14px 0; overflow: hidden; }
+    .card h2 { margin: 0; padding: 14px 14px 6px; font-size: 16px; }
+    .card .desc { padding: 0 14px 12px; font-size: 13px; color: #374151; }
+    .fields { padding: 0 14px 14px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .field { border: 1px solid #eef0f3; border-radius: 12px; padding: 12px; background: #fcfcfd; }
+    .field label { display: block; font-weight: 650; font-size: 13px; margin-bottom: 6px; }
+    .field .help-text { font-size: 12px; color: #6b7280; margin: 6px 0 0; display: block; }
+    .req { color: #b91c1c; font-weight: 700; margin-left: 6px; }
+
+    input[type=text], input[type=number], textarea, select {
+      width: 100%; box-sizing: border-box; padding: 10px; border-radius: 10px;
+      border: 1px solid #d1d5db; background: #fff; font-size: 14px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+
+    .group { background: #fff; border: 1px dashed #d1d5db; border-radius: 12px; padding: 10px; }
+    .group-item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; margin: 10px 0; background: #fff; }
+    .group-item .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .group-item .toolbar .title { font-weight: 700; font-size: 13px; color: #111827; }
+
+    .smallbtn { border: 0; border-radius: 10px; padding: 8px 10px; cursor: pointer; font-weight: 650; background: #111827; color: #fff; }
+    .smallbtn.gray { background: #6b7280; }
+    .smallbtn.red { background: #ef4444; }
+
+    /* MIE styling */
+    .mie-section { border-left: 4px solid #3b82f6; }
+    .mie-section h2 { color: #1d4ed8; }
+    /* AO styling */
+    .ao-section { border-left: 4px solid #ef4444; }
+    .ao-section h2 { color: #b91c1c; }
+    /* KE styling */
+    .ke-section { border-left: 4px solid #6b7280; }
+    /* KER styling */
+    .ker-section { border-left: 4px solid #8b5cf6; }
+    .ker-section h2 { color: #6d28d9; }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; }
+    .pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; color: #111827; background: #f3f4f6; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; max-height: 400px; overflow: auto; }
+
+    /* Collapsible nested sections */
+    details summary.collapsible-label {
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 13px;
+      padding: 8px 0;
+      user-select: none;
+      list-style: disclosure-closed;
+    }
+    details[open] summary.collapsible-label {
+      list-style: disclosure-open;
+      margin-bottom: 8px;
+    }
+    details summary.collapsible-label:hover {
+      color: #6d28d9;
+    }
+
+    .toast { position: fixed; right: 12px; bottom: 12px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 12px; font-size: 13px; opacity: 0; transform: translateY(10px); transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row">
+      <h1>qAOP Editor - ROBOT</h1>
+      <a href="/ui">Back to Dashboard</a>
+      <button id="btnShowJson" class="secondary">Show JSON</button>
+      <span class="status" id="status">Loading...</span>
+    </div>
+  </header>
+
+  <main>
+    <div id="formRoot"></div>
+
+    <div id="jsonCard" class="card" style="display:none;">
+      <h2>Form Data (JSON)</h2>
+      <div class="fields">
+        <div class="field">
+          <pre id="jsonOutput" class="pre mono"></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="/ui/qaop.js"></script>
+</body>
+</html>

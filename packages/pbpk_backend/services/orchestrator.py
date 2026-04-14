@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from pbpk_backend.rocrate_builder import build_rocrate_from_pbpk_metadata
+from pbpk_backend.qaop_rocrate_builder import build_rocrate_from_qaop_metadata
 from pbpk_deposition.base import get_depositor
 from pbpk_validation.validator import validate_pbpk_metadata, validate_pbpk_rocrate
+from qaop_validation.validator import validate_qaop_metadata
 import pbpk_deposition.zenodo  # noqa: F401
 
 @dataclass
@@ -29,29 +31,40 @@ def _new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:12]}"
 
 
-def validate_metadata(cfg: OrchestratorConfig, pbpk_metadata: Dict[str, Any]) -> Dict[str, Any]:
-    errors, warnings = validate_pbpk_metadata(pbpk_metadata, schema_path=cfg.schema_path)
+def validate_metadata(cfg: OrchestratorConfig, metadata: Dict[str, Any], *, model_type: str = "pbpk") -> Dict[str, Any]:
+    if model_type == "qaop":
+        errors, warnings = validate_qaop_metadata(metadata, schema_path=cfg.schema_path)
+    else:
+        errors, warnings = validate_pbpk_metadata(metadata, schema_path=cfg.schema_path)
     return {"ok": len(errors) == 0, "errors": errors, "warnings": warnings}
 
 
 def build_crate(
     cfg: OrchestratorConfig,
-    pbpk_metadata: Dict[str, Any],
+    metadata: Dict[str, Any],
     *,
+    model_type: str = "pbpk",
     source_files_dir: Optional[Path] = None,
 ) -> Dict[str, Any]:
     crate_id = _new_id("crate")
     crate_dir = (cfg.data_root / "crates" / crate_id).resolve()
     crate_dir.mkdir(parents=True, exist_ok=True)
 
-    _write_json(crate_dir / "pbpk-metadata.json", pbpk_metadata)
-
-    res = build_rocrate_from_pbpk_metadata(
-        pbpk_metadata=pbpk_metadata,
-        crate_dir=crate_dir,
-        template_path=cfg.template_path,
-        source_files_dir=source_files_dir,
-    )
+    if model_type == "qaop":
+        _write_json(crate_dir / "qaop-metadata.json", metadata)
+        res = build_rocrate_from_qaop_metadata(
+            qaop_metadata=metadata,
+            crate_dir=crate_dir,
+            template_path=cfg.template_path,
+        )
+    else:
+        _write_json(crate_dir / "pbpk-metadata.json", metadata)
+        res = build_rocrate_from_pbpk_metadata(
+            pbpk_metadata=metadata,
+            crate_dir=crate_dir,
+            template_path=cfg.template_path,
+            source_files_dir=source_files_dir,
+        )
 
     rocrate_obj = json.loads((crate_dir / "ro-crate-metadata.json").read_text(encoding="utf-8"))
     c_errors, c_warnings = validate_pbpk_rocrate(rocrate_obj, crate_dir=crate_dir)

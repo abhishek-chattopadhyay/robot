@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 
+from pbpk_backend.api._config import cfg
 from pbpk_backend.api.auth import get_current_user
 from pbpk_backend.models.user import User
-from pbpk_backend.services.orchestrator import OrchestratorConfig
 from pbpk_backend.services import drafts as draft_svc
 from pbpk_backend.services.draft_apply import (
     apply_patch_to_draft,
@@ -19,23 +17,13 @@ from pbpk_backend.services.draft_apply import (
 router = APIRouter(prefix="/v1/drafts", tags=["drafts"])
 
 
-def _cfg() -> OrchestratorConfig:
-    repo_root = Path(__file__).resolve().parents[3]
-    data_root = Path(os.environ.get("PBPK_DATA_ROOT", str(repo_root / "var"))).resolve()
-
-    schema_path = repo_root / "packages" / "pbpk_validation" / "schemas" / "pbpk-metadata.schema.json"
-    template_path = repo_root / "packages" / "pbpk-metadata-spec" / "jsonld" / "pbpk-core-template.jsonld"
-
-    return OrchestratorConfig(
-        data_root=data_root,
-        schema_path=schema_path,
-        template_path=template_path,
-    )
+def _cfg(model_type: str = "pbpk"):
+    return cfg(model_type)
 
 
-def _assert_owner(cfg: OrchestratorConfig, draft_id: str, user: User) -> None:
+def _assert_owner(cfg_obj, draft_id: str, user: User) -> None:
     try:
-        draft_svc.require_draft_owner(cfg, draft_id=draft_id, owner_orcid=user.orcid)
+        draft_svc.require_draft_owner(cfg_obj, draft_id=draft_id, owner_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except PermissionError:
@@ -47,7 +35,8 @@ def api_create_draft(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
+    model_type = body.get("model_type", "pbpk")
+    cfg_obj = _cfg(model_type)
 
     if "metadata" in body:
         metadata = body.get("metadata")
@@ -61,10 +50,11 @@ def api_create_draft(
 
     try:
         return draft_svc.create_draft(
-            cfg,
+            cfg_obj,
             metadata=metadata,
             upload_id=upload_id,
             owner_orcid=user.orcid,
+            model_type=model_type,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -75,11 +65,12 @@ def api_get_draft(
     draft_id: str,
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
 
     try:
-        return draft_svc.get_draft(cfg, draft_id=draft_id)
+        env = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+        return env
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -92,8 +83,10 @@ def api_replace_draft(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     if "metadata" in body:
         metadata = body.get("metadata")
@@ -107,7 +100,7 @@ def api_replace_draft(
 
     try:
         return draft_svc.replace_draft(
-            cfg,
+            cfg_obj,
             draft_id=draft_id,
             metadata=metadata,
             upload_id=upload_id,
@@ -125,15 +118,17 @@ def api_patch_draft(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     patch = body.get("patch")
     if not isinstance(patch, list):
         raise HTTPException(status_code=400, detail="patch must be a list of operations")
 
     try:
-        return draft_svc.patch_draft(cfg, draft_id=draft_id, patch_ops=patch, actor_orcid=user.orcid)
+        return draft_svc.patch_draft(cfg_obj, draft_id=draft_id, patch_ops=patch, actor_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -145,11 +140,13 @@ def api_validate_draft(
     draft_id: str,
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     try:
-        return draft_svc.validate_draft(cfg, draft_id=draft_id, actor_orcid=user.orcid)
+        return draft_svc.validate_draft(cfg_obj, draft_id=draft_id, actor_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -161,11 +158,13 @@ def api_build_from_draft(
     draft_id: str,
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     try:
-        envelope, build_result = draft_svc.build_from_draft(cfg, draft_id=draft_id, actor_orcid=user.orcid)
+        envelope, build_result = draft_svc.build_from_draft(cfg_obj, draft_id=draft_id, actor_orcid=user.orcid)
         return {"ok": True, "draft": envelope, "build": build_result}
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -179,15 +178,17 @@ def api_apply_patch(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     patch = body.get("patch")
     if not isinstance(patch, list):
         raise HTTPException(status_code=400, detail="patch must be a list of operations")
 
     try:
-        return apply_patch_to_draft(cfg, draft_id=draft_id, patch_ops=patch)
+        return apply_patch_to_draft(cfg_obj, draft_id=draft_id, patch_ops=patch)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -200,15 +201,17 @@ def api_apply_edits(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
     edits = body.get("edits")
     if not isinstance(edits, dict):
         raise HTTPException(status_code=400, detail="edits must be a JSON object")
 
     try:
-        return apply_edits_to_draft(cfg, draft_id=draft_id, edits=edits)
+        return apply_edits_to_draft(cfg_obj, draft_id=draft_id, edits=edits)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")
     except Exception as e:
@@ -221,29 +224,29 @@ def api_apply_array(
     body: Dict[str, Any] = Body(...),
     user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    cfg = _cfg()
-    _assert_owner(cfg, draft_id, user)
+    base_cfg = _cfg()
+    _assert_owner(base_cfg, draft_id, user)
+    current = draft_svc.get_draft(base_cfg, draft_id=draft_id)
+    cfg_obj = _cfg(current.get("model_type", "pbpk"))
 
-    array_path: Optional[str] = body.get("array_path")
-    action: Optional[str] = body.get("action")
-    value = body.get("value", None)
-    index = body.get("index", None)
+    array_path = body.get("array_path")
+    action = body.get("action")
+    index = body.get("index")
+    value = body.get("value")
 
-    if not isinstance(array_path, str) or not array_path.startswith("/"):
-        raise HTTPException(status_code=400, detail="array_path must be a JSON pointer starting with '/'")
+    if not isinstance(array_path, str) or not array_path:
+        raise HTTPException(status_code=400, detail="array_path must be a non-empty string")
     if not isinstance(action, str) or not action:
-        raise HTTPException(status_code=400, detail="action is required")
-    if index is not None and not isinstance(index, int):
-        raise HTTPException(status_code=400, detail="index must be an integer")
+        raise HTTPException(status_code=400, detail="action must be a non-empty string")
 
     try:
         return apply_array_op_to_draft(
-            cfg,
+            cfg_obj,
             draft_id=draft_id,
             array_path=array_path,
             action=action,
-            value=value,
             index=index,
+            value=value,
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Draft not found: {draft_id}")

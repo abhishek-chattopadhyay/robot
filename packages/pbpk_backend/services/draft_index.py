@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
+def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _safe_read_json(path: Path) -> Dict[str, Any]:
+def _safe_read_json(path: Path) -> dict[str, Any]:
     try:
         return _read_json(path)
     except Exception:
@@ -21,12 +21,13 @@ def list_drafts_with_activity(
     data_root: Path,
     limit: int = 20,
     include_archived: bool = False,
-) -> List[Dict[str, Any]]:
+    owner_orcid: str | None = None,
+) -> list[dict[str, Any]]:
     drafts_root = (data_root / "drafts").resolve()
     if not drafts_root.exists():
         return []
 
-    items: List[Dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
 
     for draft_dir in drafts_root.iterdir():
         if not draft_dir.is_dir():
@@ -40,6 +41,10 @@ def list_drafts_with_activity(
 
         draft_obj = _safe_read_json(draft_json)
         audit_obj = _safe_read_json(audit_json)
+
+        # Critical: enforce owner scoping here
+        if owner_orcid is not None and draft_obj.get("owner_orcid") != owner_orcid:
+            continue
 
         draft_id = draft_obj.get("draft_id") or draft_dir.name
         status = draft_obj.get("status")
@@ -59,7 +64,7 @@ def list_drafts_with_activity(
             if not isinstance(identity, dict):
                 identity = {}
             model_name = identity.get("title")
-            model_version = None
+            model_version = identity.get("version")
         else:
             gmi = metadata.get("general_model_information") or {}
             if not isinstance(gmi, dict):
@@ -71,7 +76,7 @@ def list_drafts_with_activity(
         if not isinstance(events, list):
             events = []
 
-        latest_build: Optional[Dict[str, Any]] = None
+        latest_build: dict[str, Any] | None = None
         for ev in reversed(events):
             if not isinstance(ev, dict):
                 continue
@@ -92,6 +97,7 @@ def list_drafts_with_activity(
                 "model_type": model_type,
                 "status": status,
                 "upload_id": upload_id,
+                "owner_orcid": draft_obj.get("owner_orcid"),
                 "model_name": model_name,
                 "model_version": model_version,
                 "updated_at": audit_obj.get("updated_at"),

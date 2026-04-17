@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI
 
+from pbpk_backend.api.orchestrator import router as orchestrator_router
 from pbpk_backend.api.auth import router as auth_router
 from pbpk_backend.api.ai import router as ai_router
 from pbpk_backend.api.form_spec import router as form_spec_router
@@ -17,7 +18,6 @@ from pbpk_backend.api.draft_activity import router as draft_activity_router
 from pbpk_backend.api.draft_index import router as draft_index_router
 from pbpk_backend.api.deposit_index import router as deposit_index_router
 from pbpk_backend.api.draft_lifecycle import router as draft_lifecycle_router
-from pbpk_backend.api.orchestrator import router as orchestrator_router
 from pbpk_backend.middleware.auth_middleware import auth_middleware_factory
 
 app = FastAPI(title="PBPK FAIR Platform API (v1)")

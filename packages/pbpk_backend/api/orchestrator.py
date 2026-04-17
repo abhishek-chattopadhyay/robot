@@ -1,26 +1,25 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-
 import shutil
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, Body, HTTPException, UploadFile, File, Form, Depends
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
-from pbpk_backend.services.audit import (
-    AuditContext,
-    audit_upload_event,
-    audit_crate_event,
-    audit_deposit_event_jsonl,
-)
 from pbpk_backend.api._config import cfg
 from pbpk_backend.api.auth import get_current_user
 from pbpk_backend.models.user import User
-from pbpk_backend.services.crate_index import list_crates, require_crate_owner
+from pbpk_backend.services.audit import (
+    AuditContext,
+    audit_crate_event,
+    audit_deposit_event_jsonl,
+    audit_upload_event,
+)
+from pbpk_backend.services.crate_index import require_crate_owner
 from pbpk_backend.services.orchestrator import (
     OrchestratorConfig,
     build_crate,
@@ -28,9 +27,6 @@ from pbpk_backend.services.orchestrator import (
     validate_crate,
     validate_metadata,
 )
-
-from pbpk_backend.services.drafts import create_draft, get_draft, replace_draft, validate_draft, build_from_draft
-from pbpk_backend.services.drafts import patch_draft
 
 router = APIRouter(prefix="/v1", tags=["pbpk-orchestrator"])
 
@@ -83,9 +79,9 @@ def _walk_files(root: Path) -> list[Dict[str, Any]]:
     return out
 
 
-def _assert_crate_owner(c: OrchestratorConfig, crate_id: str, user: User) -> None:
+def _assert_crate_owner(cfg_obj: OrchestratorConfig, crate_id: str, user: User) -> None:
     try:
-        require_crate_owner(data_root=c.data_root, crate_id=crate_id, owner_orcid=user.orcid)
+        require_crate_owner(data_root=cfg_obj.data_root, crate_id=crate_id, owner_orcid=user.orcid)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Crate not found")
     except PermissionError:
@@ -180,121 +176,23 @@ def api_get_upload(upload_id: str) -> Dict[str, Any]:
     }
 
 
-@router.post("/drafts")
-def api_create_draft(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    model_type = body.get("model_type", "pbpk")
-    c = _cfg(model_type)
-
-    if "metadata" in body:
-        metadata = body["metadata"]
-        upload_id = body.get("upload_id")
-    else:
-        metadata = {k: v for k, v in body.items() if k not in ("model_type",)}
-        upload_id = None
-
-    if not isinstance(metadata, dict):
-        raise HTTPException(status_code=400, detail="metadata must be a JSON object")
-
-    return create_draft(c, metadata=metadata, upload_id=upload_id, model_type=model_type)
-
-
-@router.get("/drafts/{draft_id}")
-def api_get_draft(draft_id: str) -> Dict[str, Any]:
-    cfg_obj = _cfg()
-    try:
-        return get_draft(cfg_obj, draft_id=draft_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-
-
-@router.put("/drafts/{draft_id}")
-def api_replace_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    cfg_obj = _cfg()
-
-    if "metadata" in body:
-        metadata = body["metadata"]
-        upload_id = body.get("upload_id")
-    else:
-        metadata = body
-        upload_id = None
-
-    if not isinstance(metadata, dict):
-        raise HTTPException(status_code=400, detail="metadata must be a JSON object")
-
-    try:
-        return replace_draft(cfg_obj, draft_id=draft_id, metadata=metadata, upload_id=upload_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-
-
-@router.post("/drafts/{draft_id}/validate")
-def api_validate_draft(draft_id: str) -> Dict[str, Any]:
-    base_cfg = _cfg()
-    try:
-        draft_env = get_draft(base_cfg, draft_id=draft_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-    model_type = draft_env.get("model_type", "pbpk")
-    c = _cfg(model_type)
-    try:
-        return validate_draft(c, draft_id=draft_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@router.post("/drafts/{draft_id}/build")
-def api_build_from_draft(draft_id: str) -> Dict[str, Any]:
-    base_cfg = _cfg()
-    try:
-        draft_env = get_draft(base_cfg, draft_id=draft_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-    model_type = draft_env.get("model_type", "pbpk")
-    c = _cfg(model_type)
-    try:
-        envelope, build_result = build_from_draft(c, draft_id=draft_id)
-    except FileNotFoundError as e:
-        msg = str(e)
-        if msg.startswith("upload_id not found"):
-            raise HTTPException(status_code=404, detail=msg)
-        raise HTTPException(status_code=404, detail="draft not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    return {"ok": True, "draft": envelope, "build": build_result}
-
-
-@router.patch("/drafts/{draft_id}")
-def api_patch_draft(draft_id: str, body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    cfg_obj = _cfg()
-    ops = body.get("patch")
-    if not isinstance(ops, list):
-        raise HTTPException(status_code=400, detail="body.patch must be a list of JSON Patch operations")
-
-    try:
-        return patch_draft(cfg_obj, draft_id=draft_id, patch_ops=ops)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="draft not found")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
 @router.post("/metadata/validate")
 def api_validate_metadata(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
     model_type = body.get("model_type", "pbpk")
-    c = _cfg(model_type)
+    cfg_obj = _cfg(model_type)
     payload = body["metadata"] if "metadata" in body else body
     if not isinstance(payload, dict):
         raise HTTPException(status_code=400, detail="metadata must be a JSON object")
-    return validate_metadata(c, payload, model_type=model_type)
+    return validate_metadata(cfg_obj, payload, model_type=model_type)
 
 
 @router.post("/rocrate/build")
-def api_build_rocrate(body: Dict[str, Any] = Body(...), user: User = Depends(get_current_user)) -> Dict[str, Any]:
+def api_build_rocrate(
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     model_type = body.get("model_type", "pbpk")
-    c = _cfg(model_type)
+    cfg_obj = _cfg(model_type)
 
     if "metadata" in body:
         payload = body["metadata"]
@@ -308,23 +206,23 @@ def api_build_rocrate(body: Dict[str, Any] = Body(...), user: User = Depends(get
 
     source_dir = None
     if upload_id:
-        source_dir = (c.data_root / "uploads" / upload_id).resolve()
+        source_dir = (cfg_obj.data_root / "uploads" / upload_id).resolve()
         if not source_dir.exists():
             raise HTTPException(status_code=404, detail="upload_id not found")
 
-    out = build_crate(c, payload, model_type=model_type, source_files_dir=source_dir)
+    out = build_crate(cfg_obj, payload, model_type=model_type, source_files_dir=source_dir)
 
     if upload_id:
         out["upload_id"] = upload_id
         audit_upload_event(
-            AuditContext(c.data_root),
+            AuditContext(cfg_obj.data_root),
             upload_id=upload_id,
             action="build_crate_from_upload",
             details={"crate_id": out["crate_id"], "crate_dir": out.get("crate_dir")},
         )
 
     audit_crate_event(
-        AuditContext(c.data_root),
+        AuditContext(cfg_obj.data_root),
         crate_id=out["crate_id"],
         action="build_crate",
         details={
@@ -340,17 +238,27 @@ def api_build_rocrate(body: Dict[str, Any] = Body(...), user: User = Depends(get
 
 
 @router.get("/crates")
-def api_list_crates(limit: int = 50, user: User = Depends(get_current_user)) -> Dict[str, Any]:
-    c = _cfg()
-    items = list_crates(data_root=c.data_root, limit=limit, owner_orcid=user.orcid)
+def api_list_crates(limit: int = 50) -> Dict[str, Any]:
+    cfg_obj = _cfg()
+    crates_root = (cfg_obj.data_root / "crates").resolve()
+    items = []
+    for d in _list_dirs_sorted_by_mtime(crates_root)[: max(1, min(limit, 500))]:
+        audit = _safe_read_json(d / "audit.json")
+        items.append(
+            {
+                "crate_id": d.name,
+                "crate_dir": str(d),
+                "mtime": datetime.fromtimestamp(d.stat().st_mtime).isoformat(),
+                "events": len((audit.get("events") or [])) if isinstance(audit, dict) else 0,
+            }
+        )
     return {"ok": True, "crates": items}
 
 
 @router.get("/crates/{crate_id}")
-def api_get_crate(crate_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
-    c = _cfg()
-    _assert_crate_owner(c, crate_id, user)
-    crate_dir = (c.data_root / "crates" / crate_id).resolve()
+def api_get_crate(crate_id: str) -> Dict[str, Any]:
+    cfg_obj = _cfg()
+    crate_dir = (cfg_obj.data_root / "crates" / crate_id).resolve()
     if not crate_dir.exists():
         raise HTTPException(status_code=404, detail="Crate not found")
 
@@ -391,21 +299,19 @@ def api_get_crate(crate_id: str, user: User = Depends(get_current_user)) -> Dict
 
 
 @router.get("/rocrate/{crate_id}/validate")
-def api_validate_rocrate(crate_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
-    c = _cfg()
-    _assert_crate_owner(c, crate_id, user)
-    return validate_crate(c, crate_id)
+def api_validate_rocrate(crate_id: str) -> Dict[str, Any]:
+    cfg_obj = _cfg()
+    return validate_crate(cfg_obj, crate_id)
 
 
 @router.get("/rocrate/{crate_id}/download")
-def api_download_rocrate(crate_id: str, user: User = Depends(get_current_user)):
-    c = _cfg()
-    _assert_crate_owner(c, crate_id, user)
-    crate_dir = (c.data_root / "crates" / crate_id).resolve()
+def api_download_rocrate(crate_id: str):
+    cfg_obj = _cfg()
+    crate_dir = (cfg_obj.data_root / "crates" / crate_id).resolve()
     if not crate_dir.exists():
         raise HTTPException(status_code=404, detail="Crate not found")
 
-    zip_dir = (c.data_root / "tmp_zips").resolve()
+    zip_dir = (cfg_obj.data_root / "tmp_zips").resolve()
     zip_dir.mkdir(parents=True, exist_ok=True)
 
     zip_base = zip_dir / crate_id
@@ -424,7 +330,11 @@ def api_download_rocrate(crate_id: str, user: User = Depends(get_current_user)):
 
 
 @router.post("/deposit/{platform}")
-def api_deposit(platform: str, body: Dict[str, Any] = Body(...), user: User = Depends(get_current_user)) -> Dict[str, Any]:
+def api_deposit(
+    platform: str,
+    body: Dict[str, Any] = Body(...),
+    user: User = Depends(get_current_user),
+) -> Dict[str, Any]:
     cfg_obj = _cfg()
 
     crate_id = body.get("crate_id")

@@ -19,7 +19,7 @@ from pbpk_backend.services.audit import (
     audit_deposit_event_jsonl,
     audit_upload_event,
 )
-from pbpk_backend.services.crate_index import require_crate_owner
+from pbpk_backend.services.crate_index import list_crates, require_crate_owner
 from pbpk_backend.services.orchestrator import (
     OrchestratorConfig,
     build_crate,
@@ -238,26 +238,17 @@ def api_build_rocrate(
 
 
 @router.get("/crates")
-def api_list_crates(limit: int = 50) -> Dict[str, Any]:
+def api_list_crates(limit: int = 50, user: User = Depends(get_current_user)) -> Dict[str, Any]:
     cfg_obj = _cfg()
-    crates_root = (cfg_obj.data_root / "crates").resolve()
-    items = []
-    for d in _list_dirs_sorted_by_mtime(crates_root)[: max(1, min(limit, 500))]:
-        audit = _safe_read_json(d / "audit.json")
-        items.append(
-            {
-                "crate_id": d.name,
-                "crate_dir": str(d),
-                "mtime": datetime.fromtimestamp(d.stat().st_mtime).isoformat(),
-                "events": len((audit.get("events") or [])) if isinstance(audit, dict) else 0,
-            }
-        )
+    items = list_crates(data_root=cfg_obj.data_root, limit=limit, owner_orcid=user.orcid)
     return {"ok": True, "crates": items}
 
 
 @router.get("/crates/{crate_id}")
-def api_get_crate(crate_id: str) -> Dict[str, Any]:
+def api_get_crate(crate_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
     cfg_obj = _cfg()
+    _assert_crate_owner(cfg_obj, crate_id, user)
+
     crate_dir = (cfg_obj.data_root / "crates" / crate_id).resolve()
     if not crate_dir.exists():
         raise HTTPException(status_code=404, detail="Crate not found")
@@ -299,14 +290,17 @@ def api_get_crate(crate_id: str) -> Dict[str, Any]:
 
 
 @router.get("/rocrate/{crate_id}/validate")
-def api_validate_rocrate(crate_id: str) -> Dict[str, Any]:
+def api_validate_rocrate(crate_id: str, user: User = Depends(get_current_user)) -> Dict[str, Any]:
     cfg_obj = _cfg()
+    _assert_crate_owner(cfg_obj, crate_id, user)
     return validate_crate(cfg_obj, crate_id)
 
 
 @router.get("/rocrate/{crate_id}/download")
-def api_download_rocrate(crate_id: str):
+def api_download_rocrate(crate_id: str, user: User = Depends(get_current_user)):
     cfg_obj = _cfg()
+    _assert_crate_owner(cfg_obj, crate_id, user)
+
     crate_dir = (cfg_obj.data_root / "crates" / crate_id).resolve()
     if not crate_dir.exists():
         raise HTTPException(status_code=404, detail="Crate not found")

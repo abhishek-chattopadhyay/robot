@@ -6,72 +6,53 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse, Response
 
-router = APIRouter(prefix="/ui", tags=["pbpk-ui"])
+router = APIRouter(prefix="/ui", tags=["ui"])
 
 
 def _repo_root() -> Path:
-    # .../packages/pbpk_backend/api/ui.py -> repo root
     return Path(__file__).resolve().parents[3]
+
+
+def _static_dir() -> Path:
+    return _repo_root() / "packages" / "pbpk_backend" / "static"
+
+
+def _read_text(path: Path) -> str:
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"UI asset not found: {path}")
+    return path.read_text(encoding="utf-8")
 
 
 @router.get("", response_class=HTMLResponse)
 @router.get("/", response_class=HTMLResponse)
 def ui_index() -> HTMLResponse:
-    """Dashboard — serves the original static landing page."""
-    root = _repo_root()
-    html_path = root / "packages" / "pbpk_backend" / "static" / "index.html"
-    if not html_path.exists():
-        raise HTTPException(status_code=404, detail=f"Dashboard not found: {html_path}")
-    return HTMLResponse(html_path.read_text(encoding="utf-8"))
+    html_path = _static_dir() / "index.html"
+    return HTMLResponse(_read_text(html_path))
 
 
 @router.get("/pbpk", response_class=HTMLResponse)
 def ui_pbpk() -> HTMLResponse:
-    """PBPK metadata editor — serves from original static directory."""
-    root = _repo_root()
-    html_path = root / "packages" / "pbpk_backend" / "static" / "pbpk-form.html"
-    if not html_path.exists():
-        raise HTTPException(status_code=404, detail=f"PBPK UI not found: {html_path}")
-    return HTMLResponse(html_path.read_text(encoding="utf-8"))
+    html_path = _static_dir() / "pbpk-form.html"
+    return HTMLResponse(_read_text(html_path))
 
 
 @router.get("/qaop", response_class=HTMLResponse)
 def ui_qaop() -> HTMLResponse:
-    """qAOP metadata editor."""
-    root = _repo_root()
-    html_path = root / "packages" / "pbpk_backend" / "ui" / "qaop.html"
-    if not html_path.exists():
-        raise HTTPException(status_code=404, detail=f"qAOP UI not found: {html_path}")
-    return HTMLResponse(html_path.read_text(encoding="utf-8"))
+    html_path = _static_dir() / "qaop-form.html"
+    return HTMLResponse(_read_text(html_path))
 
 
 @router.get("/qaop.js")
 def ui_qaop_js() -> Response:
-    root = _repo_root()
-    js_path = root / "packages" / "pbpk_backend" / "ui" / "qaop.js"
-    if not js_path.exists():
-        raise HTTPException(status_code=404, detail=f"qAOP JS not found: {js_path}")
-    return Response(js_path.read_text(encoding="utf-8"), media_type="application/javascript")
-
-
-@router.get("/pbpk.js")
-def ui_js() -> Response:
-    root = _repo_root()
-    js_path = root / "packages" / "pbpk_backend" / "ui" / "pbpk.js"
-    if not js_path.exists():
-        raise HTTPException(status_code=404, detail=f"UI JS not found: {js_path}")
-    return Response(js_path.read_text(encoding="utf-8"), media_type="application/javascript")
+    js_path = _static_dir() / "qaop.js"
+    return Response(_read_text(js_path), media_type="application/javascript")
 
 
 @router.get("/example/pbpk-metadata.json")
 def ui_example_metadata() -> Response:
-    """
-    Serves the example metadata file to the UI.
-    """
     root = _repo_root()
     ex = root / "examples" / "minimal-pbpk-metadata" / "pbpk-metadata.json"
     if not ex.exists():
         raise HTTPException(status_code=404, detail=f"Example not found: {ex}")
-    # Validate JSON to avoid serving broken file
     obj = json.loads(ex.read_text(encoding="utf-8"))
     return Response(json.dumps(obj, indent=2) + "\n", media_type="application/json")
